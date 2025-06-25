@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Moreta Fitness{% endblock %}
+
+{% block content %}
+<!-- Login Area Start -->
+<section class="contact-section section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-tittle text-center mb-100">
+                    <span>WELCOME BACK</span>
+                    <h2>Login to Your Account</h2>
+                    <p>Access your personalized fitness dashboard</p>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="contact-form-area">
+                    <form method="post" class="contact-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_username">Username</label>
+                            <input type="text" name="username" id="id_username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_password">Password</label>
+                            <input type="password" name="password" id="id_password" class="form-control" required>
+                        </div>
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <p>Your username and password didn't match. Please try again.</p>
+                            </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <button type="submit" class="btn hero-btn btn-block">Login</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p>Don't have an account? <a href="{% url 'register' %}" class="text-primary">Register here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Login Area End -->
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-form-area {
+        background: #fff;
+        padding: 50px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .form-group {
+        margin-bottom: 25px;
+    }
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+    }
+    .btn-block {
+        width: 100%;
+    }
+</style>
+{% endblock %} 

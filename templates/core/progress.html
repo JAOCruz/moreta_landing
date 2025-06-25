@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Progress Tracking - Moreta Fitness{% endblock %}
+
+{% block content %}
+<!-- Progress Area Start -->
+<section class="section-padding" style="min-height: 100vh; padding-bottom: 100px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="section-tittle text-center mb-100">
+                    <h2>Track Your Progress</h2>
+                    <p>Monitor your fitness journey and celebrate your achievements</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Progress Form -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+                <div class="contact-form-area">
+                    <h3 class="mb-4">Add New Progress Entry</h3>
+                    <form method="post" class="contact-form">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="{{ form.date.id_for_label }}">Date</label>
+                                    {{ form.date.as_widget|safe }}
+                                    {% if form.date.errors %}
+                                        <div class="text-danger">{{ form.date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="{{ form.weight.id_for_label }}">Weight (lbs)</label>
+                                    {{ form.weight }}
+                                    {% if form.weight.errors %}
+                                        <div class="text-danger">{{ form.weight.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div class="form-check mb-2">
+                                        {{ form.enable_body_fat }}
+                                        <label class="form-check-label" for="{{ form.enable_body_fat.id_for_label }}">Track Body Fat %</label>
+                                    </div>
+                                    <label for="{{ form.body_fat_percentage.id_for_label }}">Body Fat Percentage</label>
+                                    {{ form.body_fat_percentage }}
+                                    {% if form.body_fat_percentage.errors %}
+                                        <div class="text-danger">{{ form.body_fat_percentage.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div class="form-check mb-2">
+                                        {{ form.enable_muscle_mass }}
+                                        <label class="form-check-label" for="{{ form.enable_muscle_mass.id_for_label }}">Track Muscle Mass (lbs)</label>
+                                    </div>
+                                    <label for="{{ form.muscle_mass.id_for_label }}">Muscle Mass (lbs)</label>
+                                    {{ form.muscle_mass }}
+                                    {% if form.muscle_mass.errors %}
+                                        <div class="text-danger">{{ form.muscle_mass.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="{{ form.strength.id_for_label }}">Strength</label>
+                                    {{ form.strength }}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="{{ form.energy.id_for_label }}">Energy</label>
+                                    {{ form.energy }}
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label for="{{ form.notes.id_for_label }}">Notes</label>
+                                    {{ form.notes }}
+                                    {% if form.notes.errors %}
+                                        <div class="text-danger">{{ form.notes.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <button type="submit" class="btn hero-btn">Add Progress Entry</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress History -->
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="section-tittle">
+                    <h3>Progress History</h3>
+                </div>
+                {% if progress_entries %}
+                    <div class="table-responsive" style="margin-bottom: 50px;">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Weight (lbs)</th>
+                                    <th>Body Fat %</th>
+                                    <th>Muscle Mass (lbs)</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for progress in progress_entries %}
+                                <tr>
+                                    <td>{{ progress.date }}</td>
+                                    <td>{{ progress.weight|default:"-" }} lbs</td>
+                                    <td>{{ progress.body_fat_percentage|default:"-" }}%</td>
+                                    <td>{{ progress.muscle_mass|default:"-" }} lbs</td>
+                                    <td>{{ progress.notes|truncatewords:10|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center" style="margin-bottom: 50px;">
+                        <p class="text-muted">No progress entries yet. Start tracking your fitness journey!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Progress Area End -->
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Ensure proper scrolling */
+    html, body {
+        overflow-x: hidden;
+        overflow-y: auto !important;
+        height: auto !important;
+        min-height: 100vh;
+    }
+    
+    .contact-form-area {
+        background: #111;
+        color: #fff;
+        padding: 50px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+        color: #fff;
+    }
+    
+    .form-group input, .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #444;
+        border-radius: 5px;
+        font-size: 16px;
+        background: #222;
+        color: #fff;
+    }
+    
+    .form-group input:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+    }
+    
+        .form-group select {
+        background: #fff !important;
+        color: #333 !important;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 16px;
+        width: 100%;
+        padding: 12px 15px;
+    }
+
+    .form-group select:focus {
+        outline: none;
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+    }
+
+    .form-group select option {
+        background: #fff !important;
+        color: #333 !important;
+        padding: 8px;
+    }
+    
+    .form-check-input, input[type="checkbox"] {
+        width: 22px;
+        height: 22px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    
+    .disabled-input {
+        background: #444 !important;
+        color: #aaa !important;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    
+    .text-danger {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        border-top: none;
+    }
+    
+    /* Fix potential scrolling issues */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 50px;
+    }
+    
+    /* Ensure content doesn't get cut off */
+    .section-padding {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Fix for fixed footers or headers */
+    .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .contact-form-area {
+            padding: 30px 20px;
+        }
+        
+        .table-responsive {
+            font-size: 14px;
+        }
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function toggleField(checkboxId, fieldId) {
+            var checkbox = document.getElementById(checkboxId);
+            var field = document.getElementById(fieldId);
+            function update() {
+                if (checkbox && field) {
+                    if (checkbox.checked) {
+                        field.disabled = false;
+                        field.classList.remove('disabled-input');
+                    } else {
+                        field.disabled = true;
+                        field.classList.add('disabled-input');
+                    }
+                }
+            }
+            if (checkbox && field) {
+                checkbox.addEventListener('change', update);
+                update();
+            }
+        }
+        toggleField('id_enable_body_fat', 'id_body_fat_percentage');
+        toggleField('id_enable_muscle_mass', 'id_muscle_mass');
+    });
+</script>
+{% endblock %}

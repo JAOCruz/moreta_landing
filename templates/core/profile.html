@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile - Moreta Fitness{% endblock %}
+
+{% block content %}
+<!-- Profile Area Start -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="section-tittle text-center mb-100">
+                    <h2>Your Fitness Profile</h2>
+                    <p>Update your information to get personalized training recommendations</p>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="contact-form-area">
+                    <form method="post" class="contact-form">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger">{{ form.phone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="{{ form.age.id_for_label }}">Age</label>
+                                    {{ form.age }}
+                                    {% if form.age.errors %}
+                                        <div class="text-danger">{{ form.age.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label for="{{ form.current_weight.id_for_label }}">Current Weight (lbs)</label>
+                                    {{ form.current_weight }}
+                                    {% if form.current_weight.errors %}
+                                        <div class="text-danger">{{ form.current_weight.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label for="{{ form.target_weight.id_for_label }}">Target Weight (lbs)</label>
+                                    {{ form.target_weight }}
+                                    {% if form.target_weight.errors %}
+                                        <div class="text-danger">{{ form.target_weight.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label>Height</label>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            {{ form.height_feet }}
+                                            <small class="form-text text-muted">Feet</small>
+                                        </div>
+                                        <div class="col-6">
+                                            {{ form.height_inches }}
+                                            <small class="form-text text-muted">Inches</small>
+                                        </div>
+                                    </div>
+                                    {% if form.height_feet.errors %}
+                                        <div class="text-danger">{{ form.height_feet.errors }}</div>
+                                    {% endif %}
+                                    {% if form.height_inches.errors %}
+                                        <div class="text-danger">{{ form.height_inches.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="{{ form.experience_level.id_for_label }}">Experience Level</label>
+                                    {{ form.experience_level }}
+                                    {% if form.experience_level.errors %}
+                                        <div class="text-danger">{{ form.experience_level.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="{{ form.fitness_goals.id_for_label }}">Fitness Goals</label>
+                                    {{ form.fitness_goals }}
+                                    {% if form.fitness_goals.errors %}
+                                        <div class="text-danger">{{ form.fitness_goals.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label for="{{ form.medical_conditions.id_for_label }}">Medical Conditions</label>
+                                    {{ form.medical_conditions }}
+                                    {% if form.medical_conditions.errors %}
+                                        <div class="text-danger">{{ form.medical_conditions.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label for="{{ form.dietary_restrictions.id_for_label }}">Dietary Restrictions</label>
+                                    {{ form.dietary_restrictions }}
+                                    {% if form.dietary_restrictions.errors %}
+                                        <div class="text-danger">{{ form.dietary_restrictions.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <button type="submit" class="btn hero-btn">Update Profile</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Summary -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-8">
+                <div class="section-tittle">
+                    <h3>Profile Summary</h3>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="single-cat" style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 20px;">
+                            <h5>Personal Information</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</li>
+                                <li><strong>Email:</strong> {{ user.email }}</li>
+                                <li><strong>Phone:</strong> {{ profile.phone|default:"Not provided" }}</li>
+                                <li><strong>Age:</strong> {{ profile.age|default:"Not provided" }}</li>
+                                <li><strong>Height:</strong> {{ profile.get_height_display }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="single-cat" style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 20px;">
+                            <h5>Fitness Information</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Experience:</strong> {{ profile.experience_level|title }}</li>
+                                <li><strong>Goals:</strong> {{ profile.fitness_goals|title|default:"Not set" }}</li>
+                                <li><strong>Current Weight:</strong> {{ profile.current_weight|default:"Not provided" }} lbs</li>
+                                <li><strong>Target Weight:</strong> {{ profile.target_weight|default:"Not provided" }} lbs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Profile Area End -->
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-form-area {
+        background: #fff;
+        padding: 50px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .form-group {
+        margin-bottom: 25px;
+    }
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+    }
+    .text-danger {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    .single-cat ul li {
+        margin-bottom: 8px;
+    }
+    .form-text {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 2px;
+    }
+</style>
+{% endblock %} 

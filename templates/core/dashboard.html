@@ -1,0 +1,371 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Moreta Fitness{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .progress-chart {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .weight-chart {
+        height: 200px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        position: relative;
+    }
+    .chart-bar {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border-radius: 4px 4px 0 0;
+        position: absolute;
+        bottom: 40px;
+        min-width: 30px;
+        text-align: center;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .bmi-indicator {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .bmi-underweight { 
+        background: #ffc107; 
+        color: #000; 
+    }
+    .bmi-normal { 
+        background: #28a745; 
+        color: white; 
+    }
+    .bmi-overweight { 
+        background: #fd7e14; 
+        color: white; 
+    }
+    .bmi-obese { 
+        background: #dc3545; 
+        color: white; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Area Start -->
+<section class="section-padding">
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="section-tittle text-center">
+                    <h2>Welcome back, {{ user.first_name }}!</h2>
+                    <p>Track your progress and stay on top of your fitness goals</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Information Card -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="profile-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="mb-3">{{ user.get_full_name|default:user.username }}</h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Height:</strong> {{ profile.height_feet|default:"--" }}' {{ profile.height_inches|default:"--" }}"</p>
+                                    <p><strong>Current Weight:</strong> {{ profile.current_weight|default:"--" }} lbs</p>
+                                    <p><strong>Target Weight:</strong> {{ profile.target_weight|default:"--" }} lbs</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Age:</strong> {{ profile.age|default:"--" }} years</p>
+                                    <p><strong>Experience Level:</strong> {{ profile.experience_level|title|default:"--" }}</p>
+                                    {% if current_bmi %}
+                                        <p><strong>BMI:</strong> 
+                                            <span class="bmi-indicator 
+                                                {% if current_bmi < 18.5 %}bmi-underweight
+                                                {% elif current_bmi < 25 %}bmi-normal
+                                                {% elif current_bmi < 30 %}bmi-overweight
+                                                {% else %}bmi-obese{% endif %}">
+                                                {{ current_bmi }}
+                                            </span>
+                                        </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="mb-3">
+                                <h4 class="mb-0">{{ completion_rate }}%</h4>
+                                <small>Workout Completion Rate</small>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: {{ completion_rate }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mb-5">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card text-center">
+                    <div class="cat-icon mb-3">
+                        <i class="flaticon-fitness" style="font-size: 40px; color: #ff6b35;"></i>
+                    </div>
+                    <h4>{{ todays_workouts.count }}</h4>
+                    <p>Today's Workouts</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card text-center">
+                    <div class="cat-icon mb-3">
+                        <i class="flaticon-healthcare-and-medical" style="font-size: 40px; color: #28a745;"></i>
+                    </div>
+                    <h4>{{ completed_workouts }}/{{ total_workouts }}</h4>
+                    <p>Workouts Completed</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card text-center">
+                    <div class="cat-icon mb-3">
+                        <i class="fas fa-chart-line" style="font-size: 40px; color: #007bff;"></i>
+                    </div>
+                    <h4>{{ recent_progress.count }}</h4>
+                    <p>Progress Entries</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-card text-center">
+                    <div class="cat-icon mb-3">
+                        <i class="fas fa-envelope" style="font-size: 40px; color: #6f42c1;"></i>
+                    </div>
+                    <h4>{{ unread_messages }}</h4>
+                    <p>Unread Messages</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Visualization and Recent Data -->
+        <div class="row mb-5">
+            <!-- Weight Progress Chart -->
+            <div class="col-lg-8 mb-4">
+                <div class="progress-chart">
+                    <h4 class="mb-4">Weight Progress</h4>
+                    {% if weight_trend_bars %}
+                        <div class="weight-chart">
+                            {% for bar in weight_trend_bars %}
+                                <div class="chart-bar" style="left: {{ bar.left }}px; height: {{ bar.height }}px;">
+                                    {{ bar.weight }}
+                                </div>
+                                <div style="position: absolute; bottom: 15px; left: {{ bar.left }}px; font-size: 10px; color: #666;">
+                                    {{ bar.date }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-chart-line fa-3x mb-3"></i>
+                            <p>No weight data yet. <a href="{% url 'progress' %}">Add your first progress entry</a></p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Progress Table -->
+            <div class="col-lg-4 mb-4">
+                <div class="progress-chart">
+                    <h4 class="mb-4">Recent Progress</h4>
+                    {% if recent_progress %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Weight</th>
+                                        <th>Body Fat</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for progress in recent_progress|slice:":5" %}
+                                    <tr>
+                                        <td>{{ progress.date|date:"M d" }}</td>
+                                        <td>{{ progress.weight|default:"-" }} lbs</td>
+                                        <td>{{ progress.body_fat_percentage|default:"-" }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'progress' %}" class="btn btn-outline-primary btn-sm">View All Progress</a>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-3">
+                            <p>No progress entries yet.</p>
+                            <a href="{% url 'progress' %}" class="btn btn-primary btn-sm">Add Progress</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Workouts -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="section-tittle">
+                    <h3>Today's Workouts</h3>
+                </div>
+                {% if todays_workouts %}
+                    <div class="row">
+                        {% for client_workout in todays_workouts %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="stat-card">
+                                <div class="cat-cap">
+                                    <h5><a href="{% url 'workout_detail' client_workout.id %}">{{ client_workout.workout.title }}</a></h5>
+                                    <p>{{ client_workout.workout.description|truncatewords:15 }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge badge-{% if client_workout.completed %}success{% else %}warning{% endif %}">
+                                            {% if client_workout.completed %}Completed{% else %}Pending{% endif %}
+                                        </span>
+                                        <span class="text-muted">{{ client_workout.workout.duration_minutes }} min</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <div class="stat-card">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No workouts scheduled for today. Check back tomorrow!</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions and Nutrition -->
+        <div class="row">
+            <!-- Quick Actions -->
+            <div class="col-lg-4 mb-4">
+                <div class="progress-chart">
+                    <h4 class="mb-4">Quick Actions</h4>
+                    <div class="list-group">
+                        <a href="{% url 'workouts' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="fas fa-dumbbell mr-3 text-primary"></i>
+                            <div>
+                                <strong>View All Workouts</strong>
+                                <small class="d-block text-muted">See your complete workout schedule</small>
+                            </div>
+                        </a>
+                        <a href="{% url 'progress' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="fas fa-chart-line mr-3 text-success"></i>
+                            <div>
+                                <strong>Track Progress</strong>
+                                <small class="d-block text-muted">Add new measurements</small>
+                            </div>
+                        </a>
+                        <a href="{% url 'nutrition' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="fas fa-apple-alt mr-3 text-warning"></i>
+                            <div>
+                                <strong>Nutrition Plans</strong>
+                                <small class="d-block text-muted">View your meal plans</small>
+                            </div>
+                        </a>
+                        <a href="{% url 'messages' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="fas fa-envelope mr-3 text-info"></i>
+                            <div>
+                                <strong>Messages</strong>
+                                <small class="d-block text-muted">Communicate with your coach</small>
+                            </div>
+                        </a>
+                        <a href="{% url 'profile' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <i class="fas fa-user-edit mr-3 text-secondary"></i>
+                            <div>
+                                <strong>Edit Profile</strong>
+                                <small class="d-block text-muted">Update your information</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Nutrition Plan -->
+            <div class="col-lg-8 mb-4">
+                <div class="progress-chart">
+                    <h4 class="mb-4">Current Nutrition Plan</h4>
+                    {% if nutrition_plan %}
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5>{{ nutrition_plan.title }}</h5>
+                                <p class="text-muted">{{ nutrition_plan.description }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="row text-center">
+                                    <div class="col-6 mb-3">
+                                        <div class="bg-primary text-white rounded p-3">
+                                            <h6 class="mb-0">{{ nutrition_plan.daily_calories }}</h6>
+                                            <small>Calories</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="bg-success text-white rounded p-3">
+                                            <h6 class="mb-0">{{ nutrition_plan.protein_grams }}g</h6>
+                                            <small>Protein</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="bg-warning text-white rounded p-3">
+                                            <h6 class="mb-0">{{ nutrition_plan.carbs_grams }}g</h6>
+                                            <small>Carbs</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="bg-danger text-white rounded p-3">
+                                            <h6 class="mb-0">{{ nutrition_plan.fat_grams }}g</h6>
+                                            <small>Fat</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-apple-alt fa-3x mb-3"></i>
+                            <p>No nutrition plan assigned yet.</p>
+                            <p class="small">Your coach will create a personalized plan for you.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Dashboard Area End -->
+{% endblock %} 

@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}More Fitness | Moreta{% endblock %}
+
+{% block content %}
+<!-- slider Area Start-->
+<div class="slider-area position-relative">
+    <div class="slider-active">
+        <!-- Single Slider -->
+        <div class="single-slider slider-height d-flex align-items-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-7 col-lg-9 col-md-8 col-sm-9">
+                        <div class="hero__caption">
+                            <span data-animation="fadeInLeft" data-delay="0.1s">with Jose Moreta Valdez</span>
+                            <h1 data-animation="fadeInLeft" data-delay="0.4s">Build an Excellent body Shape for good and Healthy life.</h1>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'dashboard' %}" class="btn hero-btn" data-animation="fadeInLeft" data-delay="0.8s">Go to Dashboard</a>
+                            {% else %}
+                                <a href="{% url 'register' %}" class="btn hero-btn" data-animation="fadeInLeft" data-delay="0.8s">become a member</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>          
+        </div>
+        <!-- Single Slider -->
+        <div class="single-slider slider-height d-flex align-items-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-7 col-lg-9 col-md-8 col-sm-9">
+                        <div class="hero__caption">
+                            <span data-animation="fadeInLeft" data-delay="0.1s">with Jose Moreta Valdez</span>
+                            <h1 data-animation="fadeInLeft" data-delay="0.4s">Build an Excellent body Shape for good and Healthy life.</h1>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'dashboard' %}" class="btn hero-btn" data-animation="fadeInLeft" data-delay="0.8s">Go to Dashboard</a>
+                            {% else %}
+                                <a href="{% url 'register' %}" class="btn hero-btn" data-animation="fadeInLeft" data-delay="0.8s">become a member</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>          
+        </div>
+    </div>
+    <!-- Video icon -->
+    <div class="video-icon">
+        <a class="popup-video btn-icon" href="https://www.youtube.com/watch?v=up68UAfH0d0"><i class="fas fa-play"></i></a>
+    </div>
+</div>
+<!-- slider Area End-->
+
+<!-- About Area Start -->
+<section class="about-area section-padding30">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 col-md-12">
+                <!-- about-img -->
+                <div class="about-img ">
+                    <img src="{% static 'img/gallery/about.png' %}" alt="">
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+                <div class="about-caption">
+                    <!-- Section Tittle -->
+                    <div class="section-tittle section-tittle3 mb-35">
+                        <span>ABOUT JOSE MORETA VALDEZ</span>
+                        <h2>Expert Fitness Coaching with Over a Decade of Experience</h2>
+                    </div>
+                    <p class="pera-top">Jose Moreta Valdez, with over 10 years of experience, offers personalized online fitness training through a professional web app, accessible to clients worldwide. His proven methods ensure safe and effective bodybuilding solutions tailored to your goals.</p>
+                    <p class="mb-65 pera-bottom">Join Jose's global fitness community and benefit from flexible, convenient workout plans designed to save time and deliver results, no matter where you are.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn">Go to Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn">become a member</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- About-2 Area End -->
+
+<!-- Services Area Start -->
+<section class="services-area pt-100 pb-150 section-bg" data-background="{% static 'img/gallery/section_bg01.png' %}">
+    <!-- Want To work -->
+    <section class="wantToWork-area w-padding">
+        <div class="container">
+            <div class="row align-items-end justify-content-between">
+                <div class="col-lg-6 col-md-10 col-sm-10">
+                    <div class="section-tittle section-tittle2">
+                        <span>OUR SERVICES FOR YOU</span>
+                        <h2>Push Your Limits with Jose Moreta Valdez</h2>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-3">
+                    <a href="services.html" class="btn wantToWork-btn f-right">More Services</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Want To work End -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-6">
+                <div class="single-cat text-center mb-50">
+                    <div class="cat-icon">
+                        <i class="flaticon-fitness"></i>
+                    </div>
+                    <div class="cat-cap">
+                        <h5><a href="services.html">Personalized Routines</a></h5>
+                        <p>Tailored workout plans designed for your unique goals and fitness level. Each session is customized to ensure maximum effectiveness and sustainable results.</p>
+                    </div>
+                    <div class="img-cap">
+                        <a href="services.html" class="">Discover More About Us <i class="ti-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6">
+                <div class="single-cat text-center mb-50">
+                    <div class="cat-icon">
+                        <i class="flaticon-healthcare-and-medical"></i>
+                    </div>
+                    <div class="cat-cap">
+                        <h5><a href="services.html">Health Focus</a></h5>
+                        <p>Comprehensive health-oriented approach combining fitness with wellness principles for optimal physical and mental well-being.</p>
+                    </div>
+                    <div class="img-cap">
+                        <a href="services.html" class="">Discover More About Us <i class="ti-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6">
+                <div class="single-cat text-center mb-50">
+                    <div class="cat-icon">
+                        <i class="flaticon-clock"></i>
+                    </div>
+                    <div class="cat-cap">
+                        <h5><a href="services.html">Flexible Scheduling</a></h5>
+                        <p>Work out on your own schedule with 24/7 access to your personalized training program and expert guidance when you need it.</p>
+                    </div>
+                    <div class="img-cap">
+                        <a href="services.html" class="">Discover More About Us <i class="ti-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Services Area End -->
+
+<!-- Team Area Start -->
+<section class="team-area section-padding30">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-tittle text-center mb-100">
+                    <span>OUR TRAINING OPTIONS</span>
+                    <h2>Choose Your Perfect Training Experience</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="single-team mb-30">
+                    <div class="team-img">
+                        <img src="{% static 'img/gallery/team1.png' %}" alt="">
+                    </div>
+                    <div class="team-caption">
+                        <h3><a href="#">In-Person Training</a></h3>
+                        <p>Experience hands-on guidance with personalized attention. Perfect for beginners or those who prefer direct supervision and immediate feedback.</p>
+                        <div class="team-social">
+                            <ul>
+                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="single-team mb-30">
+                    <div class="team-img">
+                        <img src="{% static 'img/gallery/team2.png' %}" alt="">
+                    </div>
+                    <div class="team-caption">
+                        <h3><a href="#">Online Training</a></h3>
+                        <p>Flexible, convenient training from anywhere in the world. Access your personalized workouts, track progress, and stay connected with your coach.</p>
+                        <div class="team-social">
+                            <ul>
+                                <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                                <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                                <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Team Area End -->
+
+<!-- Schedule Area Start -->
+<section class="schedule-area section-padding30">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="section-tittle text-center mb-100">
+                    <span>OUR SCHEDULE</span>
+                    <h2>Weekly Online Fitness Training Sessions</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="schedule-table table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="text-center">Time</th>
+                                <th class="text-center">Monday</th>
+                                <th class="text-center">Tuesday</th>
+                                <th class="text-center">Wednesday</th>
+                                <th class="text-center">Thursday</th>
+                                <th class="text-center">Friday</th>
+                                <th class="text-center">Saturday</th>
+                                <th class="text-center">Sunday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="day">9:00 AM - 12:00 PM</td>
+                                <td class="active" data-text="Online Training">
+                                    <h4>Online Training</h4>
+                                    <p>Personalized fitness sessions</p>
+                                    <span class="time">3 hours</span>
+                                </td>
+                                <td class="active" data-text="Online Training">
+                                    <h4>Online Training</h4>
+                                    <p>Personalized fitness sessions</p>
+                                    <span class="time">3 hours</span>
+                                </td>
+                                <td class="active" data-text="Online Training">
+                                    <h4>Online Training</h4>
+                                    <p>Personalized fitness sessions</p>
+                                    <span class="time">3 hours</span>
+                                </td>
+                                <td class="active" data-text="Online Training">
+                                    <h4>Online Training</h4>
+                                    <p>Personalized fitness sessions</p>
+                                    <span class="time">3 hours</span>
+                                </td>
+                                <td class="active" data-text="Online Training">
+                                    <h4>Online Training</h4>
+                                    <p>Personalized fitness sessions</p>
+                                    <span class="time">3 hours</span>
+                                </td>
+                                <td class="active" data-text="Online Training">
+                                    <h4>Online Training</h4>
+                                    <p>Personalized fitness sessions</p>
+                                    <span class="time">3 hours</span>
+                                </td>
+                                <td class="active" data-text="Online Training">
+                                    <h4>Online Training</h4>
+                                    <p>Personalized fitness sessions</p>
+                                    <span class="time">3 hours</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Schedule Area End -->
+{% endblock %} 
