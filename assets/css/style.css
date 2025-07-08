@@ -175,3 +175,21 @@ label, .form-label {
 .header-solid .main-menu ul li .logout-link:hover {
   color: #f04e3c !important;
 }
+
+/* For native selects */
+select,
+select option,
+select optgroup,
+.select-itms select,
+.select-itms select option {
+    color: #000 !important;
+    background-color: #fff !important;
+}
+
+/* For Nice Select plugin */
+.nice-select,
+.nice-select .list,
+.nice-select .option {
+    color: #000 !important;
+    background-color: #fff !important;
+}
