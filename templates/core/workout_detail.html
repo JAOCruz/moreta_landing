@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ client_workout.workout.title }} - Moreta Fitness{% endblock %}
+
+{% block content %}
+<!-- Workout Detail Area Start -->
+<section class="section-padding">
+    <div class="container">
+        <!-- Back to Workouts Button -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <a href="{% url 'workouts' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Workouts
+                </a>
+            </div>
+        </div>
+
+        <!-- Workout Header -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-tittle text-center mb-5">
+                    <h2>{{ client_workout.workout.title }}</h2>
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                        <span class="badge badge-{% if client_workout.completed %}success{% else %}warning{% endif %} mr-3">
+                            {% if client_workout.completed %}Completed{% else %}Pending{% endif %}
+                        </span>
+                        <span class="badge badge-info mr-3">{{ client_workout.workout.get_workout_type_display }}</span>
+                        <span class="badge badge-secondary mr-3">{{ client_workout.workout.duration_minutes }} min</span>
+                        <span class="badge badge-primary">Level {{ client_workout.workout.difficulty_level }}/10</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Video Section -->
+            <div class="col-lg-8 mb-4">
+                {% if client_workout.workout.video_url %}
+                    <div class="video-section mb-4">
+                        <h4 class="mb-3"><i class="fas fa-play-circle"></i> Workout Video</h4>
+                        <div class="embed-responsive embed-responsive-16by9" style="border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            {% if 'youtube.com' in client_workout.workout.video_url or 'youtu.be' in client_workout.workout.video_url %}
+                                <!-- Handle YouTube URLs -->
+                                {% if 'watch?v=' in client_workout.workout.video_url %}
+                                    <iframe class="embed-responsive-item" 
+                                            src="https://www.youtube.com/embed/{{ client_workout.workout.video_url|cut:'https://www.youtube.com/watch?v=' }}" 
+                                            allowfullscreen>
+                                    </iframe>
+                                {% elif 'youtu.be' in client_workout.workout.video_url %}
+                                    <iframe class="embed-responsive-item" 
+                                            src="https://www.youtube.com/embed/{{ client_workout.workout.video_url|cut:'https://youtu.be/' }}" 
+                                            allowfullscreen>
+                                    </iframe>
+                                {% else %}
+                                    <iframe class="embed-responsive-item" 
+                                            src="{{ client_workout.workout.video_url }}" 
+                                            allowfullscreen>
+                                    </iframe>
+                                {% endif %}
+                            {% else %}
+                                <!-- Handle other video URLs -->
+                                <iframe class="embed-responsive-item" 
+                                        src="{{ client_workout.workout.video_url }}" 
+                                        allowfullscreen>
+                                </iframe>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                                         <div class="video-placeholder mb-4">
+                         <div class="text-center py-5" style="background: #fff !important; border-radius: 10px; border: 2px dashed #dee2e6; color: #333 !important;">
+                             <i class="fas fa-video-slash fa-3x mb-3" style="color: #666 !important;"></i>
+                             <h5 style="color: #333 !important;">No Video Available</h5>
+                             <p style="color: #666 !important;">Follow the written instructions below to complete this workout.</p>
+                         </div>
+                     </div>
+                {% endif %}
+
+                <!-- Instructions Section -->
+                <div class="instructions-section">
+                    <h4 class="mb-3"><i class="fas fa-list-ol"></i> Workout Instructions</h4>
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="white-space: pre-line; line-height: 1.6;">{{ client_workout.workout.instructions }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workout Info Sidebar -->
+            <div class="col-lg-4">
+                <div class="workout-info-card">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Workout Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <strong><i class="fas fa-tag"></i> Type:</strong> 
+                                    <span class="ml-2">{{ client_workout.workout.get_workout_type_display }}</span>
+                                </li>
+                                <li class="mb-2">
+                                    <strong><i class="fas fa-clock"></i> Duration:</strong> 
+                                    <span class="ml-2">{{ client_workout.workout.duration_minutes }} minutes</span>
+                                </li>
+                                <li class="mb-2">
+                                    <strong><i class="fas fa-signal"></i> Difficulty:</strong> 
+                                    <span class="ml-2">{{ client_workout.workout.difficulty_level }}/10</span>
+                                </li>
+                                <li class="mb-2">
+                                    <strong><i class="fas fa-calendar-alt"></i> Assigned:</strong> 
+                                    <span class="ml-2">{{ client_workout.assigned_date|date:"M d, Y" }}</span>
+                                </li>
+                                {% if client_workout.completed %}
+                                    <li class="mb-2">
+                                        <strong><i class="fas fa-check-circle text-success"></i> Completed:</strong> 
+                                        <span class="ml-2">{{ client_workout.completed_date|date:"M d, Y" }}</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-align-left"></i> Description</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ client_workout.workout.description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Completion Section -->
+                    {% if not client_workout.completed %}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-check"></i> Mark as Complete</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">Have you finished this workout?</p>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" name="complete" class="btn btn-success btn-block">
+                                        <i class="fas fa-check-circle"></i> Mark as Completed
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="card mb-4 border-success">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-check-circle"></i> Workout Completed!</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-success mb-0">
+                                    <i class="fas fa-trophy"></i> Great job! You completed this workout on 
+                                    {{ client_workout.completed_date|date:"M d, Y" }}.
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Notes Section -->
+                    {% if client_workout.notes %}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-sticky-note"></i> Notes</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>{{ client_workout.notes }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Workout Detail Area End -->
+
+<style>
+/* Ensure cards have proper background and text colors */
+.workout-info-card .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    background: #fff !important;
+    color: #333 !important;
+}
+
+.workout-info-card .card-header {
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px 10px 0 0 !important;
+    color: #333 !important;
+}
+
+.workout-info-card .card-body {
+    background: #fff !important;
+    color: #333 !important;
+}
+
+.instructions-section .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    background: #fff !important;
+    color: #333 !important;
+}
+
+.instructions-section .card-body {
+    background: #fff !important;
+    color: #333 !important;
+}
+
+.video-section h4,
+.instructions-section h4 {
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.section-tittle h2 {
+    color: #fff !important;
+}
+
+.badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.8em;
+}
+
+.btn-outline-secondary {
+    border-radius: 25px;
+    padding: 10px 20px;
+    background: #fff !important;
+    color: #333 !important;
+    border-color: #fff !important;
+}
+
+.btn-outline-secondary:hover {
+    background: #f8f9fa !important;
+    color: #333 !important;
+    border-color: #f8f9fa !important;
+}
+
+.btn-success {
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-weight: 600;
+}
+
+/* Ensure placeholder text is visible */
+.video-placeholder {
+    background: #fff !important;
+    color: #333 !important;
+}
+
+/* Fix any text that might be invisible */
+.card h5, .card p, .card li, .card strong, .card span {
+    color: #333 !important;
+}
+
+.card-header h5 {
+    color: #333 !important;
+}
+
+/* Ensure list items are visible */
+.list-unstyled li {
+    color: #333 !important;
+}
+
+.list-unstyled li strong {
+    color: #333 !important;
+}
+
+.list-unstyled li span {
+    color: #666 !important;
+}
+</style>
+{% endblock %} 
