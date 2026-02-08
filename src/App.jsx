@@ -535,7 +535,7 @@ export default function App() {
       }
     }
   };
-  
+
   const handleAssignClient = (existing) => {
     // Legacy support for manual session edit
     handleAddSession(existing);
