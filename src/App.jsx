@@ -25,37 +25,28 @@ const Styles = () => (
       border: 1px solid rgba(255, 255, 255, 0.05);
       box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
     }
-
-    .neon-text-red { text-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
-    .neon-text-green { text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
     
-    input:focus {
+    input:focus, select:focus {
       outline: none;
       border-color: rgba(255, 255, 255, 0.2) !important;
     }
+
+    /* Custom Scrollbar for lists */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
   `}</style>
 );
 
-// --- MOCK DATA ---
-const SESSIONS = [
-  { id: 1, time: '18:00', client: 'ANA MARIA GARCIA', detail: 'PIERNAS // RECURRING', status: 'filled' },
-  { id: 2, time: '19:30', client: 'SLOT VACÍO', detail: 'DISPONIBLE PARA SESIÓN ÚNICA', status: 'empty' },
-  { id: 3, time: '20:45', client: 'CARLOS RUIZ', detail: 'ESPALDA // FLEXIBLE', status: 'filled' },
-];
+// --- HELPERS ---
 
-const PAYMENTS = [
-  { id: 1, name: 'PEDRO JOSE VALDEZ', status: 'atrasado', amount: 150 },
-  { id: 2, name: 'CARLA MARTINEZ', status: 'pagado', amount: 120 },
-  { id: 3, name: 'LUIS RAMIREZ', status: 'pendiente', amount: 200 },
-];
-
-const ROUTINE = [
-  { id: '01', name: 'SENTADILLA BULGARA', sets: '4 SETS x 12 REPS' },
-  { id: '02', name: 'PRENSA DE PIERNAS', sets: '3 SETS x 15 REPS' },
-  { id: '03', name: 'EXTENSIÓN CUADRICEPS', sets: '4 SETS x 20 REPS' },
-];
-
-// --- COMPONENTS ---
+// Helper to get the Monday of the current week
+const getMonday = (d) => {
+  d = new Date(d);
+  const day = d.getDay(),
+      diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+  return new Date(d.setDate(diff));
+}
 
 const SectionHeader = ({ number, title }) => (
   <div className="flex justify-between items-end mb-6 border-b border-neutral-800 pb-2">
@@ -133,14 +124,13 @@ const LoginScreen = ({ onLogin, loading, error }) => {
       
       <div className="absolute bottom-8 flex gap-8 text-[9px] text-neutral-600 font-mono-tech uppercase tracking-widest">
         <span>System Status: Online</span>
-        <span>Version: 3.0.0-PRO</span>
+        <span>Version: 3.1.0-BETA</span>
         <span>Secure Connection: Active</span>
       </div>
     </div>
   );
 };
 
-// --- REPLACEMENT CONTENT FOR REAL-TIME DATA ---
 // --- TACTICAL COMMAND MODAL ---
 const CommandModal = ({ isOpen, title, fields, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({});
@@ -209,7 +199,14 @@ const CommandModal = ({ isOpen, title, fields, onSubmit, onCancel }) => {
 };
 
 const DAYS = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM'];
-const HOURS = Array.from({ length: 14 }, (_, i) => `${i + 7}:00`); // 7am to 8pm
+const HOURS = [
+  // Morning Block
+  '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30',
+  // Spacer (Optional visual break)
+  '---',
+  // Afternoon Block
+  '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00'
+];
 
 // --- SIDEBAR COMPONENT ---
 const Sidebar = ({ activeView, onViewChange, onLogout }) => {
@@ -264,12 +261,17 @@ const Sidebar = ({ activeView, onViewChange, onLogout }) => {
 };
 
 export default function App() {
+  // --- CORE STATE ---
+  const [activeView, setActiveView] = useState('dashboard');
+  const viewRef = useRef(null);
+  const [currentWeekStart, setCurrentWeekStart] = useState(getMonday(new Date()));
+  
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
 
-  // DASHBOARD DATA STATE
+  // --- DASHBOARD DATA STATE ---
   const [sessions, setSessions] = useState([]);
   const [payments, setPayments] = useState([]);
   const [routines, setRoutines] = useState([]);
@@ -280,55 +282,71 @@ export default function App() {
     diet_score: 0
   });
 
-  // ROUTINE BUILDER STATE
-  const [builderBodyPart, setBuilderBodyPart] = useState('legs');
+  // --- ROUTINE BUILDER STATE ---
+  const firstBodyPart = Object.keys(EXERCISE_DB)[0] || 'legs'; 
+  const [builderBodyPart, setBuilderBodyPart] = useState(firstBodyPart);
   const [builderExercise, setBuilderExercise] = useState('');
   const [builderSets, setBuilderSets] = useState(3);
   const [builderReps, setBuilderReps] = useState(12);
 
-  // MODAL STATE
+  // Update exercise when body part changes
+  useEffect(() => {
+    if (EXERCISE_DB[builderBodyPart] && EXERCISE_DB[builderBodyPart].length > 0) {
+      setBuilderExercise(EXERCISE_DB[builderBodyPart][0].name);
+    } else {
+      setBuilderExercise('');
+    }
+  }, [builderBodyPart]);
+
+  // --- MODAL STATE ---
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', fields: [] });
 
+  // --- AUTH & DATA FETCHING ---
   useEffect(() => {
-    // 1. Initial Auth Check
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchDashboardData(session.user.id);
+      if (session?.user) fetchDashboardData(session.user.id);
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session) fetchDashboardData(session.user.id);
+      if (session?.user) fetchDashboardData(session.user.id);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [currentWeekStart]); // Re-run when week changes
 
   const fetchDashboardData = async (userId) => {
-    // 2. Initial Data Pull
-    const [sessRes, payRes, routRes, wellRes] = await Promise.all([
-      supabase.from('sessions').select('*').eq('user_id', userId).order('time', { ascending: true }),
+    // Calculate Week Date Range
+    const startStr = currentWeekStart.toISOString().split('T')[0];
+    const end = new Date(currentWeekStart);
+    end.setDate(end.getDate() + 6);
+    const endStr = end.toISOString().split('T')[0];
+
+    const [sessRes, payRes, routRes] = await Promise.all([
+      supabase.from('sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('date', startStr) // Filter by Date
+        .lte('date', endStr)
+        .order('time', { ascending: true }),
       supabase.from('payments').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
       supabase.from('routines').select('*').eq('user_id', userId).order('order', { ascending: true }),
-      supabase.from('wellness').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).single()
+      // supabase.from('wellness').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).single()
     ]);
 
     if (!sessRes.error) setSessions(sessRes.data);
     if (!payRes.error) setPayments(payRes.data);
     if (!routRes.error) setRoutines(routRes.data);
-    if (!wellRes.error && wellRes.data) setWellness(wellRes.data);
+    // if (!wellRes.error && wellRes.data) setWellness(wellRes.data);
 
-    // 3. Realtime Subscription Setup
+    // Setup Realtime
     const channels = [
-      supabase.channel('public:sessions').on('postgres_changes', { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${userId}` }, 
-        payload => handleRealtimeUpdate('sessions', payload)).subscribe(),
-      supabase.channel('public:payments').on('postgres_changes', { event: '*', schema: 'public', table: 'payments', filter: `user_id=eq.${userId}` }, 
-        payload => handleRealtimeUpdate('payments', payload)).subscribe(),
-      supabase.channel('public:routines').on('postgres_changes', { event: '*', schema: 'public', table: 'routines', filter: `user_id=eq.${userId}` }, 
-        payload => handleRealtimeUpdate('routines', payload)).subscribe(),
-      supabase.channel('public:wellness').on('postgres_changes', { event: '*', schema: 'public', table: 'wellness', filter: `user_id=eq.${userId}` }, 
-        payload => handleRealtimeUpdate('wellness', payload)).subscribe()
+      supabase.channel('public:sessions').on('postgres_changes', { event: '*', schema: 'public', table: 'sessions', filter: `user_id=eq.${userId}` }, () => fetchDashboardData(userId)).subscribe(),
+      supabase.channel('public:payments').on('postgres_changes', { event: '*', schema: 'public', table: 'payments', filter: `user_id=eq.${userId}` }, () => fetchDashboardData(userId)).subscribe(),
+      supabase.channel('public:routines').on('postgres_changes', { event: '*', schema: 'public', table: 'routines', filter: `user_id=eq.${userId}` }, () => fetchDashboardData(userId)).subscribe(),
+      supabase.channel('public:wellness').on('postgres_changes', { event: '*', schema: 'public', table: 'wellness', filter: `user_id=eq.${userId}` }, () => fetchDashboardData(userId)).subscribe()
     ];
 
     return () => channels.forEach(c => c.unsubscribe());
@@ -337,28 +355,30 @@ export default function App() {
   const handleViewChange = (newView) => {
     if (newView === activeView) return;
     
-    gsap.to(viewRef.current, {
-      opacity: 0,
-      x: -20,
-      duration: 0.3,
-      onComplete: () => {
-        setActiveView(newView);
-        gsap.to(viewRef.current, {
-          opacity: 1,
-          x: 0,
-          duration: 0.4,
-          delay: 0.1,
-          ease: "power2.out"
-        });
-      }
-    });
+    // Animate out
+    if(viewRef.current) {
+      gsap.to(viewRef.current, {
+        opacity: 0,
+        x: -20,
+        duration: 0.3,
+        onComplete: () => {
+          setActiveView(newView);
+          // Animate in
+          gsap.to(viewRef.current, {
+            opacity: 1,
+            x: 0,
+            duration: 0.4,
+            delay: 0.1,
+            ease: "power2.out"
+          });
+        }
+      });
+    } else {
+      setActiveView(newView);
+    }
   };
 
-  const handleRealtimeUpdate = (table, payload) => {
-    // Simple state re-sync on change
-    if (session) fetchDashboardData(session.user.id);
-  };
-
+  // --- ACTIONS ---
   const handleAddSession = (item = null) => {
     setModalConfig({
       isOpen: true,
@@ -369,9 +389,20 @@ export default function App() {
         { name: 'detail', label: 'Mission Metadata', placeholder: 'e.g. UPPER BODY', defaultValue: item?.detail || 'TRAINING' }
       ],
       onSubmit: async (data) => {
+        // Fallback date if manual add (defaults to Monday of current week)
+        const dateStr = currentWeekStart.toISOString().split('T')[0];
+        
         const query = item 
           ? supabase.from('sessions').update(data).eq('id', item.id)
-          : supabase.from('sessions').insert([{ ...data, user_id: session.user.id, status: 'filled' }]);
+          : supabase.from('sessions').insert([{ 
+              ...data, 
+              day: 'LUN', // Default
+              date: dateStr,
+              user_id: session.user.id, 
+              status: 'filled', 
+              capacity: 1, 
+              participants: [] 
+            }]);
         
         const { error } = await query;
         if (error) alert("UPLINK ERROR: " + error.message);
@@ -401,26 +432,6 @@ export default function App() {
     });
   };
 
-  const handleAddRoutine = (item = null) => {
-    setModalConfig({
-      isOpen: true,
-      title: item ? "Re-Engineer Exercise" : "Engineer Exercise Block",
-      fields: [
-        { name: 'name', label: 'Exercise Protocol', placeholder: 'e.g. BARBELL SQUAT', defaultValue: item?.name || '' },
-        { name: 'sets', label: 'Load Parameters', placeholder: 'SETS X REPS', defaultValue: item?.sets || '3 SETS X 12 REPS' }
-      ],
-      onSubmit: async (data) => {
-        const query = item
-          ? supabase.from('routines').update(data).eq('id', item.id)
-          : supabase.from('routines').insert([{ ...data, user_id: session.user.id, order: routines.length + 1 }]);
-
-        const { error } = await query;
-        if (error) alert("UPLINK ERROR: " + error.message);
-        setModalConfig({ ...modalConfig, isOpen: false });
-      }
-    });
-  };
-
   const handleUpdateWellness = () => {
     setModalConfig({
       isOpen: true,
@@ -432,8 +443,9 @@ export default function App() {
         { name: 'diet_score', label: 'Nutritional Compliance (1-10)', type: 'number', defaultValue: wellness.diet_score || "9" }
       ],
       onSubmit: async (data) => {
-        const { error } = await supabase.from('wellness').insert([
+        const { error } = await supabase.from('wellness').upsert([
           { 
+            ...wellness, // keep existing id if present
             sleep_hours: parseFloat(data.sleep_hours), 
             stress_level: data.stress_level.toUpperCase(), 
             water_liters: parseFloat(data.water_liters), 
@@ -447,41 +459,86 @@ export default function App() {
     });
   };
 
+// NEW: Optimistic "Instant" Logic
   const handleToggleAvailability = async (day, time) => {
+    // 1. Check local state immediately
     const existing = sessions.find(s => s.day === day && s.time === time);
     
-    if (existing) {
-      if (existing.status === 'available') {
-        // Remove availability
-        await supabase.from('sessions').delete().eq('id', existing.id);
-      } else {
-        // Already filled, maybe allow editing?
-        handleAddSession(existing);
+    // 2. Prepare Date Data
+    const dayIndex = DAYS.indexOf(day);
+    const specificDate = new Date(currentWeekStart);
+    specificDate.setDate(specificDate.getDate() + dayIndex);
+    const dateStr = specificDate.toISOString().split('T')[0];
+
+    if (!existing) {
+      // --- CREATE PATH ---
+      
+      // A. Create a temporary "Fake" Slot for immediate display
+      const tempSlot = { 
+        id: 'temp-' + Date.now(), // Temporary ID
+        day, 
+        time, 
+        date: dateStr,
+        status: 'open', 
+        capacity: 4, 
+        participants: [],
+        user_id: session.user.id
+      };
+
+      // B. Update Screen IMMEDIATELY (Don't wait for DB)
+      setSessions(prev => [...prev, tempSlot]);
+
+      // C. Send to Database in background
+      const { data, error } = await supabase.from('sessions').insert([{ 
+        day, 
+        time, 
+        date: dateStr,
+        status: 'open', 
+        capacity: 4, 
+        participants: [], 
+        user_id: session.user.id,
+        client: 'OPEN',
+        detail: '4 SLOTS'
+      }]).select(); // <--- Important: .select() returns the real ID
+
+      // D. Sync Real ID (Swap temp ID for real DB ID)
+      if (data) {
+        setSessions(prev => prev.map(s => s.id === tempSlot.id ? data[0] : s));
+      } else if (error) {
+        // If DB fails, remove the slot and warn user
+        setSessions(prev => prev.filter(s => s.id !== tempSlot.id));
+        alert("Sync Error: " + error.message);
       }
+
     } else {
-      // Create availability
-      await supabase.from('sessions').insert([{ day, time, status: 'available', user_id: session.user.id, client: 'OPEN SLOT', detail: 'AVAILABLE' }]);
+      // --- DELETE / UNDO PATH ---
+      
+      // Validation
+      if ((existing.participants?.length || 0) > 0) {
+        alert("Cannot delete: Clients are registered.");
+        return;
+      }
+
+      // A. Update Screen IMMEDIATELY
+      setSessions(prev => prev.filter(s => s.id !== existing.id));
+
+      // B. Send to Database
+      // If it's a temp slot (clicked too fast), we don't need to call DB
+      if (!existing.id.toString().startsWith('temp-')) {
+        const { error } = await supabase.from('sessions').delete().eq('id', existing.id);
+        
+        if (error) {
+          // If DB fails, put it back
+          setSessions(prev => [...prev, existing]);
+          alert("Delete Error: " + error.message);
+        }
+      }
     }
   };
-
+  
   const handleAssignClient = (existing) => {
-    setModalConfig({
-      isOpen: true,
-      title: "Confirm Mission Assignment",
-      fields: [
-        { name: 'client', label: 'Client Identifier', placeholder: 'NAME', defaultValue: '' },
-        { name: 'detail', label: 'Mission Metadata', placeholder: 'e.g. UPPER BODY', defaultValue: 'TRAINING' }
-      ],
-      onSubmit: async (data) => {
-        const { error } = await supabase.from('sessions').update({
-          ...data,
-          status: 'filled'
-        }).eq('id', existing.id);
-        
-        if (error) alert("UPLINK ERROR: " + error.message);
-        setModalConfig({ ...modalConfig, isOpen: false });
-      }
-    });
+    // Legacy support for manual session edit
+    handleAddSession(existing);
   };
 
   const handleLogin = async (email, password) => {
@@ -497,8 +554,10 @@ export default function App() {
     setSessions([]);
     setPayments([]);
     setRoutines([]);
+    setSession(null);
   };
 
+  // --- RENDER ---
   if (loading) {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
@@ -508,8 +567,6 @@ export default function App() {
   }
 
   if (!session) return <LoginScreen onLogin={handleLogin} loading={authLoading} error={authError} />;
-
-  const totalPayments = payments.reduce((acc, p) => acc + Number(p.amount), 0);
 
   return (
     <div className="min-h-screen bg-[#050505] text-white flex font-inter selection:bg-white selection:text-black">
@@ -523,7 +580,7 @@ export default function App() {
       />
 
       <main className="flex-1 h-screen overflow-y-auto relative">
-        <div ref={viewRef} className="p-8 lg:p-12 pb-24">
+        <div ref={viewRef} className="p-8 lg:p-12 pb-24 opacity-100">
           <header className="flex justify-between items-center mb-12 border-b border-white/5 pb-8">
             <div>
               <p className="font-mono-tech text-[10px] text-neutral-500 uppercase tracking-[0.4em] mb-2">SYSTEM STATUS: <span className="text-emerald-500 animate-pulse">ACTIVE // LIVE_LINK</span></p>
@@ -535,21 +592,23 @@ export default function App() {
             </div>
           </header>
 
-          {/* DYNAMIC VIEW CONTENT */}
+          {/* --- DASHBOARD VIEW --- */}
           {activeView === 'dashboard' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* SESSIONS - MINI VERSION */}
+              {/* SESSIONS - MINI */}
               <section className="glass-panel p-8 relative group overflow-hidden border-l-2 border-white/20">
                 <SectionHeader number="01" title="Mission Schedule" />
-                <button onClick={() => handleAddSession()} className="absolute top-8 right-8 text-neutral-500 hover:text-white transition-all flex items-center gap-2 group/btn">
-                  <Plus size={16} className="group-hover/btn:rotate-90 transition-transform" />
-                  <span className="font-mono-tech text-[9px] uppercase tracking-widest">Add Slot</span>
+                <button onClick={() => handleViewChange('schedule')} className="absolute top-8 right-8 text-neutral-500 hover:text-white transition-all flex items-center gap-2 group/btn">
+                  <span className="font-mono-tech text-[9px] uppercase tracking-widest">Full View</span>
+                  <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                 </button>
                 <div className="space-y-4">
                   {sessions.slice(0, 3).map((s) => (
                     <div key={s.id} className="flex justify-between items-center p-4 bg-white/5 border border-white/5">
-                      <span className="font-mono-tech text-xs text-white">{s.time} // {s.client}</span>
-                      <span className="font-mono-tech text-[10px] text-neutral-500 uppercase">{s.detail}</span>
+                      <span className="font-mono-tech text-xs text-white">{s.day} {s.time} // {s.date}</span>
+                      <span className="font-mono-tech text-[10px] text-neutral-500 uppercase">
+                         {s.participants?.length || 0} / {s.capacity || 4} Clients
+                      </span>
                     </div>
                   ))}
                   <button onClick={() => handleViewChange('schedule')} className="w-full py-4 border border-white/5 text-neutral-500 font-mono-tech text-[9px] uppercase tracking-widest hover:border-white/20 hover:text-white transition-all">
@@ -558,7 +617,7 @@ export default function App() {
                 </div>
               </section>
 
-              {/* ROUTINE - MINI VERSION */}
+              {/* ROUTINE - MINI */}
               <section className="glass-panel p-8 relative overflow-hidden">
                 <SectionHeader number="02" title="Routine Engine" />
                 <div className="space-y-4">
@@ -574,7 +633,7 @@ export default function App() {
                 </div>
               </section>
 
-              {/* PAYMENTS - MINI VERSION */}
+              {/* PAYMENTS - MINI */}
               <section className="glass-panel p-8">
                 <SectionHeader number="03" title="Finance Telemetery" />
                 <div className="space-y-4">
@@ -592,7 +651,7 @@ export default function App() {
                 </div>
               </section>
 
-              {/* WELLNESS - FULL VERSION (Stays here for now) */}
+              {/* WELLNESS - FULL */}
               <section className="glass-panel p-10 relative overflow-hidden border-r-2 border-white/20">
                 <SectionHeader number="04" title="Biometric Flow" />
                 <button onClick={handleUpdateWellness} className="absolute top-10 right-10 p-2 text-neutral-500 hover:text-white border border-transparent hover:border-white/10 transition-all">
@@ -607,7 +666,7 @@ export default function App() {
                       <span className="font-bebas text-2xl text-neutral-600">LITERS</span>
                     </div>
                     <div className="w-full h-1 bg-neutral-900 mt-2">
-                      <div className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all duration-1000" style={{ width: `${(wellness.water_liters / 4) * 100}%` }}></div>
+                      <div className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all duration-1000" style={{ width: `${Math.min(100, (wellness.water_liters / 4) * 100)}%` }}></div>
                     </div>
                   </div>
 
@@ -618,7 +677,7 @@ export default function App() {
                       <span className="font-bebas text-2xl text-neutral-600">HRS</span>
                     </div>
                     <div className="w-full h-1 bg-neutral-900 mt-2">
-                      <div className="h-full ml-auto bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all duration-1000" style={{ width: `${(wellness.sleep_hours / 10) * 100}%` }}></div>
+                      <div className="h-full ml-auto bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all duration-1000" style={{ width: `${Math.min(100, (wellness.sleep_hours / 10) * 100)}%` }}></div>
                     </div>
                   </div>
 
@@ -644,11 +703,9 @@ export default function App() {
             </div>
           )}
 
+          {/* --- SCHEDULE VIEW --- */}
           {activeView === 'schedule' && (
-            <div className="animate-in slide-in-from-bottom-4 duration-500 h-full">
-              <SectionHeader number="01" title="Visual Deployment Grid" />
-              
-              <div className="grid grid-cols-[80px_repeat(7,1fr)] gap-2 min-w-[800px]">
+            <div className="grid grid-cols-[80px_repeat(7,1fr)] gap-2 min-w-[800px] mb-20">
                 {/* Header Row */}
                 <div className="h-12"></div>
                 {DAYS.map(day => (
@@ -658,45 +715,67 @@ export default function App() {
                 ))}
 
                 {/* Grid Rows */}
-                {HOURS.map(hour => (
-                  <React.Fragment key={hour}>
-                    <div className="h-16 flex items-center justify-center font-mono-tech text-[10px] text-neutral-600 border-r border-white/5">
-                      {hour}
-                    </div>
-                    {DAYS.map(day => {
-                      const session = sessions.find(s => s.day === day && s.time === hour);
-                      let style = "bg-neutral-900/10 border border-white/5";
-                      if (session?.status === 'available') style = "bg-emerald-500/20 border border-emerald-500/30 ring-1 ring-emerald-500/50";
-                      if (session?.status === 'filled') style = "bg-white/10 border border-white/20";
-
-                      return (
-                        <div 
-                          key={`${day}-${hour}`}
-                          onClick={() => session?.status === 'available' ? handleAssignClient(session) : handleToggleAvailability(day, hour)}
-                          className={`h-16 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group relative flex flex-col items-center justify-center p-2 text-center overflow-hidden ${style}`}
-                        >
-                          {session?.status === 'available' && (
-                            <span className="font-mono-tech text-[8px] text-emerald-500 animate-pulse uppercase tracking-tighter">AVAILABLE</span>
-                          )}
-                          {session?.status === 'filled' && (
-                            <>
-                              <span className="font-bold text-[9px] uppercase tracking-tighter line-clamp-1">{session.client}</span>
-                              <span className="font-mono-tech text-[7px] text-neutral-500 uppercase tracking-tighter mt-1">{session.detail}</span>
-                            </>
-                          )}
-                          
-                          <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Plus size={14} className="text-white opacity-20" />
-                          </div>
+                {HOURS.map((hour, index) => {
+                  // 1. Render the Spacer Row (Visual Break)
+                  if (hour === '---') {
+                    return (
+                      <React.Fragment key={`spacer-${index}`}>
+                        <div className="h-8 col-span-8 flex items-center justify-center bg-neutral-900/30 border-y border-white/5">
+                           <span className="font-mono-tech text-[9px] text-neutral-600 tracking-[0.5em]">SIESTA // BREAK</span>
                         </div>
-                      );
-                    })}
-                  </React.Fragment>
-                ))}
+                      </React.Fragment>
+                    );
+                  }
+
+                  // 2. Render Normal Time Slots
+                  return (
+                    <React.Fragment key={hour}>
+                      <div className="h-16 flex items-center justify-center font-mono-tech text-[10px] text-neutral-600 border-r border-white/5">
+                        {hour}
+                      </div>
+                      {DAYS.map(day => {
+                        const session = sessions.find(s => s.day === day && s.time === hour);
+                        const count = session?.participants?.length || 0;
+                        const cap = session?.capacity || 4;
+                        
+                        let style = "bg-neutral-900/10 border border-white/5 opacity-50 hover:opacity-100"; // Empty
+                        
+                        if (session) {
+                          if (count === 0) style = "bg-emerald-500/10 border border-emerald-500/50 text-emerald-500 opacity-100";
+                          else if (count < cap) style = "bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 opacity-100";
+                          else style = "bg-red-500/10 border border-red-500/50 text-red-500 opacity-100";
+                        }
+
+                        return (
+                          <div 
+                            key={`${day}-${hour}`}
+                            onClick={() => handleToggleAvailability(day, hour)}
+                            className={`h-16 cursor-pointer transition-all active:scale-95 group relative flex flex-col items-center justify-center p-1 text-center overflow-hidden ${style}`}
+                          >
+                            {session ? (
+                              <>
+                                <span className="font-bebas text-lg tracking-widest">
+                                  {count} <span className="text-[10px] opacity-50">/ {cap}</span>
+                                </span>
+                                <span className="font-mono-tech text-[7px] uppercase tracking-widest opacity-70">
+                                  {count === 0 ? "OPEN" : "ACTIVE"}
+                                </span>
+                              </>
+                            ) : (
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Plus size={12} className="text-white/30" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
               </div>
-            </div>
           )}
 
+          {/* --- BUILDER VIEW --- */}
           {activeView === 'builder' && (
             <div className="animate-in slide-in-from-bottom-4 duration-500 max-w-4xl">
               <SectionHeader number="02" title="Routine Engineering" />
@@ -708,10 +787,7 @@ export default function App() {
                     <label className="font-mono-tech text-[10px] text-neutral-500 uppercase tracking-widest block ml-1">Zone Selector</label>
                     <select 
                       value={builderBodyPart}
-                      onChange={(e) => {
-                        setBuilderBodyPart(e.target.value);
-                        setBuilderExercise(EXERCISE_DB[e.target.value][0].name);
-                      }}
+                      onChange={(e) => setBuilderBodyPart(e.target.value)}
                       className="w-full bg-neutral-900 border border-white/10 p-5 font-bebas text-2xl tracking-widest text-white focus:border-white/40 transition-all outline-none rounded-none"
                     >
                       {Object.keys(EXERCISE_DB).map(part => (
@@ -727,7 +803,7 @@ export default function App() {
                       onChange={(e) => setBuilderExercise(e.target.value)}
                       className="w-full bg-neutral-900 border border-white/10 p-5 font-bebas text-2xl tracking-widest text-white focus:border-white/40 transition-all outline-none rounded-none"
                     >
-                      {EXERCISE_DB[builderBodyPart].map(ex => (
+                      {EXERCISE_DB[builderBodyPart]?.map(ex => (
                         <option key={ex.id} value={ex.name}>{ex.name.toUpperCase()}</option>
                       ))}
                     </select>
@@ -754,6 +830,7 @@ export default function App() {
 
                   <button 
                     onClick={async () => {
+                      if (!builderExercise) return;
                       const { error } = await supabase.from('routines').insert([
                         { name: builderExercise, sets: `${builderSets} SETS X ${builderReps} REPS`, user_id: session.user.id, order: routines.length + 1 }
                       ]);
@@ -792,6 +869,7 @@ export default function App() {
             </div>
           )}
 
+          {/* --- FINANCE VIEW --- */}
           {activeView === 'finance' && (
             <div className="animate-in slide-in-from-bottom-4 duration-500 max-w-5xl">
               <SectionHeader number="03" title="Revenue Ledger" />
@@ -827,7 +905,7 @@ export default function App() {
                     <div key={p.id} className="group flex items-center justify-between p-6 hover:bg-white/5 transition-all text-sm">
                       <div className="flex flex-col">
                         <span className="font-bold text-white uppercase tracking-widest">{p.name}</span>
-                        <span className="font-mono-tech text-[10px] text-neutral-500 mt-1">{new Date(p.created_at).toLocaleDateString()} // TXN_REF_{p.id.slice(0,4)}</span>
+                        <span className="font-mono-tech text-[10px] text-neutral-500 mt-1">{new Date(p.created_at).toLocaleDateString()} // TXN_REF_{p.id.toString().slice(0,4)}</span>
                       </div>
                       <div className="flex items-center gap-8">
                         <span className={`font-mono-tech text-[10px] px-3 py-1 uppercase tracking-widest border ${
