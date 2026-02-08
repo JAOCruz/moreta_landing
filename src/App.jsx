@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, DollarSign, Dumbbell, Activity, Plus, X, ChevronRight, Lock, User, LogOut, Edit3, Settings, Menu, Loader2, AlertTriangle, Home, Clock, Layout, CreditCard, Trash2, Users } from 'lucide-react';
+import { 
+  Calendar, DollarSign, Dumbbell, Activity, Plus, X, ChevronRight, 
+  Lock, User, LogOut, Edit3, Settings, Menu, Loader2, AlertTriangle, 
+  Home, Clock, Layout, CreditCard, Trash2, Users, ClipboardList, 
+  Folder, CheckSquare 
+} from 'lucide-react';
 import { supabase } from './lib/supabase';
 import gsap from 'gsap';
 import { EXERCISE_DB } from './data/exercises';
@@ -26,7 +31,12 @@ const Styles = () => (
       box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
     }
     
-    input:focus, select:focus { outline: none; border-color: rgba(255, 255, 255, 0.2) !important; }
+    input:focus, select:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* Custom Scrollbar */
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); }
@@ -36,7 +46,8 @@ const Styles = () => (
 // --- HELPERS ---
 const getMonday = (d) => {
   d = new Date(d);
-  const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); 
+  const day = d.getDay(),
+      diff = d.getDate() - day + (day === 0 ? -6 : 1); 
   return new Date(d.setDate(diff));
 }
 
@@ -51,63 +62,111 @@ const SectionHeader = ({ number, title }) => (
 const LoginScreen = ({ onLogin, loading, error }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const handleSubmit = (e) => { e.preventDefault(); onLogin(email, password); };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onLogin(email, password);
+  };
 
   return (
     <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center relative overflow-hidden font-inter">
       <Styles />
       <div className="absolute inset-0 tactical-grid opacity-20"></div>
+      
       <form onSubmit={handleSubmit} className="z-10 w-full max-w-md p-10 glass-panel border border-neutral-800 animate-in fade-in zoom-in duration-500">
         <div className="mb-10 text-center">
           <h1 className="font-bebas text-7xl mb-2 tracking-tighter">MORETA FITNESS</h1>
-          <p className="font-mono-tech text-[10px] text-neutral-500 tracking-[0.3em] uppercase">Tactical Dashboard // Authorized Access</p>
+          <p className="font-mono-tech text-[10px] text-neutral-500 tracking-[0.3em] uppercase">Tactical Dashboard</p>
         </div>
-        {error && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-mono-tech flex items-center gap-3"><AlertTriangle size={14} />{error.message}</div>}
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-mono-tech flex items-center gap-3">
+            <AlertTriangle size={14} />
+            {error.message}
+          </div>
+        )}
+
         <div className="space-y-6">
           <div>
             <label className="block text-[10px] font-bold text-neutral-500 mb-2 uppercase tracking-widest">Client Identifier</label>
             <div className="flex items-center bg-neutral-900/50 border border-neutral-800 p-4 transition-all focus-within:border-white/20">
               <User size={16} className="text-neutral-500 mr-3" />
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@moreta.fit" className="bg-transparent border-none outline-none text-sm w-full font-mono-tech placeholder-neutral-800" />
+              <input 
+                type="email" 
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="user@moreta.fit" 
+                className="bg-transparent border-none outline-none text-sm w-full font-mono-tech placeholder-neutral-800" 
+              />
             </div>
           </div>
           <div>
             <label className="block text-[10px] font-bold text-neutral-500 mb-2 uppercase tracking-widest">Access Key</label>
             <div className="flex items-center bg-neutral-900/50 border border-neutral-800 p-4 transition-all focus-within:border-white/20">
               <Lock size={16} className="text-neutral-500 mr-3" />
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="bg-transparent border-none outline-none text-sm w-full font-mono-tech placeholder-neutral-800" />
+              <input 
+                type="password" 
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••" 
+                className="bg-transparent border-none outline-none text-sm w-full font-mono-tech placeholder-neutral-800" 
+              />
             </div>
           </div>
-          <button type="submit" disabled={loading} className="w-full bg-white text-black font-bold font-mono-tech py-5 text-xs uppercase tracking-widest hover:bg-neutral-200 disabled:opacity-50 transition-all flex justify-center items-center gap-3 group">
+
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full bg-white text-black font-bold font-mono-tech py-5 text-xs uppercase tracking-widest hover:bg-neutral-200 disabled:opacity-50 transition-all flex justify-center items-center gap-3 group"
+          >
             {loading ? <Loader2 size={16} className="animate-spin" /> : <>Access System <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" /></>}
           </button>
         </div>
       </form>
+      
       <div className="absolute bottom-8 flex gap-8 text-[9px] text-neutral-600 font-mono-tech uppercase tracking-widest">
         <span>System Status: Online</span>
-        <span>Version: 3.5.0-PRO</span>
+        <span>Version: 4.1.0-FULL-RESTORE</span>
       </div>
     </div>
   );
 };
 
-// --- UPDATED COMMAND MODAL (Supports User List & Delete) ---
-const CommandModal = ({ isOpen, title, fields, onSubmit, onCancel, onDelete, participants = [] }) => {
+// --- MISSION CONTROL MODAL ---
+const CommandModal = ({ isOpen, title, fields, onSubmit, onCancel, onDelete, participants = [], routines = [] }) => {
   const [formData, setFormData] = useState({});
+  const [squadData, setSquadData] = useState([]);
+
   useEffect(() => {
     if (isOpen) {
       const initial = {};
       fields.forEach(f => initial[f.name] = f.defaultValue || '');
       setFormData(initial);
+      setSquadData(participants);
     }
-  }, [isOpen, fields]);
+  }, [isOpen, fields, participants]);
+
+  // Handle assigning a routine to a specific user
+  const handleAssignRoutineToUser = (userId, routineId) => {
+    const updatedSquad = squadData.map(p => 
+      p.id === userId ? { ...p, assigned_routine_id: routineId } : p
+    );
+    setSquadData(updatedSquad);
+  };
+
+  const handleSubmit = () => {
+    onSubmit(formData, squadData);
+  }
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
       <div className="fixed inset-0 tactical-grid opacity-20 pointer-events-none"></div>
-      <div className="glass-panel w-full max-w-lg p-10 relative overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
+      
+      <div className="glass-panel w-full max-w-2xl p-10 relative overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
         {/* Corners */}
         <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white/40"></div>
         <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white/40"></div>
@@ -123,29 +182,59 @@ const CommandModal = ({ isOpen, title, fields, onSubmit, onCancel, onDelete, par
           {fields.map((field) => (
             <div key={field.name} className="space-y-2">
               <label className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-[0.3em] block ml-1">{field.label}</label>
+              
               {field.type === 'select' ? (
-                <select value={formData[field.name] || ''} onChange={(e) => setFormData({...formData, [field.name]: e.target.value})} className="w-full bg-neutral-900/50 border border-white/10 px-5 py-4 font-mono-tech text-xs text-white focus:outline-none focus:border-white/40 transition-all rounded-none">
+                <select
+                    value={formData[field.name] || ''}
+                    onChange={(e) => setFormData({...formData, [field.name]: e.target.value})}
+                    className="w-full bg-neutral-900/50 border border-white/10 px-5 py-4 font-mono-tech text-xs text-white focus:outline-none focus:border-white/40 transition-all rounded-none"
+                >
                     <option value="">-- SELECT --</option>
-                    {field.options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                    {field.options?.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
                 </select>
               ) : (
-                <input autoFocus={field.name === fields[0].name} type={field.type || 'text'} value={formData[field.name] || ''} onChange={(e) => setFormData({...formData, [field.name]: e.target.value})} placeholder={field.placeholder} className="w-full bg-neutral-900/50 border border-white/10 px-5 py-4 font-mono-tech text-xs text-white placeholder:text-neutral-700 focus:outline-none focus:border-white/40 transition-all rounded-none" />
+                <input
+                    autoFocus={field.name === fields[0].name}
+                    type={field.type || 'text'}
+                    value={formData[field.name] || ''}
+                    onChange={(e) => setFormData({...formData, [field.name]: e.target.value})}
+                    placeholder={field.placeholder}
+                    className="w-full bg-neutral-900/50 border border-white/10 px-5 py-4 font-mono-tech text-xs text-white placeholder:text-neutral-700 focus:outline-none focus:border-white/40 transition-all rounded-none"
+                />
               )}
             </div>
           ))}
 
-          {/* PARTICIPANT LIST (Admin Only) */}
-          {participants.length > 0 && (
-            <div className="mt-6 border-t border-white/10 pt-4">
-              <div className="flex items-center gap-2 mb-3 text-neutral-500">
-                <Users size={12} />
-                <span className="font-mono-tech text-[9px] uppercase tracking-widest">Active Squad ({participants.length})</span>
+          {/* SQUAD MANAGEMENT (Admin Only) */}
+          {squadData.length > 0 && (
+            <div className="mt-8 border-t border-white/10 pt-6">
+              <div className="flex items-center justify-between mb-4 text-neutral-500">
+                <div className="flex items-center gap-2">
+                    <Users size={14} />
+                    <span className="font-mono-tech text-[10px] uppercase tracking-widest">Active Squad ({squadData.length})</span>
+                </div>
+                <span className="font-mono-tech text-[8px] uppercase tracking-widest">ASSIGN SPECIFIC ORDERS</span>
               </div>
-              <div className="max-h-32 overflow-y-auto custom-scrollbar space-y-1">
-                {participants.map((p, i) => (
-                  <div key={i} className="bg-white/5 px-3 py-2 flex items-center justify-between">
-                    <span className="font-mono-tech text-[10px] text-white">{p.email}</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <div className="max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+                {squadData.map((p, i) => (
+                  <div key={i} className="bg-white/5 p-3 flex items-center justify-between border border-white/5">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="font-mono-tech text-[10px] text-white truncate max-w-[150px]">{p.email}</span>
+                    </div>
+                    {/* PER-USER ROUTINE SELECTOR */}
+                    <select 
+                        value={p.assigned_routine_id || ''}
+                        onChange={(e) => handleAssignRoutineToUser(p.id, e.target.value)}
+                        className="bg-black/50 border border-white/10 text-[9px] text-white py-1 px-2 font-mono-tech focus:border-emerald-500 outline-none w-40"
+                    >
+                        <option value="">-- NO ROUTINE --</option>
+                        {routines.map(r => (
+                            <option key={r.id} value={r.id}>{r.name} ({r.category})</option>
+                        ))}
+                    </select>
                   </div>
                 ))}
               </div>
@@ -160,7 +249,7 @@ const CommandModal = ({ isOpen, title, fields, onSubmit, onCancel, onDelete, par
             </button>
           )}
           <button onClick={onCancel} className="flex-1 py-4 border border-neutral-800 text-neutral-500 font-mono-tech text-[10px] uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all">// CANCEL</button>
-          <button onClick={() => onSubmit(formData)} className="flex-1 py-4 bg-white text-black font-mono-tech text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">EXECUTE</button>
+          <button onClick={handleSubmit} className="flex-1 py-4 bg-white text-black font-mono-tech text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">EXECUTE ORDERS</button>
         </div>
       </div>
     </div>
@@ -178,6 +267,10 @@ const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
     ...(userRole === 'admin' ? [
         { id: 'builder', icon: Dumbbell, label: 'Builder' },
         { id: 'finance', icon: DollarSign, label: 'Pagos' }
+    ] : []),
+    // Only Client sees My Orders
+    ...(userRole === 'client' ? [
+        { id: 'my_routine', icon: ClipboardList, label: 'My Orders' }
     ] : [])
   ];
 
@@ -186,19 +279,40 @@ const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
       <div className="px-6 mb-12 text-center lg:text-left">
         <h1 className="font-bebas text-4xl tracking-tighter text-white">M<span className="text-neutral-500">.</span>FIT</h1>
         {userRole === 'admin' && <span className="hidden lg:block font-mono-tech text-[9px] text-emerald-500 uppercase tracking-widest mt-2">COMMANDER ACCESS</span>}
+        {userRole === 'client' && <span className="hidden lg:block font-mono-tech text-[9px] text-blue-500 uppercase tracking-widest mt-2">OPERATIVE ACCESS</span>}
       </div>
+
       <nav className="flex-1 space-y-2 px-3">
         {menuItems.map((item) => (
-          <button key={item.id} onClick={() => onViewChange(item.id)} className={`w-full flex items-center gap-4 px-4 py-4 transition-all group relative ${activeView === item.id ? 'bg-white/5 text-white border-r-2 border-white' : 'text-neutral-500 hover:text-white hover:bg-white/5'}`}>
+          <button
+            key={item.id}
+            onClick={() => onViewChange(item.id)}
+            className={`w-full flex items-center gap-4 px-4 py-4 transition-all group relative ${
+              activeView === item.id 
+                ? 'bg-white/5 text-white border-r-2 border-white' 
+                : 'text-neutral-500 hover:text-white hover:bg-white/5'
+            }`}
+          >
             <item.icon size={20} className={activeView === item.id ? 'animate-pulse' : ''} />
-            <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.2em]">{item.label}</span>
+            <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.2em]">
+              {item.label}
+            </span>
+            {activeView === item.id && (
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)]"></div>
+            )}
           </button>
         ))}
       </nav>
+
       <div className="px-3 mt-auto">
-        <button onClick={onLogout} className="w-full flex items-center gap-4 px-4 py-4 text-neutral-600 hover:text-red-500 transition-all group">
+        <button 
+          onClick={onLogout}
+          className="w-full flex items-center gap-4 px-4 py-4 text-neutral-600 hover:text-red-500 transition-all group"
+        >
           <LogOut size={20} />
-          <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.2em]">Log Out</span>
+          <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.2em]">
+            Log Out
+          </span>
         </button>
       </div>
     </div>
@@ -215,25 +329,31 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
 
-  // DATA
+  // DATA STATE
   const [sessions, setSessions] = useState([]);
   const [payments, setPayments] = useState([]);
   const [routines, setRoutines] = useState([]);
-  const [wellness, setWellness] = useState({ sleep_hours: 0, stress_level: '...', water_liters: 0, diet_score: 0 });
+  const [wellness, setWellness] = useState({
+    sleep_hours: 0,
+    stress_level: '...',
+    water_liters: 0,
+    diet_score: 0
+  });
 
-  // BUILDER STATE
+  // BUILDER STATE (V3: Folders & Bundles)
   const firstBodyPart = Object.keys(EXERCISE_DB)[0] || 'legs'; 
-  const [builderBodyPart, setBuilderBodyPart] = useState(firstBodyPart);
-  const [builderExercise, setBuilderExercise] = useState('');
-  const [builderSets, setBuilderSets] = useState(3);
-  const [builderReps, setBuilderReps] = useState(12);
-  const [editingRoutineId, setEditingRoutineId] = useState(null); // NEW: Track editing
+  const [selectedFolder, setSelectedFolder] = useState(firstBodyPart); // Replaces simple bodyPart
+  const [builderRoutineName, setBuilderRoutineName] = useState('');
+  const [builderExercises, setBuilderExercises] = useState([]); // List of exercises
+  const [currentExercise, setCurrentExercise] = useState({ name: '', sets: 3, reps: 12 });
+  const [editingRoutineId, setEditingRoutineId] = useState(null);
 
+  // Update initial exercise when folder changes
   useEffect(() => {
-    if (EXERCISE_DB[builderBodyPart]?.length > 0 && !editingRoutineId) {
-       setBuilderExercise(EXERCISE_DB[builderBodyPart][0].name);
+    if (EXERCISE_DB[selectedFolder]?.length > 0) {
+        setCurrentExercise(prev => ({ ...prev, name: EXERCISE_DB[selectedFolder][0].name }));
     }
-  }, [builderBodyPart, editingRoutineId]);
+  }, [selectedFolder]);
 
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', fields: [] });
 
@@ -262,7 +382,7 @@ export default function App() {
   const checkUserRole = async (uid) => {
     const { data } = await supabase.from('profiles').select('role').eq('id', uid).single();
     if (data) setUserRole(data.role);
-    else setUserRole('client');
+    else setUserRole('client'); // Default safety
     setLoading(false);
   };
 
@@ -272,16 +392,18 @@ export default function App() {
     end.setDate(end.getDate() + 6);
     const endStr = end.toISOString().split('T')[0];
 
+    // Clients see ALL sessions (RLS allows view), Admin sees created sessions
     const [sessRes, payRes, routRes] = await Promise.all([
       supabase.from('sessions').select('*').gte('date', startStr).lte('date', endStr).order('time', { ascending: true }),
       supabase.from('payments').select('*').order('created_at', { ascending: false }),
-      supabase.from('routines').select('*').order('order', { ascending: true }),
+      supabase.from('routines').select('*').order('created_at', { ascending: false }), // Newest first
     ]);
 
     if (!sessRes.error) setSessions(sessRes.data);
     if (!payRes.error) setPayments(payRes.data);
     if (!routRes.error) setRoutines(routRes.data);
 
+    // Subscriptions
     const channels = [
       supabase.channel('public:sessions').on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, () => fetchDashboardData(userId)).subscribe(),
       supabase.channel('public:payments').on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => fetchDashboardData(userId)).subscribe(),
@@ -290,30 +412,54 @@ export default function App() {
     return () => channels.forEach(c => c.unsubscribe());
   };
 
-  // --- ROUTINE ACTIONS (EDIT / DELETE) ---
-  const handleEditRoutine = (routine) => {
-    setEditingRoutineId(routine.id);
-    setBuilderExercise(routine.name);
-    // Try to parse sets/reps: "3 SETS X 12 REPS"
-    const match = routine.sets.match(/(\d+)\s*SETS\s*X\s*(\d+)\s*REPS/);
-    if (match) {
-        setBuilderSets(parseInt(match[1]));
-        setBuilderReps(parseInt(match[2]));
+  // --- BUILDER ACTIONS (Folders & Bundles) ---
+  const handleAddExerciseToBundle = () => {
+    setBuilderExercises([...builderExercises, { ...currentExercise }]);
+  };
+
+  const handleRemoveExerciseFromBundle = (index) => {
+    setBuilderExercises(builderExercises.filter((_, i) => i !== index));
+  };
+
+  const handleSaveRoutineBundle = async () => {
+    if (!builderRoutineName || builderExercises.length === 0) return alert("Name routine and add at least 1 exercise.");
+    
+    const payload = {
+        name: builderRoutineName,
+        category: selectedFolder.toUpperCase(),
+        exercises: builderExercises, // Saving list
+        user_id: session.user.id
+    };
+
+    if (editingRoutineId) {
+        await supabase.from('routines').update(payload).eq('id', editingRoutineId);
+        setEditingRoutineId(null);
+    } else {
+        await supabase.from('routines').insert([payload]);
     }
+    // Reset
+    setBuilderRoutineName('');
+    setBuilderExercises([]);
+  };
+
+  const handleEditRoutineLoad = (r) => {
+    setEditingRoutineId(r.id);
+    setBuilderRoutineName(r.name);
+    setBuilderExercises(Array.isArray(r.exercises) ? r.exercises : []); // Handle old format safety
+    setSelectedFolder(r.category ? r.category.toLowerCase() : 'legs');
   };
 
   const handleCancelEdit = () => {
     setEditingRoutineId(null);
-    setBuilderSets(3);
-    setBuilderReps(12);
-    setBuilderExercise(EXERCISE_DB[builderBodyPart][0].name);
+    setBuilderRoutineName('');
+    setBuilderExercises([]);
   };
 
   // --- SCHEDULE LOGIC ---
   const handleToggleAvailability = async (day, time) => {
     const existing = sessions.find(s => s.day === day && s.time === time);
     
-    // --- ADMIN LOGIC ---
+    // --- ADMIN LOGIC (Create/Delete/Manage) ---
     if (userRole === 'admin') {
         const dayIndex = DAYS.indexOf(day);
         const specificDate = new Date(currentWeekStart);
@@ -333,9 +479,9 @@ export default function App() {
                 isOpen: true,
                 title: "Session Command Center",
                 participants: existing.participants || [], // Pass users to modal
+                routines: routines, // Pass routines for selector
                 fields: [
-                    { name: 'routine_id', label: 'Assign Routine', type: 'select', options: routines.map(r => ({ value: r.id, label: r.name })), defaultValue: existing.routine_id || '' },
-                    { name: 'capacity', label: 'Capacity', type: 'number', defaultValue: existing.capacity || 4 }
+                    { name: 'capacity', label: 'Capacity Limit', type: 'number', defaultValue: existing.capacity || 4 }
                 ],
                 // DELETE HANDLER (The Red Button)
                 onDelete: async () => {
@@ -344,8 +490,13 @@ export default function App() {
                     await supabase.from('sessions').delete().eq('id', existing.id);
                     setModalConfig({ ...modalConfig, isOpen: false });
                 },
-                onSubmit: async (data) => {
-                    const { error } = await supabase.from('sessions').update({ routine_id: data.routine_id || null, capacity: parseInt(data.capacity) }).eq('id', existing.id);
+                onSubmit: async (data, updatedSquad) => {
+                    // Update capacity AND the modified participant list (with assigned routines)
+                    const { error } = await supabase.from('sessions').update({ 
+                        capacity: parseInt(data.capacity),
+                        participants: updatedSquad 
+                    }).eq('id', existing.id);
+
                     if(error) alert(error.message);
                     setModalConfig({ ...modalConfig, isOpen: false });
                 }
@@ -353,9 +504,9 @@ export default function App() {
         }
     } 
     
-    // --- CLIENT LOGIC ---
+    // --- CLIENT LOGIC (Join/Leave) ---
     else if (userRole === 'client') {
-        if (!existing) return;
+        if (!existing) return; // Cannot click empty space
 
         const myID = session.user.id;
         const myEmail = session.user.email;
@@ -363,19 +514,24 @@ export default function App() {
         
         let newParticipants;
         if (isJoined) {
+            // Leave
             if(!confirm("Leave this session?")) return;
             newParticipants = existing.participants.filter(p => p.id !== myID);
         } else {
+            // Join
             if ((existing.participants?.length || 0) >= (existing.capacity || 4)) {
                 alert("Session is Full.");
                 return;
             }
-            newParticipants = [...(existing.participants || []), { id: myID, email: myEmail }];
+            // Add user with NO routine initially
+            newParticipants = [...(existing.participants || []), { id: myID, email: myEmail, assigned_routine_id: null }];
         }
 
+        // Optimistic Update
         const updatedSession = { ...existing, participants: newParticipants };
         setSessions(prev => prev.map(s => s.id === existing.id ? updatedSession : s));
 
+        // DB Update
         const { error } = await supabase.from('sessions').update({ participants: newParticipants }).eq('id', existing.id);
         if (error) {
             alert(error.message);
@@ -444,6 +600,13 @@ export default function App() {
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="text-white animate-spin" size={32} /></div>;
   if (!session) return <LoginScreen onLogin={handleLogin} loading={authLoading} error={authError} />;
 
+  // FIND USER'S ASSIGNED ROUTINE (Client Logic)
+  const myUpcomingSession = sessions.find(s => s.participants?.some(p => p.id === session.user.id));
+  const myParticipantRecord = myUpcomingSession?.participants?.find(p => p.id === session.user.id);
+  const myAssignedRoutine = myParticipantRecord?.assigned_routine_id 
+    ? routines.find(r => r.id === myParticipantRecord.assigned_routine_id)
+    : null;
+
   return (
     <div className="min-h-screen bg-[#050505] text-white flex font-inter selection:bg-white selection:text-black">
       <Styles />
@@ -478,7 +641,7 @@ export default function App() {
                 </div>
               </section>
               
-              {userRole === 'admin' && (
+              {userRole === 'admin' ? (
                 <>
                   <section className="glass-panel p-8 relative">
                     <SectionHeader number="02" title="Routine Engine" />
@@ -486,7 +649,7 @@ export default function App() {
                       {routines.slice(0, 3).map((r, i) => (
                         <div key={r.id} className="flex justify-between items-center p-4 bg-white/5 border border-white/5">
                           <span className="font-mono-tech text-xs text-white">{String(i+1).padStart(2,'0')} // {r.name}</span>
-                          <span className="font-mono-tech text-[10px] text-neutral-500 uppercase">{r.sets}</span>
+                          <span className="font-mono-tech text-[10px] text-neutral-500 uppercase">{Array.isArray(r.exercises) ? r.exercises.length + ' EXERCISES' : r.sets}</span>
                         </div>
                       ))}
                       <button onClick={() => handleViewChange('builder')} className="w-full py-4 border border-white/5 text-neutral-500 font-mono-tech text-[9px] uppercase tracking-widest hover:border-white/20 hover:text-white transition-all">Engineer Program</button>
@@ -505,6 +668,23 @@ export default function App() {
                     </div>
                   </section>
                 </>
+              ) : (
+                <section className="glass-panel p-8 relative border-l-2 border-emerald-500/20">
+                    <SectionHeader number="02" title="Active Mission" />
+                    {myAssignedRoutine ? (
+                        <div className="space-y-4">
+                            <div className="p-6 bg-emerald-900/10 border border-emerald-500/30">
+                                <h3 className="font-bebas text-2xl text-emerald-500">{myAssignedRoutine.name}</h3>
+                                <p className="font-mono-tech text-xs text-emerald-200 mt-2">{Array.isArray(myAssignedRoutine.exercises) ? myAssignedRoutine.exercises.length : 1} EXERCISES LOGGED</p>
+                            </div>
+                            <button onClick={() => handleViewChange('my_routine')} className="w-full py-4 bg-white text-black font-mono-tech text-[9px] font-bold uppercase tracking-widest">VIEW FULL DETAILS</button>
+                        </div>
+                    ) : (
+                        <div className="h-32 flex items-center justify-center border border-dashed border-white/10">
+                            <span className="font-mono-tech text-xs text-neutral-500">NO ORDERS ASSIGNED</span>
+                        </div>
+                    )}
+                </section>
               )}
 
               {/* CLIENT WELLNESS VIEW */}
@@ -551,16 +731,16 @@ export default function App() {
                              else if (count < cap) style = "bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 opacity-100";
                              else style = "bg-red-500/10 border border-red-500/50 text-red-500 opacity-100";
                           } else {
+                             // CLIENT VISUALS:
                              if (isJoined) style = "bg-emerald-500/20 border border-emerald-500 text-emerald-500 opacity-100 ring-1 ring-emerald-500/50";
                              else if (count >= cap) style = "bg-red-500/10 border border-red-500/20 text-red-500/50 opacity-100 cursor-not-allowed";
-                             else style = "bg-white/5 border border-white/20 text-white hover:bg-emerald-500/20 hover:text-emerald-500 opacity-100";
+                             // FIX: Make available slots VISIBLE (Greenish) instead of invisible
+                             else style = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-500/70 hover:bg-emerald-500/20 hover:text-emerald-500 opacity-100 cursor-pointer";
                           }
                         } else {
-                            if (userRole === 'client') style = "opacity-0 cursor-default";
+                            if (userRole === 'client') style = "opacity-0 cursor-default"; // Client cant see black space
                         }
                         
-                        const assignedRoutine = session?.routine_id ? routines.find(r => r.id === session.routine_id)?.name : null;
-
                         return (
                           <div key={`${day}-${hour}`} onClick={() => handleToggleAvailability(day, hour)} className={`h-16 transition-all active:scale-95 group relative flex flex-col items-center justify-center p-1 text-center overflow-hidden ${style} ${session ? 'cursor-pointer' : ''}`}>
                             {session ? (
@@ -569,7 +749,6 @@ export default function App() {
                                 <span className="font-mono-tech text-[7px] uppercase tracking-widest opacity-70">
                                     {userRole === 'client' && isJoined ? "JOINED" : userRole === 'client' && count >= cap ? "FULL" : "OPEN"}
                                 </span>
-                                {assignedRoutine && <span className="absolute bottom-1 w-full text-[6px] bg-white/10 py-0.5 text-white font-mono-tech truncate px-1">{assignedRoutine}</span>}
                               </>
                             ) : (
                               userRole === 'admin' && <div className="opacity-0 group-hover:opacity-100 transition-opacity"><Plus size={12} className="text-white/30" /></div>
@@ -584,90 +763,114 @@ export default function App() {
             </div>
           )}
 
-          {activeView === 'builder' && userRole === 'admin' && (
-            <div className="max-w-4xl">
-              <SectionHeader number="02" title="Routine Engineering" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
-                {/* BUILDER INPUTS */}
-                <div className="space-y-8 glass-panel p-10 border-l-2 border-white/20">
-                  {editingRoutineId && <div className="text-yellow-500 font-mono-tech text-xs uppercase tracking-widest mb-[-10px]">⚠️ EDITING MODE</div>}
-                  <div className="space-y-2">
-                    <label className="font-mono-tech text-[10px] text-neutral-500 uppercase tracking-widest block ml-1">Zone</label>
-                    <select value={builderBodyPart} onChange={(e) => setBuilderBodyPart(e.target.value)} className="w-full bg-neutral-900 border border-white/10 p-5 font-bebas text-2xl tracking-widest text-white focus:border-white/40 transition-all outline-none rounded-none">
-                      {Object.keys(EXERCISE_DB).map(part => <option key={part} value={part}>{part.toUpperCase()}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="font-mono-tech text-[10px] text-neutral-500 uppercase tracking-widest block ml-1">Exercise</label>
-                    {/* Allow free text editing when in edit mode, or select otherwise */}
-                    {editingRoutineId ? (
-                        <input value={builderExercise} onChange={(e) => setBuilderExercise(e.target.value)} className="w-full bg-neutral-900 border border-white/10 p-5 font-bebas text-2xl tracking-widest text-white focus:border-white/40 transition-all outline-none rounded-none"/>
-                    ) : (
-                        <select value={builderExercise} onChange={(e) => setBuilderExercise(e.target.value)} className="w-full bg-neutral-900 border border-white/10 p-5 font-bebas text-2xl tracking-widest text-white focus:border-white/40 transition-all outline-none rounded-none">
-                        {EXERCISE_DB[builderBodyPart]?.map(ex => <option key={ex.id} value={ex.name}>{ex.name.toUpperCase()}</option>)}
-                        </select>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="font-mono-tech text-[10px] text-neutral-500 uppercase tracking-widest block ml-1">Sets</label>
-                      <div className="flex bg-neutral-900 border border-white/10 h-16">
-                        <button onClick={() => setBuilderSets(Math.max(1, builderSets - 1))} className="flex-1 hover:bg-white/5">-</button>
-                        <div className="flex-[2] flex items-center justify-center font-bebas text-3xl">{String(builderSets).padStart(2, '0')}</div>
-                        <button onClick={() => setBuilderSets(builderSets + 1)} className="flex-1 hover:bg-white/5">+</button>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="font-mono-tech text-[10px] text-neutral-500 uppercase tracking-widest block ml-1">Reps</label>
-                      <div className="flex bg-neutral-900 border border-white/10 h-16">
-                        <button onClick={() => setBuilderReps(Math.max(1, builderReps - 1))} className="flex-1 hover:bg-white/5">-</button>
-                        <div className="flex-[2] flex items-center justify-center font-bebas text-3xl">{String(builderReps).padStart(2, '0')}</div>
-                        <button onClick={() => setBuilderReps(builderReps + 1)} className="flex-1 hover:bg-white/5">+</button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    {editingRoutineId && <button onClick={handleCancelEdit} className="flex-1 py-6 border border-neutral-700 text-neutral-500 font-mono-tech text-xs font-bold uppercase tracking-[0.3em] hover:bg-neutral-800 transition-all">CANCEL</button>}
-                    <button onClick={async () => { 
-                        if (!builderExercise) return; 
-                        const payload = { name: builderExercise, sets: `${builderSets} SETS X ${builderReps} REPS`, user_id: session.user.id };
-                        
-                        if (editingRoutineId) {
-                            const { error } = await supabase.from('routines').update(payload).eq('id', editingRoutineId);
-                            if (error) alert(error.message);
-                            setEditingRoutineId(null);
-                        } else {
-                            const { error } = await supabase.from('routines').insert([{ ...payload, order: routines.length + 1 }]);
-                            if (error) alert(error.message);
-                        }
-                    }} className="flex-[2] py-6 bg-white text-black font-mono-tech text-xs font-bold uppercase tracking-[0.3em] hover:bg-emerald-500 hover:text-white transition-all shadow-xl">
-                        {editingRoutineId ? "UPDATE BLOCK" : "DEPLOY BLOCK"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* ROUTINE LIST */}
-                <div className="space-y-4 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
-                   {routines.map((item, idx) => (
-                      <div key={item.id} className={`group flex items-center justify-between p-5 border transition-all ${editingRoutineId === item.id ? 'bg-emerald-900/20 border-emerald-500/50' : 'bg-neutral-900/40 border-white/5 hover:border-white/20'}`}>
-                        <div className="flex items-center gap-5">
-                          <span className="font-mono-tech text-xs font-bold text-neutral-700">{String(idx+1).padStart(2, '0')} //</span>
-                          <span className="font-bold text-sm uppercase tracking-widest text-neutral-300">{item.name}</span>
+          {activeView === 'my_routine' && userRole === 'client' && (
+             <div className="max-w-3xl mx-auto glass-panel p-10 border-t-4 border-emerald-500">
+                <SectionHeader number="01" title="Daily Orders" />
+                {myAssignedRoutine ? (
+                    <div>
+                        <div className="mb-8">
+                            <h1 className="font-bebas text-6xl text-white mb-2">{myAssignedRoutine.name}</h1>
+                            <span className="font-mono-tech text-xs bg-emerald-500/10 text-emerald-500 px-2 py-1">{myAssignedRoutine.category} DIVISION</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono-tech text-[10px] text-neutral-500 uppercase tracking-widest mr-2">{item.sets}</span>
-                          <button onClick={() => handleEditRoutine(item)} className="p-2 text-neutral-700 hover:text-white transition-colors"><Edit3 size={14} /></button>
-                          <button onClick={async () => await supabase.from('routines').delete().eq('id', item.id)} className="p-2 text-neutral-700 hover:text-red-500 transition-colors"><X size={14} /></button>
+                        <div className="space-y-4">
+                            {(Array.isArray(myAssignedRoutine.exercises) ? myAssignedRoutine.exercises : []).map((ex, i) => (
+                                <div key={i} className="flex items-center gap-6 p-6 bg-white/5 border border-white/5 hover:border-emerald-500/30 transition-all group">
+                                    <div className="h-12 w-12 flex items-center justify-center bg-black border border-white/10 font-bebas text-xl text-neutral-500 group-hover:text-emerald-500">{i+1}</div>
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-lg">{ex.name}</h3>
+                                        <p className="font-mono-tech text-xs text-neutral-400">TARGET: {ex.sets} SETS // {ex.reps} REPS</p>
+                                    </div>
+                                    <div className="h-6 w-6 border border-white/20 rounded-sm cursor-pointer hover:bg-emerald-500/50"></div>
+                                </div>
+                            ))}
                         </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
+                    </div>
+                ) : (
+                    <div className="text-center py-20">
+                        <AlertTriangle className="mx-auto text-yellow-500 mb-4" size={32} />
+                        <h2 className="font-bebas text-3xl">NO MISSION DATA</h2>
+                        <p className="font-mono-tech text-xs text-neutral-500 mt-2">CONTACT COMMANDER FOR ASSIGNMENT</p>
+                    </div>
+                )}
             </div>
           )}
 
-          {activeView === 'finance' && userRole === 'admin' && (
+          {activeView === 'builder' && userRole === 'admin' && (
+            <div className="grid grid-cols-12 gap-8 h-[80vh]">
+                {/* LEFT: EDITOR */}
+                <div className="col-span-12 lg:col-span-7 glass-panel p-8 flex flex-col">
+                    <SectionHeader number="A" title="Bundle Creator" />
+                    <div className="space-y-6 flex-1 overflow-y-auto custom-scrollbar pr-2">
+                        {editingRoutineId && <div className="bg-yellow-500/10 text-yellow-500 p-2 font-mono-tech text-xs text-center border border-yellow-500/30">EDITING MODE</div>}
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                            <div><label className="text-[10px] font-mono-tech text-neutral-500 block mb-2">CATEGORY (FOLDER)</label><input value={selectedFolder.toUpperCase()} disabled className="w-full bg-white/5 border border-white/10 p-3 text-xs font-mono-tech text-neutral-500 cursor-not-allowed" /></div>
+                            <div><label className="text-[10px] font-mono-tech text-neutral-500 block mb-2">ROUTINE NAME</label><input placeholder="e.g. Legs Hypertrophy A" value={builderRoutineName} onChange={e => setBuilderRoutineName(e.target.value)} className="w-full bg-black border border-white/20 p-3 text-xs font-mono-tech text-white focus:border-emerald-500" /></div>
+                        </div>
+
+                        {/* Add Exercises */}
+                        <div className="bg-white/5 p-4 border border-white/10">
+                            <span className="text-[9px] font-mono-tech text-emerald-500 uppercase mb-3 block">Add Exercise to Bundle</span>
+                            <div className="grid grid-cols-12 gap-2">
+                                <div className="col-span-6"><select value={currentExercise.name} onChange={e => setCurrentExercise({...currentExercise, name: e.target.value})} className="w-full bg-black border border-white/10 p-2 text-[10px] font-mono-tech h-full">{EXERCISE_DB[selectedFolder]?.map(e => <option key={e.id} value={e.name}>{e.name}</option>)}</select></div>
+                                <div className="col-span-2"><input type="number" value={currentExercise.sets} onChange={e => setCurrentExercise({...currentExercise, sets: parseInt(e.target.value)})} className="w-full bg-black border border-white/10 p-2 text-center text-xs" /></div>
+                                <div className="col-span-2"><input type="number" value={currentExercise.reps} onChange={e => setCurrentExercise({...currentExercise, reps: parseInt(e.target.value)})} className="w-full bg-black border border-white/10 p-2 text-center text-xs" /></div>
+                                <button onClick={handleAddExerciseToBundle} className="col-span-2 bg-white text-black font-bold text-xs hover:bg-emerald-500">+</button>
+                            </div>
+                        </div>
+
+                        {/* Manifest List */}
+                        <div className="space-y-2">
+                            {builderExercises.map((ex, i) => (
+                                <div key={i} className="flex justify-between items-center p-3 bg-neutral-900 border-l-2 border-emerald-500">
+                                    <span className="font-mono-tech text-xs">{i+1}. {ex.name}</span>
+                                    <div className="flex items-center gap-4"><span className="font-mono-tech text-[10px] text-neutral-500">{ex.sets} x {ex.reps}</span><button onClick={() => handleRemoveExerciseFromBundle(i)} className="text-neutral-600 hover:text-red-500"><X size={12}/></button></div>
+                                </div>
+                            ))}
+                            {builderExercises.length === 0 && <div className="text-center py-8 text-neutral-600 font-mono-tech text-xs border border-dashed border-white/10">BUNDLE EMPTY</div>}
+                        </div>
+                    </div>
+                    <div className="pt-4 mt-4 border-t border-white/10 flex gap-2">
+                        {editingRoutineId && <button onClick={handleCancelEdit} className="flex-1 py-3 border border-white/10 text-xs font-mono-tech hover:bg-white/5">CANCEL</button>}
+                        <button onClick={handleSaveRoutineBundle} className="flex-[2] py-3 bg-emerald-500 text-black font-bold font-mono-tech text-xs hover:bg-white transition-all">{editingRoutineId ? 'UPDATE BUNDLE' : 'SAVE TO LIBRARY'}</button>
+                    </div>
+                </div>
+
+                {/* RIGHT: LIBRARY (FOLDERS) */}
+                <div className="col-span-12 lg:col-span-5 glass-panel p-0 flex flex-col">
+                    <div className="flex overflow-x-auto border-b border-white/10 p-2 gap-2">
+                        {Object.keys(EXERCISE_DB).map(cat => (
+                            <button key={cat} onClick={() => setSelectedFolder(cat)} className={`px-4 py-2 text-[10px] font-mono-tech uppercase tracking-widest transition-all ${selectedFolder === cat ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}>{cat}</button>
+                        ))}
+                    </div>
+                    <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-3">
+                        {routines.filter(r => r.category === selectedFolder.toUpperCase()).map(r => (
+                            <div key={r.id} className="group p-4 border border-white/5 hover:border-emerald-500/30 bg-white/5 transition-all">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h4 className="font-bebas text-xl">{r.name}</h4>
+                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button onClick={() => handleEditRoutineLoad(r)} className="text-neutral-400 hover:text-white"><Edit3 size={14} /></button>
+                                        <button onClick={async () => {if(confirm('Delete?')) await supabase.from('routines').delete().eq('id', r.id)}} className="text-neutral-400 hover:text-red-500"><Trash2 size={14} /></button>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    {(Array.isArray(r.exercises) ? r.exercises : []).slice(0, 3).map((ex, i) => (
+                                        <div key={i} className="flex justify-between text-[9px] font-mono-tech text-neutral-500">
+                                            <span>{ex.name}</span><span>{ex.sets}x{ex.reps}</span>
+                                        </div>
+                                    ))}
+                                    {(Array.isArray(r.exercises) ? r.exercises.length : 0) > 3 && <span className="text-[8px] text-neutral-600 block pt-1">...and more</span>}
+                                </div>
+                            </div>
+                        ))}
+                        {routines.filter(r => r.category === selectedFolder.toUpperCase()).length === 0 && <div className="text-center py-10 text-neutral-600 font-mono-tech text-[10px]">EMPTY FOLDER</div>}
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* FINANCE (ADMIN ONLY) */}
+        {activeView === 'finance' && userRole === 'admin' && (
              <div className="max-w-5xl">
               <SectionHeader number="03" title="Revenue Ledger" />
               <div className="glass-panel overflow-hidden border border-white/5">
