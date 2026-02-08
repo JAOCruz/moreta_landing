@@ -3,7 +3,7 @@ import {
   Calendar, DollarSign, Dumbbell, Activity, Plus, X, ChevronRight, 
   Lock, User, LogOut, Edit3, Settings, Menu, Loader2, AlertTriangle, 
   Home, Clock, Layout, CreditCard, Trash2, Users, ClipboardList, 
-  Folder, CheckSquare 
+  Folder, CheckSquare, Key
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import gsap from 'gsap';
@@ -128,7 +128,7 @@ const LoginScreen = ({ onLogin, loading, error }) => {
       
       <div className="absolute bottom-8 flex gap-8 text-[9px] text-neutral-600 font-mono-tech uppercase tracking-widest">
         <span>System Status: Online</span>
-        <span>Version: 4.1.0-FULL-RESTORE</span>
+        <span>Version: 4.2.0-SETTINGS</span>
       </div>
     </div>
   );
@@ -148,7 +148,6 @@ const CommandModal = ({ isOpen, title, fields, onSubmit, onCancel, onDelete, par
     }
   }, [isOpen, fields, participants]);
 
-  // Handle assigning a routine to a specific user
   const handleAssignRoutineToUser = (userId, routineId) => {
     const updatedSquad = squadData.map(p => 
       p.id === userId ? { ...p, assigned_routine_id: routineId } : p
@@ -263,15 +262,17 @@ const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
     { id: 'schedule', icon: Clock, label: 'Horario' },
-    // Only Admin sees Builder/Finance
+    // Admin Only
     ...(userRole === 'admin' ? [
         { id: 'builder', icon: Dumbbell, label: 'Builder' },
         { id: 'finance', icon: DollarSign, label: 'Pagos' }
     ] : []),
-    // Only Client sees My Orders
+    // Client Only
     ...(userRole === 'client' ? [
         { id: 'my_routine', icon: ClipboardList, label: 'My Orders' }
-    ] : [])
+    ] : []),
+    // Everyone
+    { id: 'settings', icon: Settings, label: 'Settings' }
   ];
 
   return (
@@ -324,7 +325,7 @@ export default function App() {
   const viewRef = useRef(null);
   const [currentWeekStart, setCurrentWeekStart] = useState(getMonday(new Date()));
   const [session, setSession] = useState(null);
-  const [userRole, setUserRole] = useState(null); // 'admin' or 'client'
+  const [userRole, setUserRole] = useState(null); 
   const [loading, setLoading] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
@@ -340,15 +341,18 @@ export default function App() {
     diet_score: 0
   });
 
-  // BUILDER STATE (V3: Folders & Bundles)
+  // SETTINGS STATE
+  const [newPassword, setNewPassword] = useState('');
+
+  // BUILDER STATE
   const firstBodyPart = Object.keys(EXERCISE_DB)[0] || 'legs'; 
-  const [selectedFolder, setSelectedFolder] = useState(firstBodyPart); // Replaces simple bodyPart
+  const [selectedFolder, setSelectedFolder] = useState(firstBodyPart); 
   const [builderRoutineName, setBuilderRoutineName] = useState('');
-  const [builderExercises, setBuilderExercises] = useState([]); // List of exercises
+  const [builderExercises, setBuilderExercises] = useState([]); 
   const [currentExercise, setCurrentExercise] = useState({ name: '', sets: 3, reps: 12 });
   const [editingRoutineId, setEditingRoutineId] = useState(null);
 
-  // Update initial exercise when folder changes
+  // Update initial exercise
   useEffect(() => {
     if (EXERCISE_DB[selectedFolder]?.length > 0) {
         setCurrentExercise(prev => ({ ...prev, name: EXERCISE_DB[selectedFolder][0].name }));
@@ -396,14 +400,13 @@ export default function App() {
     const [sessRes, payRes, routRes] = await Promise.all([
       supabase.from('sessions').select('*').gte('date', startStr).lte('date', endStr).order('time', { ascending: true }),
       supabase.from('payments').select('*').order('created_at', { ascending: false }),
-      supabase.from('routines').select('*').order('created_at', { ascending: false }), // Newest first
+      supabase.from('routines').select('*').order('created_at', { ascending: false }),
     ]);
 
     if (!sessRes.error) setSessions(sessRes.data);
     if (!payRes.error) setPayments(payRes.data);
     if (!routRes.error) setRoutines(routRes.data);
 
-    // Subscriptions
     const channels = [
       supabase.channel('public:sessions').on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, () => fetchDashboardData(userId)).subscribe(),
       supabase.channel('public:payments').on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => fetchDashboardData(userId)).subscribe(),
@@ -412,7 +415,18 @@ export default function App() {
     return () => channels.forEach(c => c.unsubscribe());
   };
 
-  // --- BUILDER ACTIONS (Folders & Bundles) ---
+  // --- ACTIONS ---
+  const handleUpdatePassword = async () => {
+    if (newPassword.length < 6) return alert("Password must be at least 6 characters.");
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) alert("Error: " + error.message);
+    else {
+        alert("Password updated successfully!");
+        setNewPassword('');
+    }
+  };
+
+  // --- BUILDER ACTIONS ---
   const handleAddExerciseToBundle = () => {
     setBuilderExercises([...builderExercises, { ...currentExercise }]);
   };
@@ -427,7 +441,7 @@ export default function App() {
     const payload = {
         name: builderRoutineName,
         category: selectedFolder.toUpperCase(),
-        exercises: builderExercises, // Saving list
+        exercises: builderExercises, 
         user_id: session.user.id
     };
 
@@ -437,7 +451,6 @@ export default function App() {
     } else {
         await supabase.from('routines').insert([payload]);
     }
-    // Reset
     setBuilderRoutineName('');
     setBuilderExercises([]);
   };
@@ -445,7 +458,7 @@ export default function App() {
   const handleEditRoutineLoad = (r) => {
     setEditingRoutineId(r.id);
     setBuilderRoutineName(r.name);
-    setBuilderExercises(Array.isArray(r.exercises) ? r.exercises : []); // Handle old format safety
+    setBuilderExercises(Array.isArray(r.exercises) ? r.exercises : []);
     setSelectedFolder(r.category ? r.category.toLowerCase() : 'legs');
   };
 
@@ -458,14 +471,12 @@ export default function App() {
   // --- SCHEDULE LOGIC ---
   const handleToggleAvailability = async (day, time) => {
     const existing = sessions.find(s => s.day === day && s.time === time);
-    
-    // --- ADMIN LOGIC (Create/Delete/Manage) ---
-    if (userRole === 'admin') {
-        const dayIndex = DAYS.indexOf(day);
-        const specificDate = new Date(currentWeekStart);
-        specificDate.setDate(specificDate.getDate() + dayIndex);
-        const dateStr = specificDate.toISOString().split('T')[0];
+    const dayIndex = DAYS.indexOf(day);
+    const specificDate = new Date(currentWeekStart);
+    specificDate.setDate(specificDate.getDate() + dayIndex);
+    const dateStr = specificDate.toISOString().split('T')[0];
 
+    if (userRole === 'admin') {
         if (!existing) {
             // Create Slot
             const tempSlot = { id: 'temp-' + Date.now(), day, time, date: dateStr, status: 'open', capacity: 4, participants: [], user_id: session.user.id };
@@ -474,16 +485,15 @@ export default function App() {
             if (data) setSessions(prev => prev.map(s => s.id === tempSlot.id ? data[0] : s));
             else { setSessions(prev => prev.filter(s => s.id !== tempSlot.id)); alert(error.message); }
         } else {
-            // MANAGE SLOT (DELETE & ASSIGN)
+            // Manage Slot
             setModalConfig({
                 isOpen: true,
                 title: "Session Command Center",
-                participants: existing.participants || [], // Pass users to modal
-                routines: routines, // Pass routines for selector
+                participants: existing.participants || [], 
+                routines: routines,
                 fields: [
                     { name: 'capacity', label: 'Capacity Limit', type: 'number', defaultValue: existing.capacity || 4 }
                 ],
-                // DELETE HANDLER (The Red Button)
                 onDelete: async () => {
                     if (!confirm("CONFIRM DELETION: This will remove the slot and kick all " + (existing.participants?.length || 0) + " users.")) return;
                     setSessions(prev => prev.filter(s => s.id !== existing.id));
@@ -491,7 +501,6 @@ export default function App() {
                     setModalConfig({ ...modalConfig, isOpen: false });
                 },
                 onSubmit: async (data, updatedSquad) => {
-                    // Update capacity AND the modified participant list (with assigned routines)
                     const { error } = await supabase.from('sessions').update({ 
                         capacity: parseInt(data.capacity),
                         participants: updatedSquad 
@@ -502,11 +511,8 @@ export default function App() {
                 }
             });
         }
-    } 
-    
-    // --- CLIENT LOGIC (Join/Leave) ---
-    else if (userRole === 'client') {
-        if (!existing) return; // Cannot click empty space
+    } else if (userRole === 'client') {
+        if (!existing) return;
 
         const myID = session.user.id;
         const myEmail = session.user.email;
@@ -514,24 +520,19 @@ export default function App() {
         
         let newParticipants;
         if (isJoined) {
-            // Leave
             if(!confirm("Leave this session?")) return;
             newParticipants = existing.participants.filter(p => p.id !== myID);
         } else {
-            // Join
             if ((existing.participants?.length || 0) >= (existing.capacity || 4)) {
                 alert("Session is Full.");
                 return;
             }
-            // Add user with NO routine initially
             newParticipants = [...(existing.participants || []), { id: myID, email: myEmail, assigned_routine_id: null }];
         }
 
-        // Optimistic Update
         const updatedSession = { ...existing, participants: newParticipants };
         setSessions(prev => prev.map(s => s.id === existing.id ? updatedSession : s));
 
-        // DB Update
         const { error } = await supabase.from('sessions').update({ participants: newParticipants }).eq('id', existing.id);
         if (error) {
             alert(error.message);
@@ -600,7 +601,7 @@ export default function App() {
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="text-white animate-spin" size={32} /></div>;
   if (!session) return <LoginScreen onLogin={handleLogin} loading={authLoading} error={authError} />;
 
-  // FIND USER'S ASSIGNED ROUTINE (Client Logic)
+  // FIND MY ROUTINE (Client)
   const myUpcomingSession = sessions.find(s => s.participants?.some(p => p.id === session.user.id));
   const myParticipantRecord = myUpcomingSession?.participants?.find(p => p.id === session.user.id);
   const myAssignedRoutine = myParticipantRecord?.assigned_routine_id 
@@ -626,6 +627,7 @@ export default function App() {
             </div>
           </header>
 
+          {/* --- DASHBOARD --- */}
           {activeView === 'dashboard' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               <section className="glass-panel p-8 relative border-l-2 border-white/20">
@@ -699,6 +701,7 @@ export default function App() {
             </div>
           )}
 
+          {/* --- SCHEDULE --- */}
           {activeView === 'schedule' && (
             <div className="mb-20">
                <div className="flex justify-between items-center mb-6 px-1">
@@ -731,14 +734,13 @@ export default function App() {
                              else if (count < cap) style = "bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 opacity-100";
                              else style = "bg-red-500/10 border border-red-500/50 text-red-500 opacity-100";
                           } else {
-                             // CLIENT VISUALS:
+                             // CLIENT VISUALS (FIXED):
                              if (isJoined) style = "bg-emerald-500/20 border border-emerald-500 text-emerald-500 opacity-100 ring-1 ring-emerald-500/50";
                              else if (count >= cap) style = "bg-red-500/10 border border-red-500/20 text-red-500/50 opacity-100 cursor-not-allowed";
-                             // FIX: Make available slots VISIBLE (Greenish) instead of invisible
                              else style = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-500/70 hover:bg-emerald-500/20 hover:text-emerald-500 opacity-100 cursor-pointer";
                           }
                         } else {
-                            if (userRole === 'client') style = "opacity-0 cursor-default"; // Client cant see black space
+                            if (userRole === 'client') style = "opacity-0 cursor-default";
                         }
                         
                         return (
@@ -763,6 +765,35 @@ export default function App() {
             </div>
           )}
 
+          {/* --- SETTINGS --- */}
+          {activeView === 'settings' && (
+            <div className="max-w-2xl mx-auto glass-panel p-10 border-t-4 border-white/20 animate-in slide-in-from-bottom-4 duration-500">
+                <SectionHeader number="00" title="System Configuration" />
+                <div className="space-y-8 mt-8">
+                    <div>
+                        <h3 className="font-bebas text-2xl text-white mb-2 flex items-center gap-2"><Key size={20} /> Update Access Key</h3>
+                        <p className="font-mono-tech text-xs text-neutral-500 mb-4">Set a new password for your account.</p>
+                        <div className="flex gap-4">
+                            <input 
+                                type="password" 
+                                placeholder="NEW PASSWORD" 
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="flex-1 bg-neutral-900 border border-white/10 p-4 font-mono-tech text-white focus:border-white/40 outline-none"
+                            />
+                            <button 
+                                onClick={handleUpdatePassword}
+                                className="px-8 bg-white text-black font-mono-tech font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all"
+                            >
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          )}
+
+          {/* --- MY ROUTINE (CLIENT) --- */}
           {activeView === 'my_routine' && userRole === 'client' && (
              <div className="max-w-3xl mx-auto glass-panel p-10 border-t-4 border-emerald-500">
                 <SectionHeader number="01" title="Daily Orders" />
@@ -795,9 +826,9 @@ export default function App() {
             </div>
           )}
 
+          {/* --- BUILDER (ADMIN) --- */}
           {activeView === 'builder' && userRole === 'admin' && (
             <div className="grid grid-cols-12 gap-8 h-[80vh]">
-                {/* LEFT: EDITOR */}
                 <div className="col-span-12 lg:col-span-7 glass-panel p-8 flex flex-col">
                     <SectionHeader number="A" title="Bundle Creator" />
                     <div className="space-y-6 flex-1 overflow-y-auto custom-scrollbar pr-2">
@@ -808,7 +839,6 @@ export default function App() {
                             <div><label className="text-[10px] font-mono-tech text-neutral-500 block mb-2">ROUTINE NAME</label><input placeholder="e.g. Legs Hypertrophy A" value={builderRoutineName} onChange={e => setBuilderRoutineName(e.target.value)} className="w-full bg-black border border-white/20 p-3 text-xs font-mono-tech text-white focus:border-emerald-500" /></div>
                         </div>
 
-                        {/* Add Exercises */}
                         <div className="bg-white/5 p-4 border border-white/10">
                             <span className="text-[9px] font-mono-tech text-emerald-500 uppercase mb-3 block">Add Exercise to Bundle</span>
                             <div className="grid grid-cols-12 gap-2">
@@ -819,7 +849,6 @@ export default function App() {
                             </div>
                         </div>
 
-                        {/* Manifest List */}
                         <div className="space-y-2">
                             {builderExercises.map((ex, i) => (
                                 <div key={i} className="flex justify-between items-center p-3 bg-neutral-900 border-l-2 border-emerald-500">
@@ -836,7 +865,6 @@ export default function App() {
                     </div>
                 </div>
 
-                {/* RIGHT: LIBRARY (FOLDERS) */}
                 <div className="col-span-12 lg:col-span-5 glass-panel p-0 flex flex-col">
                     <div className="flex overflow-x-auto border-b border-white/10 p-2 gap-2">
                         {Object.keys(EXERCISE_DB).map(cat => (
@@ -869,7 +897,7 @@ export default function App() {
             </div>
         )}
 
-        {/* FINANCE (ADMIN ONLY) */}
+        {/* --- FINANCE (ADMIN) --- */}
         {activeView === 'finance' && userRole === 'admin' && (
              <div className="max-w-5xl">
               <SectionHeader number="03" title="Revenue Ledger" />
