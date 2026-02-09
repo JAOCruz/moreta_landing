@@ -18,12 +18,6 @@ const Styles = () => (
     .font-inter { font-family: 'Inter', sans-serif; }
     .font-mono-tech { font-family: 'JetBrains Mono', monospace; }
     
-    .tactical-grid {
-      background-image: linear-gradient(#1a1a1a 1px, transparent 1px),
-      linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-    
     .glass-panel {
       background: rgba(10, 10, 10, 0.85);
       backdrop-filter: blur(16px);
