@@ -59,13 +59,18 @@ const SectionHeader = ({ number, title }) => (
   </div>
 );
 
-const LoginScreen = ({ onLogin, loading, error }) => {
+const LoginScreen = ({ onLogin, onSignup, loading, error }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSignupMode, setIsSignupMode] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin(email, password);
+    if (isSignupMode) {
+      onSignup(email, password);
+    } else {
+      onLogin(email, password);
+    }
   };
 
   return (
@@ -76,7 +81,9 @@ const LoginScreen = ({ onLogin, loading, error }) => {
       <form onSubmit={handleSubmit} className="z-10 w-full max-w-md p-10 glass-panel border border-neutral-800 animate-in fade-in zoom-in duration-500">
         <div className="mb-10 text-center">
           <h1 className="font-bebas text-7xl mb-2 tracking-tighter">MORETA FITNESS</h1>
-          <p className="font-mono-tech text-[10px] text-neutral-500 tracking-[0.3em] uppercase">Tactical Dashboard</p>
+          <p className="font-mono-tech text-[10px] text-neutral-500 tracking-[0.3em] uppercase">
+            {isSignupMode ? 'Client Registration' : 'Tactical Dashboard'}
+          </p>
         </div>
 
         {error && (
@@ -108,12 +115,18 @@ const LoginScreen = ({ onLogin, loading, error }) => {
               <input 
                 type="password" 
                 required
+                minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••" 
                 className="bg-transparent border-none outline-none text-sm w-full font-mono-tech placeholder-neutral-800" 
               />
             </div>
+            {isSignupMode && (
+              <p className="text-[9px] text-neutral-600 font-mono-tech mt-2 ml-1">
+                * Minimum 6 characters required
+              </p>
+            )}
           </div>
 
           <button 
@@ -121,8 +134,30 @@ const LoginScreen = ({ onLogin, loading, error }) => {
             disabled={loading}
             className="w-full bg-white text-black font-bold font-mono-tech py-5 text-xs uppercase tracking-widest hover:bg-neutral-200 disabled:opacity-50 transition-all flex justify-center items-center gap-3 group"
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : <>Access System <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" /></>}
+            {loading ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <>
+                {isSignupMode ? 'Create Account' : 'Access System'}
+                <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
           </button>
+
+          {/* Toggle between Login/Signup */}
+          <div className="text-center pt-4 border-t border-neutral-800">
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignupMode(!isSignupMode);
+                setEmail('');
+                setPassword('');
+              }}
+              className="text-neutral-500 hover:text-white text-xs font-mono-tech uppercase tracking-widest transition-colors"
+            >
+              {isSignupMode ? '← Back to Login' : 'New Client? Register Here →'}
+            </button>
+          </div>
         </div>
       </form>
       
@@ -524,7 +559,7 @@ export default function App() {
     };
 
     // 🔍 DEBUG: Log what we're sending
-    console.log('Payload being sent:', JSON.stringify(payload, null, 2));
+    console.log('🔍 Payload being sent to Supabase:', JSON.stringify(payload, null, 2));
 
     if (editingRoutineId) {
         const { data, error } = await supabase
@@ -533,9 +568,11 @@ export default function App() {
             .eq('id', editingRoutineId);
         
         if (error) {
-            console.error('Update error:', error);
-            alert('Error updating: ' + error.message);
+            console.error('❌ Update error:', error);
+            alert('Update failed: ' + error.message + '\nDetails: ' + (error.details || 'Check console'));
+            return;
         }
+        console.log('✅ Routine updated:', data);
         setEditingRoutineId(null);
     } else {
         const { data, error } = await supabase
@@ -543,14 +580,17 @@ export default function App() {
             .insert([payload]);
         
         if (error) {
-            console.error('Insert error:', error); // ← Check this in console
-            alert('Error inserting: ' + error.message);
+            console.error('❌ Insert error:', error);
+            alert('Insert failed: ' + error.message + '\nDetails: ' + (error.details || 'Check console for full error'));
+            return;
         }
+        console.log('✅ Routine created:', data);
     }
     
     setBuilderRoutineName('');
     setBuilderExercises([]);
-};
+    alert('✅ Routine saved successfully!');
+  };
 
   const handleEditRoutineLoad = (r) => {
     setEditingRoutineId(r.id);
@@ -687,12 +727,65 @@ export default function App() {
   const handleLogin = async (email, password) => {
     setAuthLoading(true); setAuthError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setAuthError(error); setAuthLoading(false);
+    if (error) setAuthError(error); 
+    setAuthLoading(false);
   };
-  const handleLogout = async () => { await supabase.auth.signOut(); setSessions([]); setPayments([]); setRoutines([]); setSession(null); };
+
+  const handleSignup = async (email, password) => {
+    setAuthLoading(true); setAuthError(null);
+    
+    // 1. Create the user account
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          role: 'client' // Default role for new signups
+        }
+      }
+    });
+    
+    if (error) {
+      setAuthError(error);
+      setAuthLoading(false);
+      return;
+    }
+
+    // 2. Create profile entry with 'client' role
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          { 
+            id: data.user.id, 
+            email: data.user.email,
+            role: 'client' 
+          }
+        ]);
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        // Don't show this error to user - they can still log in
+      }
+
+      // Success message
+      alert('✅ Account created! Please check your email to verify your account, then log in.');
+      setAuthError(null);
+    }
+    
+    setAuthLoading(false);
+  };
+
+  const handleLogout = async () => { 
+    await supabase.auth.signOut(); 
+    setSessions([]); 
+    setPayments([]); 
+    setRoutines([]); 
+    setSession(null); 
+  };
 
   if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="text-white animate-spin" size={32} /></div>;
-  if (!session) return <LoginScreen onLogin={handleLogin} loading={authLoading} error={authError} />;
+  if (!session) return <LoginScreen onLogin={handleLogin} onSignup={handleSignup} loading={authLoading} error={authError} />;
 
   // FIND MY ROUTINE (Client)
   const myUpcomingSession = sessions.find(s => s.participants?.some(p => p.id === session.user.id));
