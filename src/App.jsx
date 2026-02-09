@@ -716,7 +716,7 @@ export default function App() {
                 <div className="h-12"></div>
                 {DAYS.map(day => <div key={day} className="h-12 flex items-center justify-center bg-neutral-900/50 border border-white/5 font-mono-tech text-[10px] text-neutral-400 uppercase tracking-widest">{day}</div>)}
                 {HOURS.map((hour, index) => {
-                  if (hour === '---') return <div key={`spacer-${index}`} className="col-span-8 h-8 flex items-center justify-center bg-neutral-900/30 border-y border-white/5"><span className="font-mono-tech text-[9px] text-neutral-600 tracking-[0.5em]">SIESTA // BREAK</span></div>;
+                  if (hour === '---') return <div key={`spacer-${index}`} className="col-span-8 h-8 flex items-center justify-center bg-neutral-900/30 border-y border-white/5"><span className="font-mono-tech text-[9px] text-neutral-600 tracking-[0.5em]">MAÑANA // TARDE </span></div>;
                   return (
                     <React.Fragment key={hour}>
                       <div className="h-16 flex items-center justify-center font-mono-tech text-[10px] text-neutral-600 border-r border-white/5">{hour}</div>
