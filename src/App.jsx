@@ -512,24 +512,45 @@ export default function App() {
   };
 
   const handleSaveRoutineBundle = async () => {
-    if (!builderRoutineName || builderExercises.length === 0) return alert("Name routine and add at least 1 exercise.");
+    if (!builderRoutineName || builderExercises.length === 0) {
+        return alert("Name routine and add at least 1 exercise.");
+    }
     
     const payload = {
         name: builderRoutineName,
         category: selectedFolder.toUpperCase(),
-        exercises: builderExercises, 
+        exercises: builderExercises,
         user_id: session.user.id
     };
 
+    // 🔍 DEBUG: Log what we're sending
+    console.log('Payload being sent:', JSON.stringify(payload, null, 2));
+
     if (editingRoutineId) {
-        await supabase.from('routines').update(payload).eq('id', editingRoutineId);
+        const { data, error } = await supabase
+            .from('routines')
+            .update(payload)
+            .eq('id', editingRoutineId);
+        
+        if (error) {
+            console.error('Update error:', error);
+            alert('Error updating: ' + error.message);
+        }
         setEditingRoutineId(null);
     } else {
-        await supabase.from('routines').insert([payload]);
+        const { data, error } = await supabase
+            .from('routines')
+            .insert([payload]);
+        
+        if (error) {
+            console.error('Insert error:', error); // ← Check this in console
+            alert('Error inserting: ' + error.message);
+        }
     }
+    
     setBuilderRoutineName('');
     setBuilderExercises([]);
-  };
+};
 
   const handleEditRoutineLoad = (r) => {
     setEditingRoutineId(r.id);
