@@ -3,7 +3,7 @@ import {
   Calendar, DollarSign, Dumbbell, Activity, Plus, X, ChevronRight, 
   Lock, User, LogOut, Edit3, Settings, Menu, Loader2, AlertTriangle, 
   Home, Clock, Layout, CreditCard, Trash2, Users, ClipboardList, 
-  Folder, CheckSquare, Key
+  Folder, CheckSquare, Key, ArrowUp, ArrowDown
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import gsap from 'gsap';
@@ -128,7 +128,7 @@ const LoginScreen = ({ onLogin, loading, error }) => {
       
       <div className="absolute bottom-8 flex gap-8 text-[9px] text-neutral-600 font-mono-tech uppercase tracking-widest">
         <span>System Status: Online</span>
-        <span>Version: 4.2.0-SETTINGS</span>
+        <span>Version: 5.3.0-FINAL-STABLE</span>
       </div>
     </div>
   );
@@ -255,6 +255,53 @@ const CommandModal = ({ isOpen, title, fields, onSubmit, onCancel, onDelete, par
   );
 };
 
+// --- MODAL: CLIENT SESSION DETAIL ---
+const ClientSessionModal = ({ isOpen, session, routine, onLeave, onClose }) => {
+  if (!isOpen || !session) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="fixed inset-0 tactical-grid opacity-20 pointer-events-none"></div>
+      <div className="glass-panel w-full max-w-lg p-10 relative overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20">
+        <div className="flex justify-between items-start mb-8">
+            <div>
+                <span className="font-mono-tech text-[10px] text-emerald-500 uppercase tracking-widest">ACTIVE SESSION</span>
+                <h2 className="font-bebas text-4xl text-white mt-1">{session.day} @ {session.time}</h2>
+                <p className="font-mono-tech text-xs text-neutral-400 mt-1">{session.date}</p>
+            </div>
+            <button onClick={onClose} className="text-neutral-500 hover:text-white"><X size={20} /></button>
+        </div>
+
+        {routine ? (
+            <div className="space-y-4 mb-8">
+                <div className="p-4 bg-white/5 border border-white/10">
+                    <span className="font-mono-tech text-[9px] text-neutral-500 uppercase block mb-2">ASSIGNED PROTOCOL</span>
+                    <h3 className="font-bold text-xl text-white">{routine.name}</h3>
+                    <span className="text-[10px] font-mono-tech text-emerald-500 bg-emerald-500/10 px-2 py-1 mt-2 inline-block">{routine.category}</span>
+                </div>
+                <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+                    {Array.isArray(routine.exercises) && routine.exercises.map((ex, i) => (
+                        <div key={i} className="flex justify-between items-center p-3 bg-neutral-900 border border-white/5">
+                            <span className="font-mono-tech text-xs text-white">{i+1}. {ex.name}</span>
+                            <span className="font-mono-tech text-[10px] text-neutral-400">{ex.sets} x {ex.reps}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        ) : (
+            <div className="p-8 border border-dashed border-white/10 text-center mb-8">
+                <p className="font-mono-tech text-xs text-neutral-500">NO ORDERS ASSIGNED YET</p>
+            </div>
+        )}
+
+        <button onClick={onLeave} className="w-full py-4 bg-red-500/10 border border-red-500/50 text-red-500 font-mono-tech text-xs font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">
+            LEAVE SESSION SLOT
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const DAYS = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM'];
 const HOURS = [ '05:00', '05:30', '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '---', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00' ];
 
@@ -330,6 +377,10 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
 
+  // MODALS
+  const [adminModal, setAdminModal] = useState({ isOpen: false });
+  const [clientModal, setClientModal] = useState({ isOpen: false, session: null, routine: null });
+
   // DATA STATE
   const [sessions, setSessions] = useState([]);
   const [payments, setPayments] = useState([]);
@@ -342,6 +393,7 @@ export default function App() {
   });
 
   // SETTINGS STATE
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
   // BUILDER STATE
@@ -418,11 +470,25 @@ export default function App() {
   // --- ACTIONS ---
   const handleUpdatePassword = async () => {
     if (newPassword.length < 6) return alert("Password must be at least 6 characters.");
+    
+    // 1. Verify Current Password
+    const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: session.user.email,
+        password: currentPassword
+    });
+
+    if (verifyError) {
+        alert("SECURITY ALERT: Current password incorrect.");
+        return;
+    }
+
+    // 2. Update Password
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) alert("Error: " + error.message);
     else {
         alert("Password updated successfully!");
         setNewPassword('');
+        setCurrentPassword('');
     }
   };
 
@@ -433,6 +499,16 @@ export default function App() {
 
   const handleRemoveExerciseFromBundle = (index) => {
     setBuilderExercises(builderExercises.filter((_, i) => i !== index));
+  };
+
+  const moveExercise = (index, direction) => {
+    const newExercises = [...builderExercises];
+    if (direction === 'up' && index > 0) {
+        [newExercises[index], newExercises[index - 1]] = [newExercises[index - 1], newExercises[index]];
+    } else if (direction === 'down' && index < newExercises.length - 1) {
+        [newExercises[index], newExercises[index + 1]] = [newExercises[index + 1], newExercises[index]];
+    }
+    setBuilderExercises(newExercises);
   };
 
   const handleSaveRoutineBundle = async () => {
@@ -486,7 +562,7 @@ export default function App() {
             else { setSessions(prev => prev.filter(s => s.id !== tempSlot.id)); alert(error.message); }
         } else {
             // Manage Slot
-            setModalConfig({
+            setAdminModal({
                 isOpen: true,
                 title: "Session Command Center",
                 participants: existing.participants || [], 
@@ -498,7 +574,7 @@ export default function App() {
                     if (!confirm("CONFIRM DELETION: This will remove the slot and kick all " + (existing.participants?.length || 0) + " users.")) return;
                     setSessions(prev => prev.filter(s => s.id !== existing.id));
                     await supabase.from('sessions').delete().eq('id', existing.id);
-                    setModalConfig({ ...modalConfig, isOpen: false });
+                    setAdminModal({ isOpen: false });
                 },
                 onSubmit: async (data, updatedSquad) => {
                     const { error } = await supabase.from('sessions').update({ 
@@ -507,7 +583,7 @@ export default function App() {
                     }).eq('id', existing.id);
 
                     if(error) alert(error.message);
-                    setModalConfig({ ...modalConfig, isOpen: false });
+                    setAdminModal({ isOpen: false });
                 }
             });
         }
@@ -518,27 +594,23 @@ export default function App() {
         const myEmail = session.user.email;
         const isJoined = existing.participants?.some(p => p.id === myID);
         
-        let newParticipants;
         if (isJoined) {
-            if(!confirm("Leave this session?")) return;
-            newParticipants = existing.participants.filter(p => p.id !== myID);
+            const myData = existing.participants.find(p => p.id === myID);
+            const myRoutine = myData?.assigned_routine_id ? routines.find(r => r.id === myData.assigned_routine_id) : null;
+            setClientModal({ isOpen: true, session: existing, routine: myRoutine });
         } else {
-            if ((existing.participants?.length || 0) >= (existing.capacity || 4)) {
-                alert("Session is Full.");
-                return;
-            }
-            newParticipants = [...(existing.participants || []), { id: myID, email: myEmail, assigned_routine_id: null }];
-        }
-
-        const updatedSession = { ...existing, participants: newParticipants };
-        setSessions(prev => prev.map(s => s.id === existing.id ? updatedSession : s));
-
-        const { error } = await supabase.from('sessions').update({ participants: newParticipants }).eq('id', existing.id);
-        if (error) {
-            alert(error.message);
-            setSessions(prev => prev.map(s => s.id === existing.id ? existing : s));
+            if ((existing.participants?.length || 0) >= existing.capacity) return alert("Full.");
+            const newParticipants = [...(existing.participants || []), { id: myID, email: session.user.email, assigned_routine_id: null }];
+            await supabase.from('sessions').update({ participants: newParticipants }).eq('id', existing.id);
         }
     }
+  };
+
+  const handleClientLeave = async () => {
+    if (!clientModal.session) return;
+    const newParticipants = clientModal.session.participants.filter(p => p.id !== session.user.id);
+    await supabase.from('sessions').update({ participants: newParticipants }).eq('id', clientModal.session.id);
+    setClientModal({ isOpen: false, session: null, routine: null });
   };
 
   const handleViewChange = (newView) => {
@@ -716,7 +788,7 @@ export default function App() {
                 <div className="h-12"></div>
                 {DAYS.map(day => <div key={day} className="h-12 flex items-center justify-center bg-neutral-900/50 border border-white/5 font-mono-tech text-[10px] text-neutral-400 uppercase tracking-widest">{day}</div>)}
                 {HOURS.map((hour, index) => {
-                  if (hour === '---') return <div key={`spacer-${index}`} className="col-span-8 h-8 flex items-center justify-center bg-neutral-900/30 border-y border-white/5"><span className="font-mono-tech text-[9px] text-neutral-600 tracking-[0.5em]">MAÑANA // TARDE </span></div>;
+                  if (hour === '---') return <div key={`spacer-${index}`} className="col-span-8 h-8 flex items-center justify-center bg-neutral-900/30 border-y border-white/5"><span className="font-mono-tech text-[9px] text-neutral-600 tracking-[0.5em]">SIESTA // BREAK</span></div>;
                   return (
                     <React.Fragment key={hour}>
                       <div className="h-16 flex items-center justify-center font-mono-tech text-[10px] text-neutral-600 border-r border-white/5">{hour}</div>
@@ -772,20 +844,27 @@ export default function App() {
                 <div className="space-y-8 mt-8">
                     <div>
                         <h3 className="font-bebas text-2xl text-white mb-2 flex items-center gap-2"><Key size={20} /> Update Access Key</h3>
-                        <p className="font-mono-tech text-xs text-neutral-500 mb-4">Set a new password for your account.</p>
-                        <div className="flex gap-4">
+                        <p className="font-mono-tech text-xs text-neutral-500 mb-4">Verification required to update credentials.</p>
+                        <div className="flex flex-col gap-4">
+                            <input 
+                                type="password" 
+                                placeholder="CURRENT PASSWORD" 
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                className="bg-neutral-900 border border-white/10 p-4 font-mono-tech text-white focus:border-white/40 outline-none"
+                            />
                             <input 
                                 type="password" 
                                 placeholder="NEW PASSWORD" 
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
-                                className="flex-1 bg-neutral-900 border border-white/10 p-4 font-mono-tech text-white focus:border-white/40 outline-none"
+                                className="bg-neutral-900 border border-white/10 p-4 font-mono-tech text-white focus:border-white/40 outline-none"
                             />
                             <button 
                                 onClick={handleUpdatePassword}
-                                className="px-8 bg-white text-black font-mono-tech font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all"
+                                className="px-8 py-3 bg-white text-black font-mono-tech font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all self-start"
                             >
-                                Update
+                                Update Credentials
                             </button>
                         </div>
                     </div>
@@ -824,10 +903,10 @@ export default function App() {
                     </div>
                 )}
             </div>
-          )}
+        )}
 
-          {/* --- BUILDER (ADMIN) --- */}
-          {activeView === 'builder' && userRole === 'admin' && (
+        {/* --- BUILDER (ADMIN) --- */}
+        {activeView === 'builder' && userRole === 'admin' && (
             <div className="grid grid-cols-12 gap-8 h-[80vh]">
                 <div className="col-span-12 lg:col-span-7 glass-panel p-8 flex flex-col">
                     <SectionHeader number="A" title="Bundle Creator" />
@@ -853,7 +932,12 @@ export default function App() {
                             {builderExercises.map((ex, i) => (
                                 <div key={i} className="flex justify-between items-center p-3 bg-neutral-900 border-l-2 border-emerald-500">
                                     <span className="font-mono-tech text-xs">{i+1}. {ex.name}</span>
-                                    <div className="flex items-center gap-4"><span className="font-mono-tech text-[10px] text-neutral-500">{ex.sets} x {ex.reps}</span><button onClick={() => handleRemoveExerciseFromBundle(i)} className="text-neutral-600 hover:text-red-500"><X size={12}/></button></div>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => moveExercise(i, 'up')} className="text-neutral-600 hover:text-white"><ArrowUp size={10}/></button>
+                                        <button onClick={() => moveExercise(i, 'down')} className="text-neutral-600 hover:text-white"><ArrowDown size={10}/></button>
+                                        <span className="font-mono-tech text-[10px] text-neutral-500 mx-2">{ex.sets} x {ex.reps}</span>
+                                        <button onClick={() => handleRemoveExerciseFromBundle(i)} className="text-neutral-600 hover:text-red-500"><X size={12}/></button>
+                                    </div>
                                 </div>
                             ))}
                             {builderExercises.length === 0 && <div className="text-center py-8 text-neutral-600 font-mono-tech text-xs border border-dashed border-white/10">BUNDLE EMPTY</div>}
@@ -864,34 +948,15 @@ export default function App() {
                         <button onClick={handleSaveRoutineBundle} className="flex-[2] py-3 bg-emerald-500 text-black font-bold font-mono-tech text-xs hover:bg-white transition-all">{editingRoutineId ? 'UPDATE BUNDLE' : 'SAVE TO LIBRARY'}</button>
                     </div>
                 </div>
-
                 <div className="col-span-12 lg:col-span-5 glass-panel p-0 flex flex-col">
-                    <div className="flex overflow-x-auto border-b border-white/10 p-2 gap-2">
-                        {Object.keys(EXERCISE_DB).map(cat => (
-                            <button key={cat} onClick={() => setSelectedFolder(cat)} className={`px-4 py-2 text-[10px] font-mono-tech uppercase tracking-widest transition-all ${selectedFolder === cat ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}>{cat}</button>
-                        ))}
-                    </div>
+                    <div className="flex overflow-x-auto border-b border-white/10 p-2 gap-2">{Object.keys(EXERCISE_DB).map(cat => (<button key={cat} onClick={() => setSelectedFolder(cat)} className={`px-4 py-2 text-[10px] font-mono-tech uppercase tracking-widest transition-all ${selectedFolder === cat ? 'bg-white text-black' : 'text-neutral-500 hover:text-white'}`}>{cat}</button>))}</div>
                     <div className="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-3">
                         {routines.filter(r => r.category === selectedFolder.toUpperCase()).map(r => (
                             <div key={r.id} className="group p-4 border border-white/5 hover:border-emerald-500/30 bg-white/5 transition-all">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h4 className="font-bebas text-xl">{r.name}</h4>
-                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => handleEditRoutineLoad(r)} className="text-neutral-400 hover:text-white"><Edit3 size={14} /></button>
-                                        <button onClick={async () => {if(confirm('Delete?')) await supabase.from('routines').delete().eq('id', r.id)}} className="text-neutral-400 hover:text-red-500"><Trash2 size={14} /></button>
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    {(Array.isArray(r.exercises) ? r.exercises : []).slice(0, 3).map((ex, i) => (
-                                        <div key={i} className="flex justify-between text-[9px] font-mono-tech text-neutral-500">
-                                            <span>{ex.name}</span><span>{ex.sets}x{ex.reps}</span>
-                                        </div>
-                                    ))}
-                                    {(Array.isArray(r.exercises) ? r.exercises.length : 0) > 3 && <span className="text-[8px] text-neutral-600 block pt-1">...and more</span>}
-                                </div>
+                                <div className="flex justify-between items-start mb-2"><h4 className="font-bebas text-xl">{r.name}</h4><div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => handleEditRoutineLoad(r)} className="text-neutral-400 hover:text-white"><Edit3 size={14} /></button><button onClick={async () => {if(confirm('Delete?')) await supabase.from('routines').delete().eq('id', r.id)}} className="text-neutral-400 hover:text-red-500"><Trash2 size={14} /></button></div></div>
+                                <div className="space-y-1">{(Array.isArray(r.exercises) ? r.exercises : []).slice(0, 3).map((ex, i) => (<div key={i} className="flex justify-between text-[9px] font-mono-tech text-neutral-500"><span>{ex.name}</span><span>{ex.sets}x{ex.reps}</span></div>))}</div>
                             </div>
                         ))}
-                        {routines.filter(r => r.category === selectedFolder.toUpperCase()).length === 0 && <div className="text-center py-10 text-neutral-600 font-mono-tech text-[10px]">EMPTY FOLDER</div>}
                     </div>
                 </div>
             </div>
@@ -929,7 +994,18 @@ export default function App() {
           )}
         </div>
       </main>
-      <CommandModal {...modalConfig} onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })} routines={routines} />
+      <CommandModal {...adminModal} onCancel={() => setAdminModal({ isOpen: false })} />
+      <ClientSessionModal 
+        isOpen={clientModal.isOpen} 
+        session={clientModal.session} 
+        routine={clientModal.routine} 
+        onLeave={handleClientLeave}
+        onClose={() => setClientModal({ isOpen: false, session: null, routine: null })}
+      />
+      <CommandModal 
+        {...modalConfig} 
+        onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })} 
+      />
     </div>
   );
 }
