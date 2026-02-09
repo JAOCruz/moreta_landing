@@ -1,44 +1,56 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0a0a0a;
-  --color-surface: #141414;
-  --color-accent: #ffffff;
-  --color-status-green: #10b981;
+  /* ===== COLOR SYSTEM (EASIER ON EYES) ===== */
+  --color-background: #0f1113;      /* lifted black */
+  --color-surface: #181b1f;         /* clearer separation */
+  --color-accent: #e6e6e6;          /* off-white instead of pure white */
+  --color-muted: rgba(230, 230, 230, 0.6);
+
+  --color-status-green: #22c55e;
   --color-status-red: #ef4444;
   --color-status-yellow: #f59e0b;
 
+  /* ===== TYPOGRAPHY ===== */
   --font-display: "Bebas Neue", sans-serif;
   --font-body: "Inter", sans-serif;
 }
 
-/* Custom Base Styles */
+/* ================= BASE ================= */
+
 @layer base {
   body {
-    @apply bg-background text-accent font-body selection:bg-accent selection:text-background overflow-x-hidden;
+    @apply bg-background text-accent font-body overflow-x-hidden;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
     cursor: default;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-background);
   }
 }
 
-/* Noise Texture Overlay */
+/* ================= NOISE OVERLAY ================= */
+
 body::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.05;
+  inset: 0;
+  opacity: 0.035; /* reduced noise */
   z-index: 9999;
   pointer-events: none;
 }
 
+/* ================= LAYOUT ================= */
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, minmax(400px, 1fr));
-  gap: 1.5rem;
-  padding: 1.5rem;
+  grid-template-rows: repeat(2, minmax(380px, 1fr));
+  gap: 1.75rem;
+  padding: 1.75rem;
 }
 
 @media (max-width: 1024px) {
@@ -48,25 +60,88 @@ body::before {
   }
 }
 
+/* ================= CARDS ================= */
+
 .card-surface {
-  @apply bg-surface border border-white/5 p-6 rounded-sm relative overflow-hidden;
-  transition: border-color 0.3s ease;
+  @apply bg-surface border p-6 rounded-sm relative overflow-hidden;
+  border-color: rgba(255, 255, 255, 0.08);
+  transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
 .card-surface:hover {
-  @apply border-white/20;
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
+/* ================= CARD CONTENT ================= */
+
 .card-title {
-  @apply font-display text-4xl mb-6 tracking-tight uppercase;
+  @apply font-display uppercase mb-5;
+  font-size: 2.5rem;
+  letter-spacing: 0.04em;
 }
+
+.card-meta {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ================= TEXT UTILITIES ================= */
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-status-green {
+  color: var(--color-status-green);
+}
+
+.text-status-yellow {
+  color: var(--color-status-yellow);
+}
+
+.text-status-red {
+  color: var(--color-status-red);
+}
+
+/* ================= GRID OVERLAY ================= */
 
 .logic-grid {
   position: absolute;
   inset: 0;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
   background-size: 32px 32px;
+  opacity: 0.5;
   pointer-events: none;
+}
+
+.card-surface:hover .logic-grid {
+  opacity: 0.7;
+}
+
+/* ================= SIDEBAR (OPTIONAL BUT RECOMMENDED) ================= */
+
+.sidebar {
+  background: linear-gradient(to bottom, #0f1113, #0b0d0f);
+}
+
+.sidebar-item {
+  color: var(--color-muted);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.sidebar-item:hover {
+  color: var(--color-accent);
+}
+
+.sidebar-item.active {
+  color: var(--color-accent);
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
 }

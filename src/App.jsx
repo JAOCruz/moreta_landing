@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Calendar, DollarSign, Dumbbell, Activity, Plus, X, ChevronRight, 
   Lock, User, LogOut, Edit3, Settings, Menu, Loader2, AlertTriangle, 
@@ -70,7 +70,7 @@ const LoginScreen = ({ onLogin, onSignup, loading, error }) => {
   return (
     <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center relative overflow-hidden font-inter">
       <Styles />
-      <div className="absolute inset-0 tactical-grid opacity-20"></div>
+      <div className="absolute inset-0 opacity-20"></div>
       
       <form onSubmit={handleSubmit} className="z-10 w-full max-w-md p-10 glass-panel border border-neutral-800 animate-in fade-in zoom-in duration-500">
         <div className="mb-10 text-center">
@@ -396,6 +396,115 @@ const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
   );
 };
 
+// --- BULK OPERATIONS MODAL ---
+const BulkOpsModal = ({ isOpen, onClose, currentWeek, onCopyWeek, onClearWeek, onFillMonth }) => {
+  const [operation, setOperation] = useState('copy');
+  const [weeksAhead, setWeeksAhead] = useState(1);
+
+  if (!isOpen) return null;
+
+  const handleExecute = () => {
+    if (operation === 'copy') {
+      const targetWeek = new Date(currentWeek);
+      targetWeek.setDate(targetWeek.getDate() + (weeksAhead * 7));
+      onCopyWeek(currentWeek, targetWeek);
+      onClose();
+    } else if (operation === 'clear') {
+      onClearWeek(currentWeek);
+      onClose();
+    } else if (operation === 'pattern') {
+      // Example pattern: MWF at 6am and 6pm
+      const pattern = [
+        { day: 'LUN', time: '06:00', capacity: 4 },
+        { day: 'LUN', time: '18:00', capacity: 4 },
+        { day: 'MIE', time: '06:00', capacity: 4 },
+        { day: 'MIE', time: '18:00', capacity: 4 },
+        { day: 'VIE', time: '06:00', capacity: 4 },
+        { day: 'VIE', time: '18:00', capacity: 4 },
+      ];
+      onFillMonth(pattern);
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="glass-panel w-full max-w-lg p-10 relative border border-white/20">
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h2 className="font-bebas text-3xl text-white">BULK OPERATIONS</h2>
+            <p className="font-mono-tech text-xs text-neutral-400 mt-2">Mass schedule management</p>
+          </div>
+          <button onClick={onClose} className="text-neutral-500 hover:text-white"><X size={20} /></button>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <label className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-widest block mb-3">Operation Type</label>
+            <div className="space-y-2">
+              <button
+                onClick={() => setOperation('copy')}
+                className={`w-full p-4 text-left border transition-all ${operation === 'copy' ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+              >
+                <div className="font-bold text-sm text-white">Copy Week Pattern</div>
+                <div className="font-mono-tech text-xs text-neutral-400 mt-1">Duplicate this week's schedule to future weeks</div>
+              </button>
+
+              <button
+                onClick={() => setOperation('pattern')}
+                className={`w-full p-4 text-left border transition-all ${operation === 'pattern' ? 'bg-emerald-500/20 border-emerald-500' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+              >
+                <div className="font-bold text-sm text-white">Fill Month (MWF Pattern)</div>
+                <div className="font-mono-tech text-xs text-neutral-400 mt-1">Auto-fill entire month with Mon/Wed/Fri @ 6am & 6pm</div>
+              </button>
+
+              <button
+                onClick={() => setOperation('clear')}
+                className={`w-full p-4 text-left border transition-all ${operation === 'clear' ? 'bg-red-500/20 border-red-500' : 'bg-white/5 border-white/10 hover:border-white/20'}`}
+              >
+                <div className="font-bold text-sm text-white">Clear This Week</div>
+                <div className="font-mono-tech text-xs text-neutral-400 mt-1">Delete all sessions in current week</div>
+              </button>
+            </div>
+          </div>
+
+          {operation === 'copy' && (
+            <div>
+              <label className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-widest block mb-3">Copy to week (ahead)</label>
+              <input
+                type="number"
+                min="1"
+                max="12"
+                value={weeksAhead}
+                onChange={(e) => setWeeksAhead(parseInt(e.target.value))}
+                className="w-full bg-black border border-white/20 p-4 font-mono-tech text-white text-center text-2xl"
+              />
+              <p className="font-mono-tech text-xs text-neutral-500 mt-2">
+                Target: {new Date(new Date(currentWeek).setDate(currentWeek.getDate() + (weeksAhead * 7))).toLocaleDateString()}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-4 mt-10">
+          <button onClick={onClose} className="flex-1 py-4 border border-neutral-800 text-neutral-500 font-mono-tech text-[10px] uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all">Cancel</button>
+          <button 
+            onClick={handleExecute} 
+            className={`flex-1 py-4 font-mono-tech text-[10px] font-bold uppercase tracking-widest transition-all ${
+              operation === 'clear' 
+                ? 'bg-red-500 text-white hover:bg-red-600' 
+                : 'bg-white text-black hover:bg-emerald-500 hover:text-white'
+            }`}
+          >
+            Execute
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
   const viewRef = useRef(null);
@@ -409,6 +518,7 @@ export default function App() {
   // MODALS
   const [adminModal, setAdminModal] = useState({ isOpen: false });
   const [clientModal, setClientModal] = useState({ isOpen: false, session: null, routine: null });
+  const [bulkOpsModal, setBulkOpsModal] = useState({ isOpen: false });
 
   // DATA STATE
   const [sessions, setSessions] = useState([]);
@@ -441,6 +551,16 @@ export default function App() {
   }, [selectedFolder]);
 
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', fields: [] });
+
+  // ⚡️ PERFORMANCE FIX: Create instant lookup map instead of searching 119 times per render
+  const sessionMap = useMemo(() => {
+    const map = new Map();
+    sessions.forEach(session => {
+      const key = `${session.day}-${session.time}`;
+      map.set(key, session);
+    });
+    return map;
+  }, [sessions]);
 
   // --- INITIALIZATION ---
   useEffect(() => {
@@ -599,9 +719,10 @@ export default function App() {
     setBuilderExercises([]);
   };
 
-  // --- SCHEDULE LOGIC ---
+  // --- SCHEDULE LOGIC (⚡️ OPTIMIZED WITH HASH MAP & OPTIMISTIC UPDATES) ---
   const handleToggleAvailability = async (day, time) => {
-    const existing = sessions.find(s => s.day === day && s.time === time);
+    const key = `${day}-${time}`;
+    const existing = sessionMap.get(key); // ⚡️ O(1) lookup instead of O(n) search
     const dayIndex = DAYS.indexOf(day);
     const specificDate = new Date(currentWeekStart);
     specificDate.setDate(specificDate.getDate() + dayIndex);
@@ -609,12 +730,48 @@ export default function App() {
 
     if (userRole === 'admin') {
         if (!existing) {
-            // Create Slot
-            const tempSlot = { id: 'temp-' + Date.now(), day, time, date: dateStr, status: 'open', capacity: 4, participants: [], user_id: session.user.id };
-            setSessions(prev => [...prev, tempSlot]);
-            const { data, error } = await supabase.from('sessions').insert([{ day, time, date: dateStr, status: 'open', capacity: 4, participants: [], user_id: session.user.id, client: 'OPEN', detail: '4 SLOTS' }]).select();
-            if (data) setSessions(prev => prev.map(s => s.id === tempSlot.id ? data[0] : s));
-            else { setSessions(prev => prev.filter(s => s.id !== tempSlot.id)); alert(error.message); }
+            // Create Slot - ⚡️ OPTIMISTIC UPDATE
+            const tempId = 'temp-' + Date.now();
+            const optimisticSlot = { 
+              id: tempId, 
+              day, 
+              time, 
+              date: dateStr, 
+              status: 'open', 
+              capacity: 4, 
+              participants: [], 
+              user_id: session.user.id,
+              client: 'OPEN',
+              detail: '4 SLOTS'
+            };
+            
+            // ⚡️ Update UI immediately
+            setSessions(prev => [...prev, optimisticSlot]);
+            
+            // Then save to DB
+            const { data, error } = await supabase
+              .from('sessions')
+              .insert([{ 
+                day, 
+                time, 
+                date: dateStr, 
+                status: 'open', 
+                capacity: 4, 
+                participants: [], 
+                user_id: session.user.id, 
+                client: 'OPEN', 
+                detail: '4 SLOTS' 
+              }])
+              .select();
+            
+            if (data) {
+              // Replace temp with real data
+              setSessions(prev => prev.map(s => s.id === tempId ? data[0] : s));
+            } else {
+              // Rollback on error
+              setSessions(prev => prev.filter(s => s.id !== tempId));
+              alert(error.message);
+            }
         } else {
             // Manage Slot
             setAdminModal({
@@ -627,17 +784,44 @@ export default function App() {
                 ],
                 onDelete: async () => {
                     if (!confirm("CONFIRM DELETION: This will remove the slot and kick all " + (existing.participants?.length || 0) + " users.")) return;
+                    
+                    // ⚡️ Optimistic deletion
                     setSessions(prev => prev.filter(s => s.id !== existing.id));
-                    await supabase.from('sessions').delete().eq('id', existing.id);
+                    
+                    const { error } = await supabase.from('sessions').delete().eq('id', existing.id);
+                    
+                    if (error) {
+                      // Rollback on error
+                      setSessions(prev => [...prev, existing]);
+                      alert(error.message);
+                    }
+                    
                     setAdminModal({ isOpen: false });
                 },
                 onSubmit: async (data, updatedSquad) => {
-                    const { error } = await supabase.from('sessions').update({ 
+                    const updatedSession = {
+                      ...existing,
+                      capacity: parseInt(data.capacity),
+                      participants: updatedSquad
+                    };
+                    
+                    // ⚡️ Optimistic update
+                    setSessions(prev => prev.map(s => s.id === existing.id ? updatedSession : s));
+                    
+                    const { error } = await supabase
+                      .from('sessions')
+                      .update({ 
                         capacity: parseInt(data.capacity),
                         participants: updatedSquad 
-                    }).eq('id', existing.id);
+                      })
+                      .eq('id', existing.id);
 
-                    if(error) alert(error.message);
+                    if(error) {
+                      // Rollback on error
+                      setSessions(prev => prev.map(s => s.id === existing.id ? existing : s));
+                      alert(error.message);
+                    }
+                    
                     setAdminModal({ isOpen: false });
                 }
             });
@@ -655,17 +839,216 @@ export default function App() {
             setClientModal({ isOpen: true, session: existing, routine: myRoutine });
         } else {
             if ((existing.participants?.length || 0) >= existing.capacity) return alert("Full.");
-            const newParticipants = [...(existing.participants || []), { id: myID, email: session.user.email, assigned_routine_id: null }];
-            await supabase.from('sessions').update({ participants: newParticipants }).eq('id', existing.id);
+            
+            const newParticipants = [...(existing.participants || []), { id: myID, email: myEmail, assigned_routine_id: null }];
+            
+            // ⚡️ Optimistic update
+            const updatedSession = { ...existing, participants: newParticipants };
+            setSessions(prev => prev.map(s => s.id === existing.id ? updatedSession : s));
+            
+            const { error } = await supabase
+              .from('sessions')
+              .update({ participants: newParticipants })
+              .eq('id', existing.id);
+            
+            if (error) {
+              // Rollback on error
+              setSessions(prev => prev.map(s => s.id === existing.id ? existing : s));
+              alert(error.message);
+            }
         }
     }
   };
 
   const handleClientLeave = async () => {
     if (!clientModal.session) return;
+    
     const newParticipants = clientModal.session.participants.filter(p => p.id !== session.user.id);
-    await supabase.from('sessions').update({ participants: newParticipants }).eq('id', clientModal.session.id);
+    
+    // ⚡️ Optimistic update
+    const updatedSession = { ...clientModal.session, participants: newParticipants };
+    setSessions(prev => prev.map(s => s.id === clientModal.session.id ? updatedSession : s));
+    
+    const { error } = await supabase
+      .from('sessions')
+      .update({ participants: newParticipants })
+      .eq('id', clientModal.session.id);
+    
+    if (error) {
+      // Rollback on error
+      setSessions(prev => prev.map(s => s.id === clientModal.session.id ? clientModal.session : s));
+      alert(error.message);
+    }
+    
     setClientModal({ isOpen: false, session: null, routine: null });
+  };
+
+  // --- BULK OPERATIONS ---
+  const handleCopyWeekPattern = async (sourceWeek, targetWeek) => {
+    const sourceStart = sourceWeek.toISOString().split('T')[0];
+    const sourceEnd = new Date(sourceWeek);
+    sourceEnd.setDate(sourceEnd.getDate() + 6);
+    const sourceEndStr = sourceEnd.toISOString().split('T')[0];
+
+    // Get all sessions from source week
+    const { data: sourceSessions, error: fetchError } = await supabase
+      .from('sessions')
+      .select('*')
+      .gte('date', sourceStart)
+      .lte('date', sourceEndStr);
+
+    if (fetchError) {
+      alert('Error fetching source week: ' + fetchError.message);
+      return;
+    }
+
+    if (!sourceSessions || sourceSessions.length === 0) {
+      alert('No sessions found in source week!');
+      return;
+    }
+
+    // Calculate day offset
+    const dayOffset = Math.floor((targetWeek - sourceWeek) / (1000 * 60 * 60 * 24));
+
+    // Create new sessions for target week
+    const newSessions = sourceSessions.map(s => {
+      const newDate = new Date(s.date);
+      newDate.setDate(newDate.getDate() + dayOffset);
+      
+      return {
+        day: s.day,
+        time: s.time,
+        date: newDate.toISOString().split('T')[0],
+        status: 'open',
+        capacity: s.capacity,
+        participants: [], // Start with empty slots
+        user_id: session.user.id,
+        client: 'OPEN',
+        detail: `${s.capacity} SLOTS`
+      };
+    });
+
+    // Optimistic update
+    setSessions(prev => [...prev, ...newSessions.map((s, i) => ({ ...s, id: `temp-${Date.now()}-${i}` }))]);
+
+    // Insert into database
+    const { data, error } = await supabase
+      .from('sessions')
+      .insert(newSessions)
+      .select();
+
+    if (error) {
+      // Rollback
+      setSessions(prev => prev.filter(s => !s.id.toString().startsWith('temp-')));
+      alert('Error copying week: ' + error.message);
+    } else {
+      // Replace temp IDs with real ones
+      setSessions(prev => {
+        const withoutTemp = prev.filter(s => !s.id.toString().startsWith('temp-'));
+        return [...withoutTemp, ...data];
+      });
+      alert(`✅ Copied ${data.length} sessions successfully!`);
+    }
+  };
+
+  const handleClearWeek = async (weekStart) => {
+    const startStr = weekStart.toISOString().split('T')[0];
+    const end = new Date(weekStart);
+    end.setDate(end.getDate() + 6);
+    const endStr = end.toISOString().split('T')[0];
+
+    const sessionsToDelete = sessions.filter(s => s.date >= startStr && s.date <= endStr);
+    
+    if (sessionsToDelete.length === 0) {
+      alert('No sessions to clear!');
+      return;
+    }
+
+    if (!confirm(`⚠️ This will DELETE ${sessionsToDelete.length} sessions. Continue?`)) {
+      return;
+    }
+
+    // Optimistic update
+    setSessions(prev => prev.filter(s => s.date < startStr || s.date > endStr));
+
+    // Batch delete
+    const { error } = await supabase
+      .from('sessions')
+      .delete()
+      .gte('date', startStr)
+      .lte('date', endStr);
+
+    if (error) {
+      // Rollback
+      setSessions(prev => [...prev, ...sessionsToDelete]);
+      alert('Error clearing week: ' + error.message);
+    } else {
+      alert(`✅ Cleared ${sessionsToDelete.length} sessions!`);
+    }
+  };
+
+  const handleFillMonth = async (pattern) => {
+    // Pattern: array of {day, time, capacity}
+    const monthStart = new Date(currentWeekStart);
+    monthStart.setDate(1);
+    
+    const monthEnd = new Date(monthStart);
+    monthEnd.setMonth(monthEnd.getMonth() + 1);
+    monthEnd.setDate(0); // Last day of month
+
+    const newSessions = [];
+    const currentDate = new Date(monthStart);
+
+    while (currentDate <= monthEnd) {
+      const dayName = DAYS[currentDate.getDay() === 0 ? 6 : currentDate.getDay() - 1];
+      
+      pattern.forEach(slot => {
+        if (slot.day === dayName) {
+          newSessions.push({
+            day: dayName,
+            time: slot.time,
+            date: currentDate.toISOString().split('T')[0],
+            status: 'open',
+            capacity: slot.capacity || 4,
+            participants: [],
+            user_id: session.user.id,
+            client: 'OPEN',
+            detail: `${slot.capacity || 4} SLOTS`
+          });
+        }
+      });
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    if (newSessions.length === 0) {
+      alert('Pattern generated 0 sessions!');
+      return;
+    }
+
+    if (!confirm(`This will create ${newSessions.length} sessions. Continue?`)) {
+      return;
+    }
+
+    // Optimistic update
+    setSessions(prev => [...prev, ...newSessions.map((s, i) => ({ ...s, id: `temp-month-${i}` }))]);
+
+    // Batch insert
+    const { data, error } = await supabase
+      .from('sessions')
+      .insert(newSessions)
+      .select();
+
+    if (error) {
+      setSessions(prev => prev.filter(s => !s.id.toString().startsWith('temp-month-')));
+      alert('Error filling month: ' + error.message);
+    } else {
+      setSessions(prev => {
+        const withoutTemp = prev.filter(s => !s.id.toString().startsWith('temp-month-'));
+        return [...withoutTemp, ...data];
+      });
+      alert(`✅ Created ${data.length} sessions!`);
+    }
   };
 
   const handleViewChange = (newView) => {
@@ -881,13 +1264,46 @@ export default function App() {
             </div>
           )}
 
-          {/* --- SCHEDULE --- */}
+          {/* --- SCHEDULE (⚡️ OPTIMIZED WITH HASH MAP) --- */}
           {activeView === 'schedule' && (
             <div className="mb-20">
                <div className="flex justify-between items-center mb-6 px-1">
                 <div className="flex gap-4">
-                  <button onClick={() => setCurrentWeekStart(new Date(currentWeekStart.setDate(currentWeekStart.getDate() - 7)))} className="px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-xs text-neutral-400 hover:text-white transition-colors">{'< PREV WEEK'}</button>
-                  <button onClick={() => setCurrentWeekStart(new Date(currentWeekStart.setDate(currentWeekStart.getDate() + 7)))} className="px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-xs text-neutral-400 hover:text-white transition-colors">{'NEXT WEEK >'}</button>
+                  <button 
+                    onClick={() => {
+                      const newDate = new Date(currentWeekStart);
+                      newDate.setDate(newDate.getDate() - 7);
+                      setCurrentWeekStart(newDate);
+                    }} 
+                    className="px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-xs text-neutral-400 hover:text-white transition-colors"
+                  >
+                    {'< PREV WEEK'}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const newDate = new Date(currentWeekStart);
+                      newDate.setDate(newDate.getDate() + 7);
+                      setCurrentWeekStart(newDate);
+                    }} 
+                    className="px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-xs text-neutral-400 hover:text-white transition-colors"
+                  >
+                    {'NEXT WEEK >'}
+                  </button>
+                  <button 
+                    onClick={() => setCurrentWeekStart(getMonday(new Date()))} 
+                    className="px-4 py-2 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 font-mono-tech text-xs text-emerald-500 hover:text-emerald-400 transition-colors"
+                  >
+                    THIS WEEK
+                  </button>
+                  {userRole === 'admin' && (
+                    <button 
+                      onClick={() => setBulkOpsModal({ isOpen: true })} 
+                      className="px-4 py-2 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 font-mono-tech text-xs text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2"
+                    >
+                      <Layout size={14} />
+                      BULK OPS
+                    </button>
+                  )}
                 </div>
                 <span className="font-bebas text-xl tracking-widest text-emerald-500 text-right">WEEK OF: {currentWeekStart.toLocaleDateString()}</span>
               </div>
@@ -901,7 +1317,10 @@ export default function App() {
                     <React.Fragment key={hour}>
                       <div className="h-16 flex items-center justify-center font-mono-tech text-[10px] text-neutral-600 border-r border-white/5">{hour}</div>
                       {DAYS.map(day => {
-                        const session = sessions.find(s => s.day === day && s.time === hour);
+                        // ⚡️ INSTANT LOOKUP - O(1) instead of O(n)
+                        const key = `${day}-${hour}`;
+                        const session = sessionMap.get(key);
+                        
                         const count = session?.participants?.length || 0;
                         const cap = session?.capacity || 4;
                         const myID = session?.user?.id; 
@@ -914,7 +1333,7 @@ export default function App() {
                              else if (count < cap) style = "bg-yellow-500/10 border border-yellow-500/50 text-yellow-500 opacity-100";
                              else style = "bg-red-500/10 border border-red-500/50 text-red-500 opacity-100";
                           } else {
-                             // CLIENT VISUALS (FIXED):
+                             // CLIENT VISUALS:
                              if (isJoined) style = "bg-emerald-500/20 border border-emerald-500 text-emerald-500 opacity-100 ring-1 ring-emerald-500/50";
                              else if (count >= cap) style = "bg-red-500/10 border border-red-500/20 text-red-500/50 opacity-100 cursor-not-allowed";
                              else style = "bg-emerald-500/10 border border-emerald-500/30 text-emerald-500/70 hover:bg-emerald-500/20 hover:text-emerald-500 opacity-100 cursor-pointer";
@@ -924,7 +1343,11 @@ export default function App() {
                         }
                         
                         return (
-                          <div key={`${day}-${hour}`} onClick={() => handleToggleAvailability(day, hour)} className={`h-16 transition-all active:scale-95 group relative flex flex-col items-center justify-center p-1 text-center overflow-hidden ${style} ${session ? 'cursor-pointer' : ''}`}>
+                          <div 
+                            key={key} 
+                            onClick={() => handleToggleAvailability(day, hour)} 
+                            className={`h-16 transition-all active:scale-95 group relative flex flex-col items-center justify-center p-1 text-center overflow-hidden ${style} ${session ? 'cursor-pointer' : ''}`}
+                          >
                             {session ? (
                               <>
                                 <span className="font-bebas text-lg tracking-widest">{count} <span className="text-[10px] opacity-50">/ {cap}</span></span>
@@ -1113,6 +1536,14 @@ export default function App() {
       <CommandModal 
         {...modalConfig} 
         onCancel={() => setModalConfig({ ...modalConfig, isOpen: false })} 
+      />
+      <BulkOpsModal 
+        isOpen={bulkOpsModal.isOpen}
+        onClose={() => setBulkOpsModal({ isOpen: false })}
+        currentWeek={currentWeekStart}
+        onCopyWeek={handleCopyWeekPattern}
+        onClearWeek={handleClearWeek}
+        onFillMonth={handleFillMonth}
       />
     </div>
   );
