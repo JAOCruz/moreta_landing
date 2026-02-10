@@ -20,7 +20,7 @@ import { BulkOpsModal } from './components/modals/BulkOpsModal';
 
 // Views
 import { DashboardView } from './components/views/DashboardView';
-import { ScheduleView } from './components/views/ScheduleView';
+import { EnhancedScheduleView } from './components/views/EnhancedScheduleView';
 import { BuilderView } from './components/views/BuilderView';
 import { EnhancedFinanceView } from './components/views/EnhancedFinanceView';
 import { MyRoutineView } from './components/views/MyRoutineView';
@@ -286,7 +286,7 @@ export default function App() {
           )}
 
           {activeView === 'schedule' && (
-            <ScheduleView
+            <EnhancedScheduleView
               currentWeekStart={currentWeekStart}
               sessionMap={sessionMap}
               userRole={userRole}
