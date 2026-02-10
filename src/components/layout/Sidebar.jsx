@@ -1,6 +1,6 @@
 import {
   Home, Clock, Dumbbell, DollarSign, Settings, LogOut,
-  ClipboardList, TrendingUp, Users
+  ClipboardList, TrendingUp, Users, Sliders
 } from 'lucide-react';
 
 export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
@@ -11,7 +11,8 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
     ...(userRole === 'admin' ? [
       { id: 'builder', icon: Dumbbell, label: 'Builder' },
       { id: 'clients', icon: Users, label: 'Clients' },
-      { id: 'finance', icon: DollarSign, label: 'Pagos' }
+      { id: 'finance', icon: DollarSign, label: 'Finance' },
+      { id: 'admin_settings', icon: Sliders, label: 'Business' }
     ] : []),
     // Client Only
     ...(userRole === 'client' ? [

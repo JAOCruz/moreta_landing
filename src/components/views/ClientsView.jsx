@@ -17,8 +17,15 @@ export const ClientsView = ({ onSelectClient }) => {
     const { data: profiles, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('role', 'client')
-      .order('created_at', { ascending: false });
+      .eq('role', 'client');
+
+    // Debug logging
+    console.log('📊 Fetching clients:', { profiles, error });
+
+    if (error) {
+      console.error('❌ Error fetching clients:', error);
+      alert('Error loading clients: ' + error.message + '\n\nMake sure to run supabase_fix_clients_view.sql in your Supabase SQL Editor!');
+    }
 
     if (!error && profiles) {
       setClients(profiles);

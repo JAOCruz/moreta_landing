@@ -22,12 +22,13 @@ import { BulkOpsModal } from './components/modals/BulkOpsModal';
 import { DashboardView } from './components/views/DashboardView';
 import { ScheduleView } from './components/views/ScheduleView';
 import { BuilderView } from './components/views/BuilderView';
-import { FinanceView } from './components/views/FinanceView';
+import { EnhancedFinanceView } from './components/views/EnhancedFinanceView';
 import { MyRoutineView } from './components/views/MyRoutineView';
 import { SettingsView } from './components/views/SettingsView';
 import { ProgressView } from './components/views/ProgressView';
 import { ClientsView } from './components/views/ClientsView';
 import { ClientDetailView } from './components/views/ClientDetailView';
+import { AdminSettingsView } from './components/views/AdminSettingsView';
 
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -306,11 +307,16 @@ export default function App() {
           )}
 
           {activeView === 'finance' && userRole === 'admin' && (
-            <FinanceView
+            <EnhancedFinanceView
               payments={payments}
               onAddPayment={handleAddPayment}
               onDeletePayment={handleDeletePayment}
+              userId={session.user.id}
             />
+          )}
+
+          {activeView === 'admin_settings' && userRole === 'admin' && (
+            <AdminSettingsView />
           )}
 
           {activeView === 'my_routine' && userRole === 'client' && (
