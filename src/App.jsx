@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import gsap from 'gsap';
 import { supabase } from './lib/supabase';
@@ -51,17 +51,29 @@ export default function App() {
   const [bulkOpsModal, setBulkOpsModal] = useState({ isOpen: false });
   const [modalConfig, setModalConfig] = useState({ isOpen: false, title: '', fields: [] });
 
-  // View transitions
+  // View transitions with staggered reveal
   const handleViewChange = (newView) => {
     if (newView === activeView) return;
     if (viewRef.current) {
       gsap.to(viewRef.current, {
         opacity: 0,
-        x: -20,
-        duration: 0.3,
+        y: -10,
+        duration: 0.25,
+        ease: "power2.in",
         onComplete: () => {
           setActiveView(newView);
-          gsap.to(viewRef.current, { opacity: 1, x: 0, duration: 0.4, delay: 0.1, ease: "power2.out" });
+          gsap.fromTo(viewRef.current,
+            { opacity: 0, y: 12 },
+            { opacity: 1, y: 0, duration: 0.4, delay: 0.05, ease: "power2.out" }
+          );
+          // Stagger children
+          const children = viewRef.current?.querySelectorAll('.glass-panel, section, .card-hover, .alert-overdue');
+          if (children?.length) {
+            gsap.fromTo(children,
+              { opacity: 0, y: 16 },
+              { opacity: 1, y: 0, duration: 0.4, stagger: 0.06, ease: "power2.out", delay: 0.1 }
+            );
+          }
         }
       });
     } else {
@@ -242,11 +254,23 @@ export default function App() {
     }
   };
 
-  // Loading states
-  if (loading) {
+  // Preloader state
+  const [preloaderDone, setPreloaderDone] = useState(false);
+
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => setPreloaderDone(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
+  // Loading states — show preloader
+  if (loading || !preloaderDone) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <Loader2 className="text-white animate-spin" size={32} />
+      <div className={`preloader ${!loading && preloaderDone ? 'loaded' : ''}`}>
+        <div className="preloader-logo">M<span style={{color:'#34d399'}}>.</span>FIT</div>
+        <div className="preloader-bar"><div className="preloader-bar-fill"></div></div>
+        <div className="preloader-status">Initializing System</div>
       </div>
     );
   }

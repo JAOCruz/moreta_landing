@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  /* ===== COLOR SYSTEM (EASIER ON EYES) ===== */
-  --color-background: #0f1113;      /* lifted black */
-  --color-surface: #181b1f;         /* clearer separation */
-  --color-accent: #e6e6e6;          /* off-white instead of pure white */
+  /* ===== COLOR SYSTEM ===== */
+  --color-background: #0f1113;
+  --color-surface: #181b1f;
+  --color-accent: #e6e6e6;
   --color-muted: rgba(230, 230, 230, 0.6);
+  --color-emerald-accent: #34d399;
+  --color-amber-accent: #f59e0b;
 
   --color-status-green: #22c55e;
   --color-status-red: #ef4444;
@@ -32,13 +34,77 @@
   }
 }
 
+/* ================= PRELOADER ================= */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #050505;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.preloader.loaded {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-logo {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 4rem;
+  letter-spacing: -0.02em;
+  color: white;
+  opacity: 0;
+  animation: preloaderFadeIn 0.8s ease forwards;
+}
+
+.preloader-bar {
+  width: 120px;
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border-radius: 1px;
+}
+
+.preloader-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #34d399, #fff);
+  animation: preloaderProgress 1.2s ease forwards 0.3s;
+}
+
+.preloader-status {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: rgba(255,255,255,0.3);
+  margin-top: 1rem;
+  opacity: 0;
+  animation: preloaderFadeIn 0.5s ease forwards 0.5s;
+}
+
+@keyframes preloaderFadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes preloaderProgress {
+  to { width: 100%; }
+}
+
 /* ================= NOISE OVERLAY ================= */
 
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  opacity: 0.035; /* reduced noise */
+  opacity: 0.035;
   z-index: 9999;
   pointer-events: none;
 }
@@ -60,16 +126,49 @@ body::before {
   }
 }
 
-/* ================= CARDS ================= */
+/* ================= PREMIUM CARDS ================= */
 
 .card-surface {
   @apply bg-surface border p-6 rounded-sm relative overflow-hidden;
   border-color: rgba(255, 255, 255, 0.08);
-  transition: border-color 0.25s ease, background-color 0.25s ease;
+  transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-surface:hover {
   border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px -8px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+/* Premium glass panel with gradient border */
+.glass-premium {
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.glass-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02), rgba(52,211,153,0.1));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Active panel inner glow */
+.glass-premium.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top, rgba(52,211,153,0.03), transparent 70%);
+  pointer-events: none;
 }
 
 /* ================= CARD CONTENT ================= */
@@ -77,32 +176,104 @@ body::before {
 .card-title {
   @apply font-display uppercase mb-5;
   font-size: 2.5rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 .card-meta {
   color: var(--color-muted);
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/* Editorial section numbers */
+.section-number {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: rgba(52, 211, 153, 0.5);
+  font-weight: 700;
 }
 
 /* ================= TEXT UTILITIES ================= */
 
-.text-muted {
-  color: var(--color-muted);
+.text-muted { color: var(--color-muted); }
+.text-status-green { color: var(--color-status-green); }
+.text-status-yellow { color: var(--color-status-yellow); }
+.text-status-red { color: var(--color-status-red); }
+
+/* ================= MICRO-INTERACTIONS ================= */
+
+/* Button press feedback */
+.btn-press {
+  transition: all 0.15s ease;
+}
+.btn-press:active {
+  transform: scale(0.97);
 }
 
-.text-status-green {
-  color: var(--color-status-green);
+/* Hover card lift + glow */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px -12px rgba(0,0,0,0.7), 0 0 20px -5px rgba(52,211,153,0.08);
+  border-color: rgba(52, 211, 153, 0.2) !important;
 }
 
-.text-status-yellow {
-  color: var(--color-status-yellow);
+/* Pulsing status dot */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+.status-dot.live {
+  background: #34d399;
+  box-shadow: 0 0 6px rgba(52,211,153,0.6);
+  animation: statusPulse 2s ease-in-out infinite;
+}
+.status-dot.warning {
+  background: #f59e0b;
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+.status-dot.danger {
+  background: #ef4444;
+  animation: statusPulse 1s ease-in-out infinite;
 }
 
-.text-status-red {
-  color: var(--color-status-red);
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px currentColor; }
+  50% { opacity: 0.5; box-shadow: 0 0 12px currentColor; }
+}
+
+/* Animated progress bar */
+.progress-bar-animated {
+  height: 3px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-animated .fill {
+  height: 100%;
+  background: linear-gradient(90deg, #34d399, #22c55e);
+  border-radius: 2px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ================= STAGGER ANIMATION ================= */
+
+.stagger-item {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.stagger-item.revealed {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 /* ================= GRID OVERLAY ================= */
@@ -122,7 +293,33 @@ body::before {
   opacity: 0.7;
 }
 
-/* ================= SIDEBAR (OPTIONAL BUT RECOMMENDED) ================= */
+/* ================= CUSTOM SCROLLBAR (REFINED) ================= */
+
+.custom-scrollbar::-webkit-scrollbar { width: 3px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* Fade scrollbar on idle */
+.custom-scrollbar {
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+  scrollbar-width: thin;
+}
+
+/* Main content scrollbar */
+main::-webkit-scrollbar { width: 3px; }
+main::-webkit-scrollbar-track { background: transparent; }
+main::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+
+/* ================= SIDEBAR ================= */
 
 .sidebar {
   background: linear-gradient(to bottom, #0f1113, #0b0d0f);
@@ -139,9 +336,43 @@ body::before {
 
 .sidebar-item.active {
   color: var(--color-accent);
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* ================= OVERDUE ALERT ================= */
+
+.alert-overdue {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  animation: alertGlow 3s ease-in-out infinite;
+}
+
+@keyframes alertGlow {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.25); }
+  50% { border-color: rgba(239, 68, 68, 0.5); }
+}
+
+/* ================= ANIMATED COUNTER ================= */
+
+.counter-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ================= MOBILE POLISH ================= */
+
+@media (max-width: 768px) {
+  .card-title { font-size: 2rem; }
+
+  .glass-panel, .glass-premium {
+    padding: 1.25rem !important;
+  }
+
+  .dashboard-grid {
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-title { font-size: 1.75rem; }
 }
