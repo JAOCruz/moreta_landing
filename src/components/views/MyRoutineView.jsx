@@ -3,7 +3,7 @@ import { SectionHeader } from '../ui/SectionHeader';
 
 export const MyRoutineView = ({ routine }) => {
   return (
-    <div className="max-w-3xl mx-auto glass-panel p-10 border-t-4 border-emerald-500">
+    <div className="max-w-3xl mx-auto glass-panel p-4 sm:p-6 lg:p-10 border-t-4 border-emerald-500">
       <SectionHeader number="01" title="Daily Orders" />
       {routine ? (
         <div>

@@ -293,7 +293,7 @@ export default function App() {
       <Sidebar activeView={activeView} onViewChange={handleViewChange} onLogout={handleLogout} userRole={userRole} />
 
       <main className="flex-1 h-screen overflow-y-auto relative">
-        <div ref={viewRef} className="p-8 lg:p-12 pb-24 opacity-100">
+        <div ref={viewRef} className="p-4 sm:p-6 lg:p-12 pb-28 md:pb-12 opacity-100">
           <Header user={session.user} userRole={userRole} />
 
           {activeView === 'dashboard' && (

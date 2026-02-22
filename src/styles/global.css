@@ -360,19 +360,51 @@ main::-webkit-scrollbar-thumb {
 
 /* ================= MOBILE POLISH ================= */
 
+/* Prevent iOS zoom on input focus */
 @media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
   .card-title { font-size: 2rem; }
 
   .glass-panel, .glass-premium {
-    padding: 1.25rem !important;
+    padding: 1rem !important;
   }
 
   .dashboard-grid {
     gap: 1rem;
     padding: 1rem;
   }
+
+  /* Touch targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Bottom nav safe area */
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 768px) {
+  .glass-panel, .glass-premium {
+    padding: 1.5rem !important;
+  }
 }
 
 @media (max-width: 480px) {
   .card-title { font-size: 1.75rem; }
+
+  .font-bebas {
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
 }

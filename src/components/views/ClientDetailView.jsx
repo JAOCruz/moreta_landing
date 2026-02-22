@@ -107,7 +107,7 @@ export const ClientDetailView = ({ client, onBack }) => {
       </div>
 
       {/* Por Qué — THE KEY INSIGHT */}
-      <div className="glass-panel p-5 sm:p-6 border-l-2 border-emerald-500/50">
+      <div className="glass-panel p-4 sm:p-5 md:p-6 border-l-2 border-emerald-500/50">
         <div className="flex items-center gap-2 mb-3">
           <Heart size={14} className="text-emerald-400" />
           <span className="font-mono-tech text-[10px] text-emerald-400 uppercase tracking-[0.2em] font-bold">¿Por Qué Entrena?</span>

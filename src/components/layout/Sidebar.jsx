@@ -5,8 +5,8 @@ import {
 
 export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
   const menuItems = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard' },
-    { id: 'schedule', icon: Clock, label: 'Horario' },
+    { id: 'dashboard', icon: Home, label: 'Home' },
+    { id: 'schedule', icon: Clock, label: 'Schedule' },
     ...(userRole === 'admin' ? [
       { id: 'builder', icon: Dumbbell, label: 'Builder' },
       { id: 'clients', icon: Users, label: 'Clients' },
@@ -14,53 +14,91 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
       { id: 'admin_settings', icon: Sliders, label: 'Business' }
     ] : []),
     ...(userRole === 'client' ? [
-      { id: 'my_routine', icon: ClipboardList, label: 'My Orders' },
+      { id: 'my_routine', icon: ClipboardList, label: 'Routine' },
       { id: 'progress', icon: TrendingUp, label: 'Progress' }
     ] : []),
     { id: 'settings', icon: Settings, label: 'Settings' }
   ];
 
   return (
-    <div className="w-16 sm:w-20 lg:w-64 border-r border-white/5 bg-[#0a0a0a] flex flex-col items-center lg:items-stretch py-6 sm:py-8 relative z-[60]">
-      <div className="px-3 lg:px-6 mb-8 lg:mb-12 text-center lg:text-left">
-        <h1 className="font-bebas text-2xl sm:text-4xl tracking-tighter text-white">
-          M<span className="text-emerald-500">.</span>FIT
-        </h1>
-        {userRole === 'admin' && <span className="hidden lg:block font-mono-tech text-[9px] text-emerald-500 uppercase tracking-widest mt-2">COMMANDER ACCESS</span>}
-        {userRole === 'client' && <span className="hidden lg:block font-mono-tech text-[9px] text-blue-500 uppercase tracking-widest mt-2">OPERATIVE ACCESS</span>}
-      </div>
+    <>
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex w-20 lg:w-64 border-r border-white/5 bg-[#0a0a0a] flex-col items-center lg:items-stretch py-8 relative z-[60]">
+        <div className="px-3 lg:px-6 mb-8 lg:mb-12 text-center lg:text-left">
+          <h1 className="font-bebas text-3xl lg:text-4xl tracking-tighter text-white">
+            M<span className="text-emerald-500">.</span>FIT
+          </h1>
+          {userRole === 'admin' && <span className="hidden lg:block font-mono-tech text-[9px] text-emerald-500 uppercase tracking-widest mt-2">COMMANDER ACCESS</span>}
+          {userRole === 'client' && <span className="hidden lg:block font-mono-tech text-[9px] text-blue-500 uppercase tracking-widest mt-2">OPERATIVE ACCESS</span>}
+        </div>
 
-      <nav className="flex-1 space-y-1 px-2 lg:px-3">
-        {menuItems.map((item) => (
+        <nav className="flex-1 space-y-1 px-2 lg:px-3">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => onViewChange(item.id)}
+              className={`w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 lg:py-4 transition-all group relative btn-press ${
+                activeView === item.id
+                  ? 'bg-white/5 text-white'
+                  : 'text-neutral-500 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <item.icon size={18} className={activeView === item.id ? 'text-emerald-400' : ''} />
+              <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.15em]">
+                {item.label}
+              </span>
+              {activeView === item.id && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        <div className="px-2 lg:px-3 mt-auto">
           <button
-            key={item.id}
-            onClick={() => onViewChange(item.id)}
-            className={`w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 lg:py-4 transition-all group relative btn-press ${
-              activeView === item.id
-                ? 'bg-white/5 text-white'
-                : 'text-neutral-500 hover:text-white hover:bg-white/5'
-            }`}
+            onClick={onLogout}
+            className="w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 lg:py-4 text-neutral-600 hover:text-red-500 transition-all group btn-press"
           >
-            <item.icon size={18} className={activeView === item.id ? 'text-emerald-400' : ''} />
-            <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.15em]">
-              {item.label}
-            </span>
-            {activeView === item.id && (
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
-            )}
+            <LogOut size={18} />
+            <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.15em]">Log Out</span>
           </button>
-        ))}
-      </nav>
-
-      <div className="px-2 lg:px-3 mt-auto">
-        <button
-          onClick={onLogout}
-          className="w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 lg:py-4 text-neutral-600 hover:text-red-500 transition-all group btn-press"
-        >
-          <LogOut size={18} />
-          <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.15em]">Log Out</span>
-        </button>
+        </div>
       </div>
-    </div>
+
+      {/* Mobile Bottom Nav */}
+      <div className="fixed bottom-0 left-0 right-0 z-[100] flex md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/10 bottom-nav">
+        <div className="flex w-full justify-around items-center px-2 py-1" style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}>
+          {menuItems.slice(0, 5).map((item) => (
+            <button
+              key={item.id}
+              onClick={() => onViewChange(item.id)}
+              className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-h-[44px] min-w-[44px] transition-all btn-press ${
+                activeView === item.id ? 'text-white' : 'text-neutral-600'
+              }`}
+            >
+              <item.icon size={20} className={activeView === item.id ? 'text-emerald-400' : ''} />
+              <span className="font-mono-tech text-[8px] uppercase tracking-wider">{item.label}</span>
+              {activeView === item.id && (
+                <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"></div>
+              )}
+            </button>
+          ))}
+          {menuItems.length > 5 && (
+            <button
+              onClick={() => onViewChange(menuItems[menuItems.length - 1].id)}
+              className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-h-[44px] min-w-[44px] transition-all btn-press ${
+                activeView === 'settings' || menuItems.slice(5).some(m => m.id === activeView) ? 'text-white' : 'text-neutral-600'
+              }`}
+            >
+              <Settings size={20} className={activeView === 'settings' || menuItems.slice(5).some(m => m.id === activeView) ? 'text-emerald-400' : ''} />
+              <span className="font-mono-tech text-[8px] uppercase tracking-wider">More</span>
+              {(activeView === 'settings' || menuItems.slice(5).some(m => m.id === activeView)) && (
+                <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"></div>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+    </>
   );
 };

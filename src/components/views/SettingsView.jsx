@@ -13,7 +13,7 @@ export const SettingsView = ({ onUpdatePassword }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto glass-panel p-10 border-t-4 border-white/20 animate-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-2xl mx-auto glass-panel p-4 sm:p-6 lg:p-10 border-t-4 border-white/20 animate-in slide-in-from-bottom-4 duration-500">
       <SectionHeader number="00" title="System Configuration" />
       <div className="space-y-8 mt-8">
         <div>

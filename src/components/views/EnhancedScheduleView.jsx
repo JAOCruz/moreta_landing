@@ -36,38 +36,38 @@ export const EnhancedScheduleView = ({
   return (
     <div className="mb-20">
       {/* Header Controls */}
-      <div className="flex justify-between items-center mb-6 px-1">
-        <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 px-1 gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-4">
           <button
             onClick={() => onWeekChange(-7)}
-            className="px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-xs text-neutral-400 hover:text-white transition-colors"
+            className="px-3 sm:px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-[10px] sm:text-xs text-neutral-400 hover:text-white transition-colors min-h-[44px]"
           >
-            {'< PREV WEEK'}
+            {'< PREV'}
           </button>
           <button
             onClick={() => onWeekChange(7)}
-            className="px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-xs text-neutral-400 hover:text-white transition-colors"
+            className="px-3 sm:px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-[10px] sm:text-xs text-neutral-400 hover:text-white transition-colors min-h-[44px]"
           >
-            {'NEXT WEEK >'}
+            {'NEXT >'}
           </button>
           <button
             onClick={() => onWeekChange(0)}
-            className="px-4 py-2 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 font-mono-tech text-xs text-emerald-500 hover:text-emerald-400 transition-colors"
+            className="px-3 sm:px-4 py-2 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 font-mono-tech text-[10px] sm:text-xs text-emerald-500 hover:text-emerald-400 transition-colors min-h-[44px]"
           >
-            THIS WEEK
+            TODAY
           </button>
           {userRole === 'admin' && (
             <button
               onClick={onBulkOps}
-              className="px-4 py-2 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 font-mono-tech text-xs text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2"
+              className="px-3 sm:px-4 py-2 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 font-mono-tech text-[10px] sm:text-xs text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2 min-h-[44px]"
             >
               <Layout size={14} />
-              BULK OPS
+              <span className="hidden sm:inline">BULK OPS</span>
             </button>
           )}
         </div>
-        <span className="font-bebas text-xl tracking-widest text-emerald-500 text-right">
-          WEEK OF: {currentWeekStart.toLocaleDateString()}
+        <span className="font-bebas text-lg sm:text-xl tracking-widest text-emerald-500">
+          {currentWeekStart.toLocaleDateString()}
         </span>
       </div>
 
@@ -107,7 +107,8 @@ export const EnhancedScheduleView = ({
       )}
 
       {/* Schedule Grid */}
-      <div className="grid grid-cols-[80px_repeat(7,1fr)] gap-2 min-w-[800px]">
+      <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+      <div className="grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[80px_repeat(7,1fr)] gap-1 sm:gap-2 min-w-[640px]">
         <div className="h-12"></div>
         {DAYS.map(day => (
           <div
@@ -133,7 +134,7 @@ export const EnhancedScheduleView = ({
 
           return (
             <React.Fragment key={hour}>
-              <div className="h-16 flex items-center justify-center font-mono-tech text-[10px] text-neutral-600 border-r border-white/5">
+              <div className="h-14 sm:h-16 flex items-center justify-center font-mono-tech text-[9px] sm:text-[10px] text-neutral-600 border-r border-white/5">
                 {hour}
               </div>
               {DAYS.map(day => {
@@ -187,7 +188,7 @@ export const EnhancedScheduleView = ({
                   <div
                     key={key}
                     onClick={() => onToggleAvailability(day, hour)}
-                    className={`h-16 transition-all active:scale-95 group relative flex flex-col items-center justify-center p-1 text-center overflow-hidden ${style} ${session ? 'cursor-pointer' : ''}`}
+                    className={`h-14 sm:h-16 transition-all active:scale-95 group relative flex flex-col items-center justify-center p-1 text-center overflow-hidden ${style} ${session ? 'cursor-pointer' : ''}`}
                     style={sessionType ? {
                       backgroundColor: `${sessionType.color}10`,
                       borderColor: count >= cap ? '#ef4444' : count > 0 ? '#eab308' : `${sessionType.color}50`
@@ -237,6 +238,7 @@ export const EnhancedScheduleView = ({
             </React.Fragment>
           );
         })}
+      </div>
       </div>
     </div>
   );
