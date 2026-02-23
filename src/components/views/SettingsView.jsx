@@ -100,11 +100,14 @@ export const SettingsView = ({ onUpdatePassword, session }) => {
     localStorage.setItem('notif_prefs', JSON.stringify({ emailNotifs, sessionReminders, progressUpdates }));
   };
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const handleDeleteAccount = async () => {
-    if (!confirm('⚠️ Are you sure? This will permanently delete your account and all data. This cannot be undone.')) return;
-    if (!confirm('Last chance — type DELETE to confirm')) return;
+    setShowDeleteConfirm(true);
+  };
+  const confirmDeleteAccount = async () => {
     // Sign out (actual deletion needs admin/edge function)
     await supabase.auth.signOut();
+    setShowDeleteConfirm(false);
   };
 
   useEffect(() => { handleSaveNotifPrefs(); }, [emailNotifs, sessionReminders, progressUpdates]);
@@ -316,12 +319,28 @@ export const SettingsView = ({ onUpdatePassword, session }) => {
               <Trash2 size={14} /> {t('settings.deleteAccount')}
             </h3>
             <p className="font-mono-tech text-[10px] text-neutral-500 mb-4">{t('settings.deleteAccountWarning')}</p>
-            <button
-              onClick={handleDeleteAccount}
-              className="px-6 py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 font-mono-tech text-[10px] uppercase tracking-widest hover:bg-red-500/20 transition-all"
-            >
-              {t('settings.deleteAccountConfirm')}
-            </button>
+            {!showDeleteConfirm ? (
+              <button
+                onClick={handleDeleteAccount}
+                className="px-6 py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 font-mono-tech text-[10px] uppercase tracking-widest hover:bg-red-500/20 transition-all"
+              >
+                {t('settings.deleteAccountConfirm')}
+              </button>
+            ) : (
+              <div className="space-y-3 p-4 bg-red-500/5 border border-red-500/30 rounded">
+                <p className="font-mono-tech text-xs text-red-400">⚠️ ¿Estás seguro? Esta acción es permanente y no se puede deshacer.</p>
+                <div className="flex gap-3">
+                  <button onClick={confirmDeleteAccount}
+                    className="px-6 py-2.5 bg-red-600 text-white font-mono-tech text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all">
+                    Sí, eliminar
+                  </button>
+                  <button onClick={() => setShowDeleteConfirm(false)}
+                    className="px-6 py-2.5 bg-neutral-800 text-neutral-400 font-mono-tech text-[10px] uppercase tracking-widest hover:bg-neutral-700 transition-all">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
