@@ -206,6 +206,26 @@ export const LoginScreen = ({ onLogin, onSignup, loading, error }) => {
             </button>
           </div>
 
+          {/* Forgot Password */}
+          {!isSignupMode && (
+            <div className="text-center form-child">
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!email) { alert('Ingresa tu email primero'); return; }
+                  const { error } = await (await import('../../lib/supabase')).supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin
+                  });
+                  if (error) alert('Error: ' + error.message);
+                  else alert('📧 Link de recuperación enviado a ' + email);
+                }}
+                className="text-neutral-600 hover:text-emerald-400 text-[10px] font-mono-tech uppercase tracking-widest transition-colors"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
+          )}
+
           {/* Toggle */}
           <div className="text-center pt-4 border-t border-neutral-800 form-child">
             <button
