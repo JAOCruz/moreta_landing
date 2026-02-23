@@ -1,7 +1,9 @@
 import { supabase } from '../lib/supabase';
 import { DAYS } from '../constants/schedule';
+import { useToast } from '../components/ui/Toast';
 
 export const useSchedule = (sessions, setSessions) => {
+  const toast = useToast();
   // Toggle session availability (admin creates/manages, client joins/leaves)
   const handleToggleAvailability = async (day, time, userRole, userId, userEmail, sessionMap, currentWeekStart, routines, onOpenAdminModal, onOpenClientModal) => {
     const key = `${day}-${time}`;
@@ -49,7 +51,7 @@ export const useSchedule = (sessions, setSessions) => {
           setSessions(prev => prev.map(s => s.id === tempId ? data[0] : s));
         } else {
           setSessions(prev => prev.filter(s => s.id !== tempId));
-          alert(error.message);
+          toast.error(error.message);
         }
       } else {
         // Open admin management modal
@@ -65,7 +67,7 @@ export const useSchedule = (sessions, setSessions) => {
         const myRoutine = myData?.assigned_routine_id ? routines.find(r => r.id === myData.assigned_routine_id) : null;
         onOpenClientModal(existing, myRoutine);
       } else {
-        if ((existing.participants?.length || 0) >= existing.capacity) return alert("Full.");
+        if ((existing.participants?.length || 0) >= existing.capacity) { toast.warning("Full."); return; }
 
         const newParticipants = [...(existing.participants || []), { id: userId, email: userEmail, assigned_routine_id: null }];
         const updatedSession = { ...existing, participants: newParticipants };
@@ -78,7 +80,7 @@ export const useSchedule = (sessions, setSessions) => {
 
         if (error) {
           setSessions(prev => prev.map(s => s.id === existing.id ? existing : s));
-          alert(error.message);
+          toast.error(error.message);
         }
       }
     }
@@ -98,7 +100,7 @@ export const useSchedule = (sessions, setSessions) => {
       .lte('date', sourceEndStr);
 
     if (fetchError || !sourceSessions || sourceSessions.length === 0) {
-      alert(fetchError ? 'Error fetching source week: ' + fetchError.message : 'No sessions found in source week!');
+      toast.error(fetchError ? 'Error fetching source week: ' + fetchError.message : 'No sessions found in source week!');
       return;
     }
 
@@ -126,13 +128,13 @@ export const useSchedule = (sessions, setSessions) => {
 
     if (error) {
       setSessions(prev => prev.filter(s => !s.id.toString().startsWith('temp-')));
-      alert('Error copying week: ' + error.message);
+      toast.error('Error copying week: ' + error.message);
     } else {
       setSessions(prev => {
         const withoutTemp = prev.filter(s => !s.id.toString().startsWith('temp-'));
         return [...withoutTemp, ...data];
       });
-      alert(`✅ Copied ${data.length} sessions successfully!`);
+      toast.success(`Copied ${data.length} sessions successfully!`);
     }
   };
 
@@ -145,7 +147,7 @@ export const useSchedule = (sessions, setSessions) => {
     const sessionsToDelete = sessions.filter(s => s.date >= startStr && s.date <= endStr);
 
     if (sessionsToDelete.length === 0) {
-      alert('No sessions to clear!');
+      toast.info('No sessions to clear!');
       return;
     }
 
@@ -159,9 +161,9 @@ export const useSchedule = (sessions, setSessions) => {
 
     if (error) {
       setSessions(prev => [...prev, ...sessionsToDelete]);
-      alert('Error clearing week: ' + error.message);
+      toast.error('Error clearing week: ' + error.message);
     } else {
-      alert(`✅ Cleared ${sessionsToDelete.length} sessions!`);
+      toast.success(`Cleared ${sessionsToDelete.length} sessions!`);
     }
   };
 
@@ -199,7 +201,7 @@ export const useSchedule = (sessions, setSessions) => {
     }
 
     if (newSessions.length === 0) {
-      alert('Pattern generated 0 sessions!');
+      toast.warning('Pattern generated 0 sessions!');
       return;
     }
 
@@ -213,13 +215,13 @@ export const useSchedule = (sessions, setSessions) => {
 
     if (error) {
       setSessions(prev => prev.filter(s => !s.id.toString().startsWith('temp-month-')));
-      alert('Error filling month: ' + error.message);
+      toast.error('Error filling month: ' + error.message);
     } else {
       setSessions(prev => {
         const withoutTemp = prev.filter(s => !s.id.toString().startsWith('temp-month-'));
         return [...withoutTemp, ...data];
       });
-      alert(`✅ Created ${data.length} sessions!`);
+      toast.success(`Created ${data.length} sessions!`);
     }
   };
 

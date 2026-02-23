@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { useToast } from '../components/ui/Toast';
 
 export const useAuth = () => {
+  const toast = useToast();
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -78,7 +80,7 @@ export const useAuth = () => {
         console.error('Profile creation error:', profileError);
       }
 
-      alert('✅ Account created! Please check your email to verify your account, then log in.');
+      toast.success('Account created! Please check your email to verify your account, then log in.');
       setAuthError(null);
     }
 
@@ -92,7 +94,7 @@ export const useAuth = () => {
 
   const handleUpdatePassword = async (currentPassword, newPassword, userEmail) => {
     if (newPassword.length < 6) {
-      alert("Password must be at least 6 characters.");
+      toast.warning("Password must be at least 6 characters.");
       return;
     }
 
@@ -103,15 +105,15 @@ export const useAuth = () => {
     });
 
     if (verifyError) {
-      alert("SECURITY ALERT: Current password incorrect.");
+      toast.error("SECURITY ALERT: Current password incorrect.");
       return;
     }
 
     // Update password
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) alert("Error: " + error.message);
+    if (error) toast.error("Error: " + error.message);
     else {
-      alert("Password updated successfully!");
+      toast.success("Password updated successfully!");
     }
   };
 

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Calendar, DollarSign, TrendingDown } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useToast } from '../ui/Toast';
 
 export const ExpenseTracker = ({ userId }) => {
+  const toast = useToast();
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +55,7 @@ export const ExpenseTracker = ({ userId }) => {
 
   const handleSave = async () => {
     if (!formData.amount || !formData.description.trim() || !formData.category_id) {
-      alert('Please fill in amount, description, and category');
+      toast.warning('Please fill in amount, description, and category');
       return;
     }
 
@@ -69,7 +71,7 @@ export const ExpenseTracker = ({ userId }) => {
       .insert([payload]);
 
     if (error) {
-      alert('Error saving expense: ' + error.message);
+      toast.error('Error saving expense: ' + error.message);
     } else {
       resetForm();
       fetchExpenses();
@@ -99,7 +101,7 @@ export const ExpenseTracker = ({ userId }) => {
       .eq('id', id);
 
     if (error) {
-      alert('Error deleting: ' + error.message);
+      toast.error('Error deleting: ' + error.message);
     } else {
       fetchExpenses();
     }

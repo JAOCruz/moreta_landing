@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Save, X, DollarSign, Tag } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useToast } from '../ui/Toast';
 
 export const PricingManager = () => {
+  const toast = useToast();
   const [pricingRules, setPricingRules] = useState([]);
   const [sessionTypes, setSessionTypes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +53,7 @@ export const PricingManager = () => {
 
   const handleSave = async () => {
     if (!formData.name.trim() || !formData.price) {
-      alert('Please enter name and price');
+      toast.warning('Please enter name and price');
       return;
     }
 
@@ -70,7 +72,7 @@ export const PricingManager = () => {
         .eq('id', editingId);
 
       if (error) {
-        alert('Error updating pricing rule: ' + error.message);
+        toast.error('Error updating pricing rule: ' + error.message);
         return;
       }
     } else {
@@ -79,7 +81,7 @@ export const PricingManager = () => {
         .insert([payload]);
 
       if (error) {
-        alert('Error creating pricing rule: ' + error.message);
+        toast.error('Error creating pricing rule: ' + error.message);
         return;
       }
     }
@@ -123,7 +125,7 @@ export const PricingManager = () => {
       .eq('id', id);
 
     if (error) {
-      alert('Error deleting: ' + error.message);
+      toast.error('Error deleting: ' + error.message);
     } else {
       fetchPricingRules();
     }

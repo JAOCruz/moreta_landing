@@ -16,6 +16,8 @@ export const ProgressView = ({ userId, routine }) => {
   const [goals, setGoals] = useState([]);
   const [showMeasurementForm, setShowMeasurementForm] = useState(false);
   const [showWorkoutLogger, setShowWorkoutLogger] = useState(false);
+  const [showGoalForm, setShowGoalForm] = useState(false);
+  const [newGoal, setNewGoal] = useState({ title: '', description: '', target_value: '', current_value: 0, unit: 'kg', target_date: '' });
 
   useEffect(() => {
     if (userId) {
@@ -412,11 +414,52 @@ export const ProgressView = ({ userId, routine }) => {
       {activeTab === 'goals' && (
         <div className="space-y-6">
           <button
+            onClick={() => setShowGoalForm(!showGoalForm)}
             className="w-full py-4 border-2 border-dashed border-emerald-500/30 hover:border-emerald-500 text-emerald-500 font-mono-tech text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
           >
             <Plus size={16} />
-            Create New Goal
+            {showGoalForm ? 'Cancelar' : 'Create New Goal'}
           </button>
+
+          {showGoalForm && (
+            <div className="glass-panel p-6 border border-emerald-500/20 space-y-4">
+              <input type="text" placeholder="Goal title (e.g. Lose 10kg)" value={newGoal.title}
+                onChange={e => setNewGoal({...newGoal, title: e.target.value})}
+                className="w-full bg-neutral-900/50 border border-neutral-800 p-3 text-sm font-mono-tech placeholder-neutral-600 focus:border-emerald-500/40 outline-none" />
+              <input type="text" placeholder="Description (optional)" value={newGoal.description}
+                onChange={e => setNewGoal({...newGoal, description: e.target.value})}
+                className="w-full bg-neutral-900/50 border border-neutral-800 p-3 text-sm font-mono-tech placeholder-neutral-600 focus:border-emerald-500/40 outline-none" />
+              <div className="grid grid-cols-3 gap-3">
+                <input type="number" placeholder="Target" value={newGoal.target_value}
+                  onChange={e => setNewGoal({...newGoal, target_value: parseFloat(e.target.value) || ''})}
+                  className="bg-neutral-900/50 border border-neutral-800 p-3 text-sm font-mono-tech placeholder-neutral-600 focus:border-emerald-500/40 outline-none" />
+                <select value={newGoal.unit} onChange={e => setNewGoal({...newGoal, unit: e.target.value})}
+                  className="bg-neutral-900/50 border border-neutral-800 p-3 text-sm font-mono-tech text-white focus:border-emerald-500/40 outline-none">
+                  <option value="kg">kg</option><option value="lbs">lbs</option><option value="reps">reps</option>
+                  <option value="min">min</option><option value="sessions">sessions</option><option value="%">%</option>
+                </select>
+                <input type="date" value={newGoal.target_date}
+                  onChange={e => setNewGoal({...newGoal, target_date: e.target.value})}
+                  className="bg-neutral-900/50 border border-neutral-800 p-3 text-sm font-mono-tech text-white focus:border-emerald-500/40 outline-none" />
+              </div>
+              <button onClick={async () => {
+                if (!newGoal.title) return;
+                const { error } = await supabase.from('client_goals').insert([{
+                  user_id: userId, title: newGoal.title, description: newGoal.description,
+                  target_value: newGoal.target_value || null, current_value: 0,
+                  unit: newGoal.unit, target_date: newGoal.target_date || null
+                }]);
+                if (error) { console.error(error); return; }
+                const { data } = await supabase.from('client_goals').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+                if (data) setGoals(data);
+                setNewGoal({ title: '', description: '', target_value: '', current_value: 0, unit: 'kg', target_date: '' });
+                setShowGoalForm(false);
+              }}
+                className="w-full py-3 bg-emerald-500 text-black font-mono-tech text-xs uppercase tracking-widest font-bold hover:bg-emerald-400 transition-all">
+                Save Goal
+              </button>
+            </div>
+          )}
 
           {goals.map(goal => (
             <div key={goal.id} className="glass-panel p-6 border border-white/10">

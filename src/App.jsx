@@ -32,6 +32,15 @@ import { ClientDetailView } from './components/views/ClientDetailView';
 import { AdminSettingsView } from './components/views/AdminSettingsView';
 
 export default function App() {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
+  );
+}
+
+function AppContent() {
+  const toast = useToast();
   const [activeView, setActiveView] = useState('dashboard');
   const [currentWeekStart, setCurrentWeekStart] = useState(getMonday(new Date()));
   const [selectedClient, setSelectedClient] = useState(null); // For admin viewing client details
@@ -111,7 +120,7 @@ export default function App() {
 
         if (error) {
           setSessions(prev => [...prev, existing]);
-          alert(error.message);
+          toast.error(error.message);
         }
 
         setAdminModal({ isOpen: false });
@@ -135,7 +144,7 @@ export default function App() {
 
         if (error) {
           setSessions(prev => prev.map(s => s.id === existing.id ? existing : s));
-          alert(error.message);
+          toast.error(error.message);
         }
 
         setAdminModal({ isOpen: false });
@@ -162,7 +171,7 @@ export default function App() {
 
     if (error) {
       setSessions(prev => prev.map(s => s.id === clientModal.session.id ? clientModal.session : s));
-      alert(error.message);
+      toast.error(error.message);
     }
 
     setClientModal({ isOpen: false, session: null, routine: null });
@@ -183,7 +192,7 @@ export default function App() {
           ? supabase.from('payments').update({ ...data, amount: parseFloat(data.amount), status: data.status.toLowerCase() }).eq('id', item.id)
           : supabase.from('payments').insert([{ ...data, amount: parseFloat(data.amount), status: data.status.toLowerCase(), user_id: session.user.id }]);
         const { error } = await query;
-        if (error) alert(error.message);
+        if (error) toast.error(error.message);
         setModalConfig({ ...modalConfig, isOpen: false });
       }
     });
@@ -213,7 +222,7 @@ export default function App() {
           diet_score: parseInt(data.diet_score),
           user_id: session.user.id
         }]);
-        if (error) alert(error.message);
+        if (error) toast.error(error.message);
         setModalConfig({ ...modalConfig, isOpen: false });
       }
     });
@@ -222,7 +231,7 @@ export default function App() {
   // Routine handlers
   const handleSaveRoutine = async (routineData) => {
     if (!routineData.name || routineData.exercises.length === 0) {
-      return alert("Name routine and add at least 1 exercise.");
+      toast.warning("Name routine and add at least 1 exercise."); return;
     }
 
     const payload = {
@@ -235,18 +244,18 @@ export default function App() {
     if (routineData.id) {
       const { error } = await supabase.from('routines').update(payload).eq('id', routineData.id);
       if (error) {
-        alert('Update failed: ' + error.message);
+        toast.error('Update failed: ' + error.message);
         return;
       }
     } else {
       const { error } = await supabase.from('routines').insert([payload]);
       if (error) {
-        alert('Insert failed: ' + error.message);
+        toast.error('Insert failed: ' + error.message);
         return;
       }
     }
 
-    alert('✅ Routine saved successfully!');
+    toast.success('Routine saved successfully!');
   };
 
   const handleDeleteRoutine = async (routineId) => {
@@ -288,7 +297,6 @@ export default function App() {
     : null;
 
   return (
-    <ToastProvider>
     <div className="min-h-screen bg-[#050505] text-white flex font-inter selection:bg-white selection:text-black">
       <Styles />
       <div className="fixed inset-0 tactical-grid opacity-10 pointer-events-none"></div>
@@ -401,6 +409,5 @@ export default function App() {
         onFillMonth={(pattern) => handleFillMonth(pattern, currentWeekStart, session.user.id)}
       />
     </div>
-    </ToastProvider>
   );
 }
