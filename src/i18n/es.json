@@ -1,0 +1,119 @@
+{
+  "sidebar": {
+    "home": "Inicio",
+    "schedule": "Horario",
+    "builder": "Constructor",
+    "clients": "Clientes",
+    "finance": "Finanzas",
+    "business": "Negocio",
+    "routine": "Rutina",
+    "progress": "Progreso",
+    "settings": "Ajustes",
+    "logout": "Cerrar Sesión",
+    "commanderAccess": "ACCESO COMANDANTE",
+    "operativeAccess": "ACCESO OPERATIVO"
+  },
+  "header": {
+    "systemStatus": "ESTADO DEL SISTEMA",
+    "active": "ACTIVO",
+    "operationalHud": "HUD OPERACIONAL",
+    "user": "USUARIO",
+    "role": "ROL"
+  },
+  "login": {
+    "tacticalDashboard": "Panel Táctico",
+    "clientRegistration": "Registro de Cliente",
+    "clientIdentifier": "Identificador de Cliente",
+    "accessKey": "Clave de Acceso",
+    "accessSystem": "Acceder al Sistema",
+    "createAccount": "Crear Cuenta",
+    "authenticating": "Autenticando...",
+    "backToLogin": "← Volver al Login",
+    "newClient": "¿Nuevo Cliente? Regístrate Aquí →",
+    "minChars": "* Mínimo 6 caracteres requeridos",
+    "systemOnline": "Sistema En Línea"
+  },
+  "settings": {
+    "title": "Configuración",
+    "profile": "Perfil",
+    "displayName": "Nombre para Mostrar",
+    "email": "Correo Electrónico",
+    "bio": "Bio / Lema Personal",
+    "bioPlaceholder": "Escribe algo sobre ti...",
+    "profilePhoto": "Foto de Perfil",
+    "changePhoto": "Cambiar Foto",
+    "removePhoto": "Eliminar Foto",
+    "preferences": "Preferencias",
+    "theme": "Tema",
+    "dark": "Oscuro",
+    "light": "Claro",
+    "language": "Idioma",
+    "notifications": "Notificaciones",
+    "emailNotifications": "Notificaciones por Email",
+    "sessionReminders": "Recordatorios de Sesión",
+    "progressUpdates": "Actualizaciones de Progreso",
+    "account": "Cuenta",
+    "updatePassword": "Actualizar Contraseña",
+    "currentPassword": "CONTRASEÑA ACTUAL",
+    "newPassword": "NUEVA CONTRASEÑA",
+    "updateCredentials": "Actualizar Credenciales",
+    "deleteAccount": "Eliminar Cuenta",
+    "deleteAccountWarning": "Esta acción es permanente y no se puede deshacer.",
+    "deleteAccountConfirm": "Eliminar Mi Cuenta",
+    "about": "Acerca de",
+    "appVersion": "Versión de la App",
+    "support": "Soporte",
+    "supportEmail": "soporte@moreta.fit",
+    "saveProfile": "Guardar Perfil",
+    "saving": "Guardando...",
+    "saved": "¡Guardado!"
+  },
+  "dashboard": {
+    "tacticalDashboard": "Panel Táctico",
+    "noSessionsToday": "SIN SESIONES HOY",
+    "quickActions": "Acciones Rápidas",
+    "fullSchedule": "Horario Completo",
+    "viewFullDetails": "VER DETALLES COMPLETOS",
+    "noOrdersAssigned": "SIN ÓRDENES ASIGNADAS",
+    "hydration": "Hidratación",
+    "recovery": "Recuperación",
+    "stress": "Estrés",
+    "dietScore": "Puntuación Dieta",
+    "sessions": "Sesiones",
+    "revenue": "Ingresos",
+    "clients": "Clientes",
+    "overview": "Resumen"
+  },
+  "schedule": {
+    "title": "Horario",
+    "openSlot": "Espacio Abierto"
+  },
+  "builder": {
+    "title": "Constructor de Rutinas",
+    "saveToLibrary": "GUARDAR EN BIBLIOTECA"
+  },
+  "finance": {
+    "title": "Finanzas",
+    "revenue": "Ingresos",
+    "expenses": "Gastos"
+  },
+  "progress": {
+    "title": "Progreso",
+    "measurements": "Medidas",
+    "photos": "Fotos",
+    "workouts": "Entrenamientos"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "¡Éxito!",
+    "unknown": "Desconocido",
+    "uncategorized": "Sin Categoría"
+  }
+}

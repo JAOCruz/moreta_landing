@@ -4,26 +4,29 @@ import {
   ClipboardList, TrendingUp, Users, Sliders
 } from 'lucide-react';
 import gsap from 'gsap';
+import { useTranslation } from 'react-i18next';
+import { Avatar } from '../ui/Avatar';
 
-export const Sidebar = ({ activeView, onViewChange, onLogout, userRole, overdueCount = 0 }) => {
+export const Sidebar = ({ activeView, onViewChange, onLogout, userRole, overdueCount = 0, session }) => {
+  const { t } = useTranslation();
   const indicatorRef = useRef(null);
   const navRef = useRef(null);
   const mobileIndicatorRef = useRef(null);
 
   const menuItems = [
-    { id: 'dashboard', icon: Home, label: 'Home' },
-    { id: 'schedule', icon: Clock, label: 'Schedule' },
+    { id: 'dashboard', icon: Home, label: t('sidebar.home') },
+    { id: 'schedule', icon: Clock, label: t('sidebar.schedule') },
     ...(userRole === 'admin' ? [
-      { id: 'builder', icon: Dumbbell, label: 'Builder' },
-      { id: 'clients', icon: Users, label: 'Clients' },
-      { id: 'finance', icon: DollarSign, label: 'Finance', badge: overdueCount > 0 ? overdueCount : null },
-      { id: 'admin_settings', icon: Sliders, label: 'Business' }
+      { id: 'builder', icon: Dumbbell, label: t('sidebar.builder') },
+      { id: 'clients', icon: Users, label: t('sidebar.clients') },
+      { id: 'finance', icon: DollarSign, label: t('sidebar.finance'), badge: overdueCount > 0 ? overdueCount : null },
+      { id: 'admin_settings', icon: Sliders, label: t('sidebar.business') }
     ] : []),
     ...(userRole === 'client' ? [
-      { id: 'my_routine', icon: ClipboardList, label: 'Routine' },
-      { id: 'progress', icon: TrendingUp, label: 'Progress' }
+      { id: 'my_routine', icon: ClipboardList, label: t('sidebar.routine') },
+      { id: 'progress', icon: TrendingUp, label: t('sidebar.progress') }
     ] : []),
-    { id: 'settings', icon: Settings, label: 'Settings' }
+    { id: 'settings', icon: Settings, label: t('sidebar.settings') }
   ];
 
   // Animate desktop indicator on view change
@@ -50,8 +53,14 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole, overdueC
           <h1 className="font-bebas text-3xl lg:text-4xl tracking-tighter text-white">
             M<span className="text-emerald-500">.</span>FIT
           </h1>
-          {userRole === 'admin' && <span className="hidden lg:block font-mono-tech text-[9px] text-emerald-500 uppercase tracking-widest mt-2">COMMANDER ACCESS</span>}
-          {userRole === 'client' && <span className="hidden lg:block font-mono-tech text-[9px] text-blue-500 uppercase tracking-widest mt-2">OPERATIVE ACCESS</span>}
+          {userRole === 'admin' && <span className="hidden lg:block font-mono-tech text-[9px] text-emerald-500 uppercase tracking-widest mt-2">{t('sidebar.commanderAccess')}</span>}
+          {userRole === 'client' && <span className="hidden lg:block font-mono-tech text-[9px] text-blue-500 uppercase tracking-widest mt-2">{t('sidebar.operativeAccess')}</span>}
+          {session?.user && (
+            <div className="hidden lg:flex items-center gap-3 mt-4 pt-4 border-t border-white/5">
+              <Avatar userId={session.user.id} email={session.user.email} size={32} />
+              <span className="font-mono-tech text-[9px] text-neutral-400 truncate">{session.user.email?.split('@')[0]}</span>
+            </div>
+          )}
         </div>
 
         <nav ref={navRef} className="flex-1 space-y-1 px-2 lg:px-3 relative">
@@ -97,7 +106,7 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole, overdueC
             className="w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 lg:py-4 text-neutral-600 hover:text-red-500 transition-all group btn-press"
           >
             <LogOut size={18} className="group-hover:scale-110 transition-transform" />
-            <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.15em]">Log Out</span>
+            <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.15em]">{t('sidebar.logout')}</span>
           </button>
         </div>
       </div>

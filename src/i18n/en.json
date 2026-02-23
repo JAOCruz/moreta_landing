@@ -1,0 +1,119 @@
+{
+  "sidebar": {
+    "home": "Home",
+    "schedule": "Schedule",
+    "builder": "Builder",
+    "clients": "Clients",
+    "finance": "Finance",
+    "business": "Business",
+    "routine": "Routine",
+    "progress": "Progress",
+    "settings": "Settings",
+    "logout": "Log Out",
+    "commanderAccess": "COMMANDER ACCESS",
+    "operativeAccess": "OPERATIVE ACCESS"
+  },
+  "header": {
+    "systemStatus": "SYSTEM STATUS",
+    "active": "ACTIVE",
+    "operationalHud": "OPERATIONAL HUD",
+    "user": "USER",
+    "role": "ROLE"
+  },
+  "login": {
+    "tacticalDashboard": "Tactical Dashboard",
+    "clientRegistration": "Client Registration",
+    "clientIdentifier": "Client Identifier",
+    "accessKey": "Access Key",
+    "accessSystem": "Access System",
+    "createAccount": "Create Account",
+    "authenticating": "Authenticating...",
+    "backToLogin": "← Back to Login",
+    "newClient": "New Client? Register Here →",
+    "minChars": "* Minimum 6 characters required",
+    "systemOnline": "System Online"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "displayName": "Display Name",
+    "email": "Email",
+    "bio": "Bio / Personal Motto",
+    "bioPlaceholder": "Write something about yourself...",
+    "profilePhoto": "Profile Photo",
+    "changePhoto": "Change Photo",
+    "removePhoto": "Remove Photo",
+    "preferences": "Preferences",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "language": "Language",
+    "notifications": "Notifications",
+    "emailNotifications": "Email Notifications",
+    "sessionReminders": "Session Reminders",
+    "progressUpdates": "Progress Updates",
+    "account": "Account",
+    "updatePassword": "Update Password",
+    "currentPassword": "CURRENT PASSWORD",
+    "newPassword": "NEW PASSWORD",
+    "updateCredentials": "Update Credentials",
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarning": "This action is permanent and cannot be undone.",
+    "deleteAccountConfirm": "Delete My Account",
+    "about": "About",
+    "appVersion": "App Version",
+    "support": "Support",
+    "supportEmail": "support@moreta.fit",
+    "saveProfile": "Save Profile",
+    "saving": "Saving...",
+    "saved": "Saved!"
+  },
+  "dashboard": {
+    "tacticalDashboard": "Tactical Dashboard",
+    "noSessionsToday": "NO SESSIONS TODAY",
+    "quickActions": "Quick Actions",
+    "fullSchedule": "Full Schedule",
+    "viewFullDetails": "VIEW FULL DETAILS",
+    "noOrdersAssigned": "NO ORDERS ASSIGNED",
+    "hydration": "Hydration",
+    "recovery": "Recovery",
+    "stress": "Stress",
+    "dietScore": "Diet Score",
+    "sessions": "Sessions",
+    "revenue": "Revenue",
+    "clients": "Clients",
+    "overview": "Overview"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "openSlot": "Open Slot"
+  },
+  "builder": {
+    "title": "Routine Builder",
+    "saveToLibrary": "SAVE TO LIBRARY"
+  },
+  "finance": {
+    "title": "Finance",
+    "revenue": "Revenue",
+    "expenses": "Expenses"
+  },
+  "progress": {
+    "title": "Progress",
+    "measurements": "Measurements",
+    "photos": "Photos",
+    "workouts": "Workouts"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success!",
+    "unknown": "Unknown",
+    "uncategorized": "Uncategorized"
+  }
+}
