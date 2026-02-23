@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { User, Lock, ChevronRight, Loader2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import gsap from 'gsap';
 import { Styles } from '../ui/Styles';
+import { useToast } from '../ui/Toast';
 
 export const LoginScreen = ({ onLogin, onSignup, loading, error }) => {
+  const toast = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignupMode, setIsSignupMode] = useState(false);
@@ -212,12 +214,12 @@ export const LoginScreen = ({ onLogin, onSignup, loading, error }) => {
               <button
                 type="button"
                 onClick={async () => {
-                  if (!email) { alert('Ingresa tu email primero'); return; }
+                  if (!email) { toast.warning('Ingresa tu email primero'); return; }
                   const { error } = await (await import('../../lib/supabase')).supabase.auth.resetPasswordForEmail(email, {
                     redirectTo: window.location.origin
                   });
-                  if (error) alert('Error: ' + error.message);
-                  else alert('📧 Link de recuperación enviado a ' + email);
+                  if (error) toast.error('Error: ' + error.message);
+                  else toast.success('📧 Link de recuperación enviado a ' + email);
                 }}
                 className="text-neutral-600 hover:text-emerald-400 text-[10px] font-mono-tech uppercase tracking-widest transition-colors"
               >

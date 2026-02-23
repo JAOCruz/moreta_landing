@@ -3,8 +3,10 @@ import { Key, User, Globe, Bell, Moon, Sun, Trash2, Info, Camera, Shield, Chevro
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import { Avatar, uploadAvatar, removeAvatar } from '../ui/Avatar';
+import { useToast } from '../ui/Toast';
 
 export const SettingsView = ({ onUpdatePassword, session }) => {
+  const toast = useToast();
   const { t, i18n } = useTranslation();
   const [activeSection, setActiveSection] = useState('profile');
 
@@ -53,7 +55,7 @@ export const SettingsView = ({ onUpdatePassword, session }) => {
     setSaving(true);
     const { error } = await supabase.from('profiles').update({ full_name: displayName, bio }).eq('id', userId);
     setSaving(false);
-    if (error) { alert(error.message); return; }
+    if (error) { toast.error(error.message); return; }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -64,7 +66,7 @@ export const SettingsView = ({ onUpdatePassword, session }) => {
     try {
       await uploadAvatar(userId, file);
     } catch (err) {
-      alert('Upload failed: ' + err.message);
+      toast.error('Upload failed: ' + err.message);
     }
   };
 

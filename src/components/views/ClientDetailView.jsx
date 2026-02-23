@@ -3,8 +3,10 @@ import { ArrowLeft, Mail, Calendar, TrendingUp, MessageSquare, Heart, Target, Al
 import gsap from 'gsap';
 import { ProgressView } from './ProgressView';
 import { supabase } from '../../lib/supabase';
+import { useToast } from '../ui/Toast';
 
 export const ClientDetailView = ({ client, onBack }) => {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [porQue, setPorQue] = useState(client.motivation_notes || '');
   const [goalType, setGoalType] = useState(client.goal_type || 'general');
@@ -83,7 +85,7 @@ export const ClientDetailView = ({ client, onBack }) => {
 
     setSaving(false);
     if (error) {
-      alert('Error saving: ' + error.message);
+      toast.error('Error saving: ' + error.message);
     } else {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);

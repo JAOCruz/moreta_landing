@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Save, X, Users, Clock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useToast } from '../ui/Toast';
 
 export const SessionTypesManager = () => {
+  const toast = useToast();
   const [sessionTypes, setSessionTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -34,7 +36,7 @@ export const SessionTypesManager = () => {
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      alert('Please enter a session type name');
+      toast.warning('Please enter a session type name');
       return;
     }
 
@@ -49,7 +51,7 @@ export const SessionTypesManager = () => {
         .eq('id', editingId);
 
       if (error) {
-        alert('Error updating session type: ' + error.message);
+        toast.error('Error updating session type: ' + error.message);
         return;
       }
     } else {
@@ -59,7 +61,7 @@ export const SessionTypesManager = () => {
         .insert([formData]);
 
       if (error) {
-        alert('Error creating session type: ' + error.message);
+        toast.error('Error creating session type: ' + error.message);
         return;
       }
     }
@@ -100,7 +102,7 @@ export const SessionTypesManager = () => {
       .eq('id', id);
 
     if (error) {
-      alert('Error deleting: ' + error.message);
+      toast.error('Error deleting: ' + error.message);
     } else {
       fetchSessionTypes();
     }

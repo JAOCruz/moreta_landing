@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, TrendingUp, Camera, Dumbbell, Target } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useToast } from '../ui/Toast';
 import { SectionHeader } from '../ui/SectionHeader';
 import { MeasurementCard } from '../progress/MeasurementCard';
 import { BodyMeasurementsForm } from '../progress/BodyMeasurementsForm';
@@ -9,6 +10,7 @@ import { WorkoutLogger } from '../progress/WorkoutLogger';
 import { ProgressChart } from '../progress/ProgressChart';
 
 export const ProgressView = ({ userId, routine }) => {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [measurements, setMeasurements] = useState([]);
   const [photos, setPhotos] = useState([]);
@@ -65,9 +67,9 @@ export const ProgressView = ({ userId, routine }) => {
     if (!error) {
       setShowMeasurementForm(false);
       fetchProgressData();
-      alert('✅ Measurements saved!');
+      toast.success('Measurements saved!');
     } else {
-      alert('Error: ' + error.message);
+      toast.error('Error: ' + error.message);
     }
   };
 
@@ -80,7 +82,7 @@ export const ProgressView = ({ userId, routine }) => {
     if (!error) {
       fetchProgressData();
     } else {
-      alert('Error: ' + error.message);
+      toast.error('Error: ' + error.message);
     }
   };
 
@@ -115,7 +117,7 @@ export const ProgressView = ({ userId, routine }) => {
       .single();
 
     if (workoutError) {
-      alert('Error saving workout: ' + workoutError.message);
+      toast.error('Error saving workout: ' + workoutError.message);
       return;
     }
 
@@ -140,9 +142,9 @@ export const ProgressView = ({ userId, routine }) => {
     if (!exerciseError) {
       setShowWorkoutLogger(false);
       fetchProgressData();
-      alert('✅ Workout logged successfully!');
+      toast.success('Workout logged successfully!');
     } else {
-      alert('Error saving exercises: ' + exerciseError.message);
+      toast.error('Error saving exercises: ' + exerciseError.message);
     }
   };
 
