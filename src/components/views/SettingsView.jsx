@@ -156,22 +156,21 @@ export const SettingsView = ({ onUpdatePassword, session }) => {
           {/* Photo Card */}
           <div className="glass-panel p-6 border border-white/5">
             <h3 className="font-mono-tech text-[10px] text-neutral-500 uppercase tracking-widest mb-4">{t('settings.profilePhoto')}</h3>
-            <div className="flex items-center gap-6">
-              <div className="relative group">
-                <Avatar userId={userId} email={userEmail} displayName={displayName} size={80} />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                >
-                  <Camera size={20} className="text-white" />
-                </button>
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                <Avatar userId={userId} email={userEmail} displayName={displayName} size={160} />
+                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Camera size={32} className="text-white" />
+                </div>
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
               </div>
-              <div className="flex flex-col gap-2">
-                <button onClick={() => fileInputRef.current?.click()} className="font-mono-tech text-[10px] text-emerald-400 uppercase tracking-widest hover:text-emerald-300 transition-colors">
+              <div className="flex gap-4">
+                <button onClick={() => fileInputRef.current?.click()}
+                  className="px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono-tech text-[10px] uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
                   {t('settings.changePhoto')}
                 </button>
-                <button onClick={handleRemovePhoto} className="font-mono-tech text-[10px] text-red-400 uppercase tracking-widest hover:text-red-300 transition-colors">
+                <button onClick={handleRemovePhoto}
+                  className="px-5 py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 font-mono-tech text-[10px] uppercase tracking-widest hover:bg-red-500/20 transition-all">
                   {t('settings.removePhoto')}
                 </button>
               </div>
