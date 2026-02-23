@@ -151,7 +151,7 @@ export const RevenueExpenseChart = ({ data }) => {
             );
           })}
 
-          {/* Revenue line */}
+          {/* Revenue line - animated */}
           <path
             d={revenuePath}
             fill="none"
@@ -159,9 +159,18 @@ export const RevenueExpenseChart = ({ data }) => {
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
+            className="chart-line-animated"
           />
 
-          {/* Expense line */}
+          {/* Revenue area fill */}
+          <path
+            d={`${revenuePath} L ${padding + (chartData.length - 1) * xStep} ${height - padding} L ${padding} ${height - padding} Z`}
+            fill="url(#revenueGradient)"
+            opacity="0.15"
+            className="chart-line-animated"
+          />
+
+          {/* Expense line - animated */}
           <path
             d={expensePath}
             fill="none"
@@ -169,7 +178,17 @@ export const RevenueExpenseChart = ({ data }) => {
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
+            className="chart-line-animated"
+            style={{ animationDelay: '0.5s' }}
           />
+
+          {/* Gradient defs */}
+          <defs>
+            <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+            </linearGradient>
+          </defs>
 
           {/* Data points - Revenue */}
           {chartData.map((d, i) => {

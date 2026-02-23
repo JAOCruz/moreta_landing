@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moreta Fitness — Entrenamiento Personal en Santo Domingo | No Hay Atajos</title>
+<meta name="description" content="Entrenamiento personal con José Moreta. 10+ años transformando vidas en Santo Domingo. No hay atajos.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--black:#0a0a0a;--dark:#111;--emerald:#10b981;--emerald-dark:#059669;--emerald-glow:rgba(16,185,129,.2);
+--white:#f5f5f5;--gray:#888;--gray-dark:#333;--gray-darker:#1a1a1a;--gray-light:#bbb;
+--font-display:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+html{background:var(--black);color:var(--white);font-family:var(--font-body)}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+body{overflow-x:hidden;cursor:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+@media(pointer:coarse){body{cursor:auto}.cursor,.cursor-follower{display:none!important}}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+::selection{background:var(--emerald);color:var(--black)}
+button{background:none;border:none;color:inherit;font:inherit;cursor:none}
+@media(pointer:coarse){button{cursor:pointer}}
+
+/* ========== PRELOADER ========== */
+.preloader{position:fixed;inset:0;z-index:9999;background:var(--black);display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(1.5rem,4vw,3rem);pointer-events:all;overflow:hidden}
+.preloader__top{position:absolute;top:clamp(1.5rem,4vw,3rem);left:clamp(1.5rem,4vw,3rem);right:clamp(1.5rem,4vw,3rem);display:flex;justify-content:space-between;align-items:flex-start}
+.preloader__brand{font-family:var(--font-mono);font-size:.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:.2em}
+.preloader__loading{font-family:var(--font-mono);font-size:.65rem;color:var(--emerald);text-transform:uppercase;letter-spacing:.3em}
+.preloader__bottom{display:flex;justify-content:space-between;align-items:flex-end}
+.preloader__count{font-family:var(--font-display);font-size:clamp(6rem,25vw,18rem);color:var(--white);line-height:.8;letter-spacing:-.02em}
+.preloader__bar{position:absolute;bottom:0;left:0;height:3px;background:var(--emerald);width:0}
+.preloader__line{font-family:var(--font-mono);font-size:.65rem;color:var(--gray);text-transform:uppercase;letter-spacing:.15em;max-width:12rem;text-align:right;line-height:1.5}
+
+/* ========== GRAIN OVERLAY (global) ========== */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.035;mix-blend-mode:overlay}
+.grain::before{content:'';position:absolute;inset:-200%;width:400%;height:400%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grainShift 0.5s steps(3) infinite}
+@keyframes grainShift{0%{transform:translate(0,0)}33%{transform:translate(-5%,-5%)}66%{transform:translate(5%,2%)}100%{transform:translate(2%,-3%)}}
+
+/* ========== CURSOR ========== */
+.cursor{position:fixed;top:0;left:0;width:8px;height:8px;background:var(--white);border-radius:50%;pointer-events:none;z-index:9998;mix-blend-mode:difference;transform:translate(-50%,-50%);will-change:transform}
+.cursor-follower{position:fixed;top:0;left:0;width:40px;height:40px;border:1px solid rgba(255,255,255,.35);border-radius:50%;pointer-events:none;z-index:9997;mix-blend-mode:difference;transform:translate(-50%,-50%);will-change:transform;transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),border-color .35s,background .35s}
+.cursor-follower.hover{width:80px;height:80px;border-color:var(--emerald);background:rgba(16,185,129,.06)}
+.cursor-follower.magnetic{width:60px;height:60px}
+
+/* ========== NAV ========== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.5rem clamp(1.5rem,5vw,4rem);display:flex;justify-content:space-between;align-items:center;mix-blend-mode:difference}
+.nav__logo{font-family:var(--font-display);font-size:1.5rem;letter-spacing:.05em;color:var(--white)}
+.nav__cta{font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;color:var(--white);border:1px solid rgba(255,255,255,.3);padding:.6rem 1.5rem;border-radius:100px;transition:all .4s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+.nav__cta::before{content:'';position:absolute;inset:0;background:var(--white);transform:translateY(100%);transition:transform .4s cubic-bezier(.16,1,.3,1);border-radius:100px}
+.nav__cta:hover::before{transform:translateY(0)}
+.nav__cta span{position:relative;z-index:1;transition:color .4s}
+.nav__cta:hover span{color:var(--black)}
+
+/* ========== HERO ========== */
+.hero{position:relative;height:100vh;height:100dvh;display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(2rem,5vw,6rem);overflow:hidden}
+.hero__bg{position:absolute;inset:0;z-index:0}
+.hero__bg-gradient{position:absolute;inset:0;background:linear-gradient(135deg,#0a1a0f 0%,#0a0a0a 40%,#0d1f14 70%,#0a0a0a 100%)}
+.hero__bg-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,var(--emerald-glow) 0%,transparent 60%);opacity:.7}
+.hero__bg-glow2{position:absolute;width:60vw;height:60vw;top:-20%;right:-10%;background:radial-gradient(circle,rgba(16,185,129,.08) 0%,transparent 70%);border-radius:50%;filter:blur(60px)}
+
+/* Floating particles */
+.hero__particles{position:absolute;inset:0;z-index:1;overflow:hidden}
+.particle{position:absolute;width:2px;height:2px;background:var(--emerald);border-radius:50%;opacity:0}
+
+.hero__content{position:relative;z-index:2}
+.hero__tag{font-family:var(--font-mono);font-size:clamp(.65rem,.55rem + .3vw,.8rem);text-transform:uppercase;letter-spacing:.3em;color:var(--emerald);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;overflow:hidden}
+.hero__tag::before{content:'';width:2rem;height:1px;background:var(--emerald)}
+.hero__title{font-family:var(--font-display);font-size:clamp(4.5rem,2rem + 11vw,13rem);line-height:.82;letter-spacing:-.02em;color:var(--white);margin-bottom:1.5rem;overflow:hidden}
+.hero__title span{display:block}
+.hero__title-char{display:inline-block;will-change:transform}
+.hero__sub{font-size:clamp(.9rem,.8rem + .5vw,1.1rem);color:var(--gray);max-width:30rem;line-height:1.7;margin-bottom:2.5rem;font-weight:300}
+.hero__cta{display:inline-flex;align-items:center;gap:.75rem;font-family:var(--font-mono);font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;color:var(--black);background:var(--emerald);padding:1rem 2.5rem;border-radius:100px;transition:all .4s cubic-bezier(.16,1,.3,1);border:none;cursor:none;position:relative;overflow:hidden}
+@media(pointer:coarse){.hero__cta{cursor:pointer}}
+.hero__cta::before{content:'';position:absolute;inset:0;background:var(--white);border-radius:100px;transform:translateY(100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.hero__cta:hover::before{transform:translateY(0)}
+.hero__cta-inner{position:relative;z-index:1;display:inline-flex;align-items:center;gap:.75rem}
+.hero__cta svg{width:16px;height:16px;transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.hero__cta:hover svg{transform:translateX(4px)}
+.hero__scroll{position:absolute;bottom:2rem;right:clamp(1.5rem,5vw,4rem);font-family:var(--font-mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);writing-mode:vertical-rl;display:flex;align-items:center;gap:1rem;z-index:2}
+.hero__scroll::after{content:'';width:1px;height:3rem;background:linear-gradient(to bottom,var(--emerald),transparent);animation:scrollPulse 2s ease-in-out infinite}
+@keyframes scrollPulse{0%,100%{opacity:.3;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
+
+/* Light streaks */
+.hero__streak{position:absolute;z-index:1;pointer-events:none}
+.hero__streak--1{width:1px;height:40vh;top:10%;left:25%;background:linear-gradient(to bottom,transparent,rgba(16,185,129,.15),transparent);transform:rotate(15deg)}
+.hero__streak--2{width:1px;height:30vh;top:20%;right:30%;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.05),transparent);transform:rotate(-10deg)}
+
+/* ========== SECTION COMMON ========== */
+section{padding:clamp(5rem,12vw,12rem) clamp(1.5rem,5vw,6rem)}
+.section-tag{font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.3em;color:var(--emerald);margin-bottom:2rem;display:flex;align-items:center;gap:.75rem}
+.section-tag::before{content:'';width:1.5rem;height:1px;background:var(--emerald)}
+.section-number{font-family:var(--font-mono);font-size:.6rem;color:var(--gray-dark);letter-spacing:.15em;margin-bottom:1rem}
+
+/* ========== POR QUÉ — STICKY PINNACLE SECTION ========== */
+.why-wrapper{position:relative;background:var(--black)}
+.why{position:relative;min-height:100vh;overflow:hidden}
+.why__container{display:grid;grid-template-columns:1fr;min-height:100vh;align-items:center}
+@media(min-width:768px){.why__container{grid-template-columns:1fr 1fr}}
+
+.why__left{padding:clamp(2rem,5vw,6rem);position:relative;z-index:2}
+.why__question{font-family:var(--font-display);font-size:clamp(3.5rem,2rem + 8vw,9rem);line-height:.85;color:var(--white);margin-bottom:2rem}
+.why__question em{font-style:normal;color:var(--emerald);position:relative}
+.why__question em::after{content:'';position:absolute;bottom:-.05em;left:0;width:100%;height:3px;background:var(--emerald);transform:scaleX(0);transform-origin:left;transition:transform 1s cubic-bezier(.16,1,.3,1)}
+.why__question.active em::after{transform:scaleX(1)}
+
+.why__intro{font-size:clamp(1rem,.9rem + .5vw,1.2rem);color:var(--gray);line-height:1.8;max-width:32rem;font-weight:300;margin-bottom:3rem}
+
+.why__reasons{display:flex;flex-direction:column;gap:0}
+.why__reason{overflow:hidden;border-top:1px solid rgba(255,255,255,.06)}
+.why__reason:last-child{border-bottom:1px solid rgba(255,255,255,.06)}
+.why__reason-inner{padding:clamp(1rem,2vw,1.5rem) 0;display:flex;align-items:center;gap:1rem;opacity:0;transform:translateY(20px)}
+.why__reason-icon{width:3px;height:2rem;background:var(--emerald);border-radius:2px;flex-shrink:0}
+.why__reason-text{font-family:var(--font-display);font-size:clamp(1.4rem,1rem + 2vw,2.5rem);color:var(--white);line-height:1;letter-spacing:.02em}
+
+.why__right{position:relative;min-height:50vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+@media(min-width:768px){.why__right{min-height:100vh}}
+.why__visual{position:absolute;inset:0;background:linear-gradient(160deg,rgba(16,185,129,.03) 0%,transparent 30%,rgba(16,185,129,.05) 70%,transparent 100%)}
+.why__visual-circle{position:absolute;width:clamp(15rem,40vw,30rem);height:clamp(15rem,40vw,30rem);border-radius:50%;border:1px solid rgba(16,185,129,.1);top:50%;left:50%;transform:translate(-50%,-50%)}
+.why__visual-circle:nth-child(2){width:clamp(20rem,50vw,40rem);height:clamp(20rem,50vw,40rem);border-color:rgba(16,185,129,.05)}
+.why__visual-circle:nth-child(3){width:clamp(10rem,25vw,20rem);height:clamp(10rem,25vw,20rem);border-color:rgba(16,185,129,.15);background:radial-gradient(circle,rgba(16,185,129,.05),transparent)}
+.why__visual-text{position:relative;z-index:1;font-family:var(--font-display);font-size:clamp(6rem,15vw,16rem);color:rgba(16,185,129,.04);line-height:.8;text-align:center;user-select:none;pointer-events:none}
+.why__bottom-text{padding:clamp(2rem,5vw,4rem) clamp(2rem,5vw,6rem);max-width:40rem}
+.why__bottom-text p{font-size:clamp(.95rem,.85rem + .4vw,1.15rem);color:var(--gray);line-height:1.8;font-weight:300}
+.why__bottom-text p+p{margin-top:1.5rem}
+.why__bottom-text strong{color:var(--white);font-weight:500}
+
+/* ========== ABOUT — EDITORIAL ========== */
+.about{background:var(--gray-darker);position:relative;overflow:hidden}
+.about__layout{display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:768px){.about__layout{grid-template-columns:5fr 7fr}}
+
+.about__image-col{position:relative;min-height:60vh}
+@media(min-width:768px){.about__image-col{min-height:auto}}
+.about__image{position:relative;width:100%;height:100%;min-height:60vh;background:linear-gradient(160deg,var(--gray-dark) 0%,var(--black) 40%,var(--emerald-dark) 80%,var(--black) 100%);overflow:hidden;filter:grayscale(1);transition:filter 1.5s cubic-bezier(.16,1,.3,1)}
+.about__image.color{filter:grayscale(0)}
+.about__image-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--gray-darker) 0%,transparent 30%);z-index:1}
+@media(min-width:768px){.about__image-overlay{background:linear-gradient(to right,transparent 70%,var(--gray-darker) 100%)}}
+.about__image-initials{position:absolute;bottom:clamp(1.5rem,3vw,3rem);left:clamp(1.5rem,3vw,3rem);font-family:var(--font-display);font-size:clamp(4rem,8vw,8rem);color:rgba(255,255,255,.04);line-height:.8;z-index:2}
+
+.about__content-col{padding:clamp(3rem,6vw,6rem) clamp(2rem,4vw,4rem)}
+.about__quote{font-family:var(--font-body);font-size:clamp(1.3rem,1rem + 1.5vw,2rem);font-style:italic;font-weight:300;color:var(--white);line-height:1.4;margin-bottom:2.5rem;position:relative;padding-left:1.5rem;border-left:2px solid var(--emerald)}
+.about__name{font-family:var(--font-display);font-size:clamp(3rem,2rem + 5vw,6rem);line-height:.85;margin-bottom:.75rem}
+.about__role{font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.25em;color:var(--emerald);margin-bottom:2.5rem}
+.about__bio{color:var(--gray);line-height:1.8;font-weight:300;font-size:clamp(.9rem,.85rem + .2vw,1.05rem);margin-bottom:3rem}
+.about__bio p+p{margin-top:1.25rem}
+
+/* Stats with animated counters */
+.about__stats{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,2vw,2rem);padding-top:2.5rem;border-top:1px solid var(--gray-dark)}
+.stat{text-align:left}
+.stat__number{font-family:var(--font-display);font-size:clamp(2.5rem,2rem + 2.5vw,4rem);color:var(--white);line-height:1;display:flex;align-items:baseline}
+.stat__suffix{font-size:.6em;color:var(--emerald);margin-left:.1em}
+.stat__label{font-family:var(--font-mono);font-size:clamp(.55rem,.5rem + .15vw,.65rem);text-transform:uppercase;letter-spacing:.15em;color:var(--gray);margin-top:.5rem;line-height:1.4}
+
+/* Timeline dots */
+.about__timeline{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--gray-dark);display:flex;gap:clamp(1.5rem,3vw,3rem);overflow-x:auto;padding-bottom:1rem;-webkit-overflow-scrolling:touch}
+.about__timeline::-webkit-scrollbar{display:none}
+.timeline__item{flex-shrink:0;position:relative;padding-left:1.25rem}
+.timeline__item::before{content:'';position:absolute;left:0;top:.4em;width:6px;height:6px;border-radius:50%;background:var(--emerald)}
+.timeline__year{font-family:var(--font-mono);font-size:.65rem;color:var(--emerald);letter-spacing:.1em;margin-bottom:.35rem}
+.timeline__event{font-size:.8rem;color:var(--gray);font-weight:300;max-width:10rem;line-height:1.4}
+
+/* ========== SERVICES — MAGAZINE CHAPTERS ========== */
+.services{background:var(--black);position:relative;padding-bottom:0}
+
+.services__header{margin-bottom:clamp(4rem,8vw,8rem);display:grid;grid-template-columns:1fr;gap:1.5rem;align-items:end}
+@media(min-width:768px){.services__header{grid-template-columns:1fr 1fr}}
+.services__title{font-family:var(--font-display);font-size:clamp(3rem,2rem + 6vw,8rem);line-height:.85}
+.services__intro{color:var(--gray);font-weight:300;line-height:1.7;font-size:clamp(.9rem,.85rem + .2vw,1rem);max-width:28rem}
+
+.service-chapter{border-top:1px solid rgba(255,255,255,.08);overflow:hidden}
+.service-chapter:last-child{border-bottom:1px solid rgba(255,255,255,.08)}
+.service-chapter__inner{display:grid;grid-template-columns:1fr;gap:0;padding:clamp(3rem,5vw,5rem) 0;align-items:center}
+@media(min-width:768px){.service-chapter__inner{grid-template-columns:1fr 1fr;gap:clamp(3rem,5vw,6rem)}}
+
+.service-chapter__content{padding:0 clamp(1.5rem,5vw,6rem)}
+.service-chapter__number{font-family:var(--font-mono);font-size:.65rem;color:var(--emerald);letter-spacing:.2em;margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem}
+.service-chapter__number::after{content:'';flex:1;height:1px;background:rgba(16,185,129,.2)}
+.service-chapter__name{font-family:var(--font-display);font-size:clamp(2.2rem,1.5rem + 3.5vw,4.5rem);line-height:.9;margin-bottom:1.5rem;transition:color .4s}
+.service-chapter__desc{color:var(--gray);line-height:1.8;font-weight:300;max-width:28rem;font-size:clamp(.9rem,.85rem + .2vw,1rem)}
+.service-chapter__link{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;color:var(--emerald);margin-top:1.5rem;transition:gap .3s}
+.service-chapter__link:hover{gap:1rem}
+.service-chapter__link svg{width:14px;height:14px}
+
+.service-chapter__visual{position:relative;min-height:clamp(15rem,30vw,25rem);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.service-chapter__visual-bg{position:absolute;inset:0;clip-path:inset(0 100% 0 0);transition:clip-path 1.2s cubic-bezier(.16,1,.3,1)}
+.service-chapter.revealed .service-chapter__visual-bg{clip-path:inset(0 0 0 0)}
+.service-chapter__visual-icon{position:relative;z-index:1;font-family:var(--font-display);font-size:clamp(5rem,10vw,10rem);color:rgba(255,255,255,.04);line-height:1}
+
+/* Alternate layout */
+@media(min-width:768px){
+.service-chapter:nth-child(even) .service-chapter__inner{direction:rtl}
+.service-chapter:nth-child(even) .service-chapter__inner > *{direction:ltr}
+}
+
+/* ========== RESULTS / TESTIMONIALS — CINEMATIC ========== */
+.results{background:var(--gray-darker);position:relative;overflow:hidden}
+.results__header{margin-bottom:clamp(3rem,6vw,5rem)}
+.results__title{font-family:var(--font-display);font-size:clamp(3rem,2rem + 6vw,7rem);line-height:.85;margin-bottom:1rem}
+.results__sub{color:var(--gray);font-weight:300;max-width:30rem;font-size:clamp(.9rem,.85rem + .25vw,1.05rem);line-height:1.7}
+
+/* Before/After concept strip */
+.results__strip{display:flex;gap:clamp(1rem,2vw,2rem);margin-bottom:clamp(4rem,8vw,6rem);overflow-x:auto;padding-bottom:1rem;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+.results__strip::-webkit-scrollbar{display:none}
+.result-card{flex-shrink:0;width:clamp(16rem,30vw,22rem);scroll-snap-align:start}
+.result-card__visual{aspect-ratio:3/4;border-radius:4px;overflow:hidden;position:relative;margin-bottom:1rem}
+.result-card__before,.result-card__after{position:absolute;inset:0}
+.result-card__before{background:linear-gradient(180deg,var(--gray-dark),var(--black));z-index:1}
+.result-card__after{background:linear-gradient(180deg,var(--emerald-dark),var(--black));z-index:2;clip-path:inset(0 100% 0 0);transition:clip-path 1s cubic-bezier(.16,1,.3,1)}
+.result-card.revealed .result-card__after{clip-path:inset(0 0 0 0)}
+.result-card__label{position:absolute;z-index:3;font-family:var(--font-mono);font-size:.55rem;text-transform:uppercase;letter-spacing:.2em;padding:.4rem .75rem;border-radius:100px}
+.result-card__label--before{top:1rem;left:1rem;background:rgba(0,0,0,.6);color:var(--gray)}
+.result-card__label--after{bottom:1rem;right:1rem;background:var(--emerald);color:var(--black)}
+.result-card__name{font-family:var(--font-display);font-size:1.3rem;margin-bottom:.25rem}
+.result-card__detail{font-family:var(--font-mono);font-size:.6rem;color:var(--gray);text-transform:uppercase;letter-spacing:.15em}
+
+/* Testimonials — editorial */
+.testimonials{display:grid;grid-template-columns:1fr;gap:clamp(2rem,4vw,3rem)}
+@media(min-width:768px){.testimonials{grid-template-columns:1fr 1fr}}
+
+.testimonial{position:relative;padding:clamp(2rem,4vw,3rem);border-left:2px solid rgba(255,255,255,.06);transition:border-color .5s}
+.testimonial:hover{border-color:var(--emerald)}
+.testimonial:first-child{grid-column:1/-1}
+@media(min-width:768px){
+.testimonial:first-child{padding:clamp(2.5rem,5vw,4rem)}
+.testimonial:first-child .testimonial__quote{font-size:clamp(1.3rem,1rem + 1.5vw,2rem)}
+}
+.testimonial__quote{font-size:clamp(1rem,.9rem + .4vw,1.2rem);color:var(--gray-light);line-height:1.7;font-weight:300;font-style:italic;margin-bottom:2rem;position:relative}
+.testimonial__quote::before{content:'"';font-family:var(--font-display);font-size:clamp(3rem,5vw,5rem);color:var(--emerald);opacity:.3;position:absolute;top:-.5em;left:0;line-height:1}
+.testimonial__author{display:flex;align-items:center;gap:1rem}
+.testimonial__avatar{width:2.5rem;height:2.5rem;border-radius:50%;background:linear-gradient(135deg,var(--emerald-dark),var(--gray-dark));flex-shrink:0}
+.testimonial__name{font-size:.85rem;font-weight:500;margin-bottom:.15rem}
+.testimonial__detail{font-family:var(--font-mono);font-size:.6rem;color:var(--gray);text-transform:uppercase;letter-spacing:.1em}
+
+/* ========== PRICING — TACTILE ========== */
+.pricing{background:var(--black);position:relative}
+.pricing__header{text-align:center;margin-bottom:clamp(3rem,6vw,5rem)}
+.pricing__title{font-family:var(--font-display);font-size:clamp(3rem,2rem + 6vw,7rem);line-height:.85;margin-bottom:1rem}
+.pricing__sub{color:var(--gray);font-weight:300;max-width:28rem;margin:0 auto;font-size:clamp(.9rem,.85rem + .2vw,1.05rem);line-height:1.7}
+
+.pricing__grid{display:grid;grid-template-columns:1fr;gap:clamp(1rem,2vw,1.5rem);max-width:72rem;margin:0 auto}
+@media(min-width:768px){.pricing__grid{grid-template-columns:1fr 1fr 1fr;align-items:start}}
+
+.price-card{border:1px solid var(--gray-dark);padding:clamp(2rem,3vw,2.5rem);border-radius:6px;position:relative;transition:border-color .5s,transform .5s cubic-bezier(.16,1,.3,1),box-shadow .5s;background:var(--black)}
+.price-card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-6px)}
+.price-card--featured{border-color:var(--emerald);background:linear-gradient(180deg,rgba(16,185,129,.04) 0%,var(--black) 60%);transform:scale(1.02)}
+@media(min-width:768px){.price-card--featured{transform:scale(1.05)}}
+.price-card--featured:hover{transform:scale(1.05) translateY(-6px);box-shadow:0 0 60px rgba(16,185,129,.1)}
+@media(min-width:768px){.price-card--featured:hover{transform:scale(1.08) translateY(-6px)}}
+
+.price-card__badge{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);font-family:var(--font-mono);font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--black);background:var(--emerald);padding:.3rem 1rem;border-radius:100px;white-space:nowrap}
+/* Subtle glow pulse on popular badge */
+.price-card__badge::before{content:'';position:absolute;inset:-4px;border-radius:100px;background:var(--emerald);opacity:.3;animation:badgePulse 2s ease-in-out infinite;z-index:-1}
+@keyframes badgePulse{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.5;transform:scale(1.1)}}
+
+.price__tier{font-family:var(--font-mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.2em;color:var(--gray);margin-bottom:1.5rem}
+.price__amount{font-family:var(--font-display);font-size:clamp(3rem,2.5rem + 2vw,4rem);color:var(--white);line-height:1;margin-bottom:.25rem}
+.price-card--featured .price__amount{color:var(--emerald)}
+.price__period{font-family:var(--font-mono);font-size:.6rem;color:var(--gray);text-transform:uppercase;letter-spacing:.15em;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.price__features{list-style:none;margin-bottom:2.5rem}
+.price__features li{color:var(--gray);font-size:.88rem;font-weight:300;padding:.6rem 0;display:flex;align-items:center;gap:.75rem}
+.price__features li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--emerald);flex-shrink:0}
+
+.price__btn{display:block;text-align:center;font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.2em;padding:1rem 1.5rem;border:1px solid var(--gray-dark);border-radius:100px;transition:all .4s cubic-bezier(.16,1,.3,1);cursor:none;position:relative;overflow:hidden}
+@media(pointer:coarse){.price__btn{cursor:pointer}}
+.price__btn::before{content:'';position:absolute;inset:0;background:var(--emerald);border-radius:100px;transform:translateY(100%);transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.price__btn:hover::before{transform:translateY(0)}
+.price__btn span{position:relative;z-index:1}
+.price__btn:hover span{color:var(--black)}
+.price-card--featured .price__btn{background:var(--emerald);border-color:var(--emerald);color:var(--black)}
+.price-card--featured .price__btn::before{background:var(--white)}
+.price-card--featured .price__btn:hover span{color:var(--black)}
+
+/* ========== FINAL CTA — THE CLOSER ========== */
+.final-cta{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--black);position:relative;overflow:hidden}
+.final-cta__bg{position:absolute;inset:0}
+.final-cta__bg-glow{position:absolute;width:80vw;height:80vw;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(16,185,129,.1) 0%,rgba(16,185,129,.03) 40%,transparent 70%);border-radius:50%}
+.final-cta__bg-lines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 100px,rgba(255,255,255,.015) 100px,rgba(255,255,255,.015) 101px)}
+.final-cta__content{position:relative;z-index:1;padding:0 clamp(1.5rem,5vw,4rem)}
+.final-cta__title{font-family:var(--font-display);font-size:clamp(3rem,2rem + 8vw,9rem);line-height:.85;margin-bottom:1.5rem}
+.final-cta__title em{font-style:normal;color:var(--emerald);position:relative}
+.final-cta__text{color:var(--gray);font-weight:300;margin-bottom:3rem;font-size:clamp(.95rem,.85rem + .4vw,1.15rem);max-width:30rem;margin-left:auto;margin-right:auto;line-height:1.7}
+.final-cta__buttons{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center}
+
+/* WhatsApp CTA — with glow */
+.btn-whatsapp{display:inline-flex;align-items:center;gap:.75rem;font-family:var(--font-mono);font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;color:var(--black);background:var(--emerald);padding:1.1rem 2.5rem;border-radius:100px;transition:all .4s cubic-bezier(.16,1,.3,1);border:none;cursor:none;position:relative}
+@media(pointer:coarse){.btn-whatsapp{cursor:pointer}}
+.btn-whatsapp::after{content:'';position:absolute;inset:-3px;border-radius:100px;background:var(--emerald);opacity:.25;filter:blur(15px);transition:opacity .4s,filter .4s;z-index:-1}
+.btn-whatsapp:hover{background:var(--white);transform:scale(1.05)}
+.btn-whatsapp:hover::after{opacity:.4;filter:blur(25px);background:var(--white)}
+
+.btn-dashboard{display:inline-flex;align-items:center;gap:.75rem;font-family:var(--font-mono);font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;color:var(--white);border:1px solid var(--gray-dark);padding:1.1rem 2.5rem;border-radius:100px;transition:all .4s cubic-bezier(.16,1,.3,1);cursor:none}
+@media(pointer:coarse){.btn-dashboard{cursor:pointer}}
+.btn-dashboard:hover{border-color:var(--white);transform:scale(1.05)}
+
+/* ========== FOOTER — MINIMAL PREMIUM ========== */
+.footer{padding:clamp(3rem,5vw,4rem) clamp(1.5rem,5vw,6rem);border-top:1px solid rgba(255,255,255,.06);background:var(--black)}
+.footer__inner{display:grid;grid-template-columns:1fr;gap:2rem}
+@media(min-width:768px){.footer__inner{grid-template-columns:1fr auto auto;align-items:start;gap:clamp(2rem,4vw,4rem)}}
+.footer__brand-col{}
+.footer__brand{font-family:var(--font-display);font-size:1.4rem;letter-spacing:.05em;margin-bottom:.5rem}
+.footer__location{font-family:var(--font-mono);font-size:.6rem;color:var(--gray);letter-spacing:.15em;text-transform:uppercase}
+
+.footer__links{display:flex;flex-direction:column;gap:.75rem}
+.footer__links a{font-family:var(--font-mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.15em;color:var(--gray);transition:color .3s;display:flex;align-items:center;gap:.5rem}
+.footer__links a:hover{color:var(--emerald)}
+.footer__links a::before{content:'';width:0;height:1px;background:var(--emerald);transition:width .3s}
+.footer__links a:hover::before{width:.75rem}
+
+.footer__social{display:flex;gap:1rem}
+.footer__social a{width:2.5rem;height:2.5rem;border:1px solid var(--gray-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .4s cubic-bezier(.16,1,.3,1);color:var(--gray)}
+.footer__social a:hover{border-color:var(--emerald);color:var(--emerald);transform:translateY(-3px)}
+.footer__social a svg{width:14px;height:14px}
+
+.footer__bottom{margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.04);display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem}
+.footer__copy{font-family:var(--font-mono);font-size:.55rem;color:var(--gray-dark);letter-spacing:.15em;text-transform:uppercase}
+.footer__credit{font-family:var(--font-mono);font-size:.55rem;color:var(--gray-dark);letter-spacing:.15em;text-transform:uppercase;transition:color .3s}
+.footer__credit:hover{color:var(--emerald)}
+.footer__credit a{color:inherit}
+
+/* ========== UTILS ========== */
+.reveal{opacity:0;transform:translateY(40px)}
+.reveal-left{opacity:0;transform:translateX(-40px)}
+.reveal-right{opacity:0;transform:translateX(40px)}
+.reveal-scale{opacity:0;transform:scale(.92)}
+.magnetic-wrap{display:inline-block}
+</style>
+</head>
+<body>
+
+<!-- GRAIN OVERLAY -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- PRELOADER -->
+<div class="preloader" id="preloader">
+  <div class="preloader__top">
+    <span class="preloader__brand">Moreta Fitness</span>
+    <span class="preloader__loading">Cargando</span>
+  </div>
+  <div class="preloader__bottom">
+    <span class="preloader__count" id="preloaderCount">0</span>
+    <span class="preloader__line">No hay atajos.<br>Solo trabajo real.</span>
+  </div>
+  <div class="preloader__bar" id="preloaderBar"></div>
+</div>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav__logo magnetic-wrap">MORE FITNESS</a>
+  <a href="https://wa.me/18091234567" class="nav__cta magnetic-wrap" target="_blank"><span>Contáctame</span></a>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero" id="hero">
+  <div class="hero__bg">
+    <div class="hero__bg-gradient"></div>
+    <div class="hero__bg-glow"></div>
+    <div class="hero__bg-glow2"></div>
+  </div>
+  <div class="hero__particles" id="heroParticles" aria-hidden="true"></div>
+  <div class="hero__streak hero__streak--1" aria-hidden="true"></div>
+  <div class="hero__streak hero__streak--2" aria-hidden="true"></div>
+  <div class="hero__content">
+    <div class="hero__tag">José Moreta — Santo Domingo, RD</div>
+    <h1 class="hero__title" id="heroTitle">
+      <span>NO HAY</span>
+      <span>ATAJOS</span>
+    </h1>
+    <p class="hero__sub">Entrenamiento personal que transforma tu cuerpo y tu mente. Sin fórmulas mágicas. Sin atajos. Solo trabajo real, guiado por alguien que conoce el camino.</p>
+    <a href="#why" class="hero__cta magnetic-wrap">
+      <span class="hero__cta-inner">
+        Empieza Tu Transformación
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </span>
+    </a>
+  </div>
+  <div class="hero__scroll">Scroll</div>
+</section>
+
+<!-- ==================== POR QUÉ — PINNACLE SECTION ==================== -->
+<section class="why-wrapper" id="why">
+  <div class="why">
+    <div class="why__container">
+      <div class="why__left">
+        <div class="section-tag">Filosofía</div>
+        <h2 class="why__question reveal" id="whyQuestion">¿Cuál es tu <em>por qué</em>?</h2>
+        <p class="why__intro reveal">Antes de diseñar tu primera rutina, antes de hablar de series y repeticiones — te voy a hacer una sola pregunta.</p>
+        <div class="why__reasons">
+          <div class="why__reason">
+            <div class="why__reason-inner">
+              <div class="why__reason-icon"></div>
+              <div class="why__reason-text">"Para mi hija"</div>
+            </div>
+          </div>
+          <div class="why__reason">
+            <div class="why__reason-inner">
+              <div class="why__reason-icon"></div>
+              <div class="why__reason-text">"Para sentirme vivo"</div>
+            </div>
+          </div>
+          <div class="why__reason">
+            <div class="why__reason-inner">
+              <div class="why__reason-icon"></div>
+              <div class="why__reason-text">"Porque me lo debo"</div>
+            </div>
+          </div>
+          <div class="why__reason">
+            <div class="why__reason-inner">
+              <div class="why__reason-icon"></div>
+              <div class="why__reason-text">"Para no rendirme nunca más"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="why__right">
+        <div class="why__visual">
+          <div class="why__visual-circle"></div>
+          <div class="why__visual-circle"></div>
+          <div class="why__visual-circle"></div>
+        </div>
+        <div class="why__visual-text">POR<br>QUÉ</div>
+      </div>
+    </div>
+    <div class="why__bottom-text reveal">
+      <p>No la respuesta fácil. No "quiero bajar de peso" o "quiero verme mejor". <strong>La respuesta real.</strong> La que te quita el sueño. La que te hizo abrir esta página a las 2 de la mañana.</p>
+      <p>Porque cuando conoces tu por qué, no hay excusa que te detenga. No hay día de lluvia, no hay cansancio, no hay "mañana empiezo". Tu por qué es tu combustible. Y juntos, lo vamos a encender.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ABOUT — EDITORIAL ==================== -->
+<section class="about" id="about">
+  <div class="about__layout">
+    <div class="about__image-col">
+      <div class="about__image" id="aboutImage">
+        <div class="about__image-overlay"></div>
+        <div class="about__image-initials">JM</div>
+      </div>
+    </div>
+    <div class="about__content-col">
+      <div class="section-tag">Sobre José</div>
+      <blockquote class="about__quote reveal">"No entreno cuerpos. Entreno personas. Y cada persona tiene una historia que merece ser escuchada."</blockquote>
+      <h2 class="about__name reveal">José<br>Moreta</h2>
+      <div class="about__role reveal">Entrenador Personal · Fundador</div>
+      <div class="about__bio reveal">
+        <p>Más de una década dedicado a esto. No empecé en un gimnasio con luces LED y música de fondo — empecé en un parque con una barra de dominadas y la convicción de que el cuerpo humano es capaz de cosas extraordinarias.</p>
+        <p>Hoy, cada cliente que entreno llega con una historia. Algunos quieren recuperar la confianza que perdieron. Otros necesitan un escape. Mi trabajo no es solo diseñar rutinas — es entender tu historia y construir algo que funcione para ti.</p>
+      </div>
+      <div class="about__stats reveal">
+        <div class="stat">
+          <div class="stat__number"><span data-count="10">0</span><span class="stat__suffix">+</span></div>
+          <div class="stat__label">Años de<br>experiencia</div>
+        </div>
+        <div class="stat">
+          <div class="stat__number"><span data-count="500">0</span><span class="stat__suffix">+</span></div>
+          <div class="stat__label">Clientes<br>transformados</div>
+        </div>
+        <div class="stat">
+          <div class="stat__number"><span data-count="15000">0</span><span class="stat__suffix">+</span></div>
+          <div class="stat__label">Sesiones<br>completadas</div>
+        </div>
+      </div>
+      <div class="about__timeline reveal">
+        <div class="timeline__item">
+          <div class="timeline__year">2014</div>
+          <div class="timeline__event">Primeras sesiones en el parque</div>
+        </div>
+        <div class="timeline__item">
+          <div class="timeline__year">2017</div>
+          <div class="timeline__event">Certificación en kickboxing</div>
+        </div>
+        <div class="timeline__item">
+          <div class="timeline__year">2020</div>
+          <div class="timeline__event">Lanzamiento coaching online</div>
+        </div>
+        <div class="timeline__item">
+          <div class="timeline__year">2024</div>
+          <div class="timeline__event">Plataforma digital Moreta.fit</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SERVICES — MAGAZINE CHAPTERS ==================== -->
+<section class="services" id="services">
+  <div class="services__header" style="padding:0 clamp(1.5rem,5vw,6rem)">
+    <div>
+      <div class="section-tag">Servicios</div>
+      <h2 class="services__title reveal">Lo que<br>hacemos</h2>
+    </div>
+    <p class="services__intro reveal">Tres caminos. Un solo estándar: excelencia sin excusas.</p>
+  </div>
+
+  <div class="service-chapter" data-service>
+    <div class="service-chapter__inner">
+      <div class="service-chapter__content">
+        <div class="service-chapter__number">01</div>
+        <h3 class="service-chapter__name reveal">Entrenamiento<br>Personalizado</h3>
+        <p class="service-chapter__desc reveal">Cada programa nace de tu realidad — tu cuerpo, tu tiempo, tus limitaciones, tus metas. Evaluación inicial completa, seguimiento semanal, ajustes constantes. Tu evolución es el único KPI que importa.</p>
+        <a href="https://wa.me/18091234567?text=Quiero%20saber%20sobre%20entrenamiento%20personalizado" class="service-chapter__link reveal" target="_blank">
+          Empezar ahora
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="service-chapter__visual">
+        <div class="service-chapter__visual-bg" style="background:linear-gradient(135deg,rgba(16,185,129,.08),var(--black))"></div>
+        <div class="service-chapter__visual-icon">01</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="service-chapter" data-service>
+    <div class="service-chapter__inner">
+      <div class="service-chapter__content">
+        <div class="service-chapter__number">02</div>
+        <h3 class="service-chapter__name reveal">Kickboxing</h3>
+        <p class="service-chapter__desc reveal">No solo quema calorías — transforma tu mentalidad. Cada golpe que tiras es una conversación con tu disciplina. Técnica real, desde principiantes hasta peleadores que quieren pulir su juego.</p>
+        <a href="https://wa.me/18091234567?text=Quiero%20saber%20sobre%20kickboxing" class="service-chapter__link reveal" target="_blank">
+          Empezar ahora
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="service-chapter__visual">
+        <div class="service-chapter__visual-bg" style="background:linear-gradient(135deg,rgba(255,255,255,.03),var(--emerald-dark))"></div>
+        <div class="service-chapter__visual-icon">02</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="service-chapter" data-service>
+    <div class="service-chapter__inner">
+      <div class="service-chapter__content">
+        <div class="service-chapter__number">03</div>
+        <h3 class="service-chapter__name reveal">Coaching<br>Online</h3>
+        <p class="service-chapter__desc reveal">Para los que no están en Santo Domingo — o prefieren entrenar en su espacio. Programación completa, videollamadas de seguimiento, y acceso al dashboard digital. La distancia no es excusa.</p>
+        <a href="https://wa.me/18091234567?text=Quiero%20saber%20sobre%20coaching%20online" class="service-chapter__link reveal" target="_blank">
+          Empezar ahora
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="service-chapter__visual">
+        <div class="service-chapter__visual-bg" style="background:linear-gradient(135deg,var(--gray-dark),#0a1a0f)"></div>
+        <div class="service-chapter__visual-icon">03</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== RESULTS / TESTIMONIALS ==================== -->
+<section class="results" id="results">
+  <div class="results__header">
+    <div class="section-tag">Resultados</div>
+    <h2 class="results__title reveal">Ellos ya encontraron<br>su <em style="font-style:normal;color:var(--emerald)">por qué</em></h2>
+    <p class="results__sub reveal">Historias reales de personas que decidieron invertir en sí mismas.</p>
+  </div>
+
+  <!-- Before/After strip -->
+  <div class="results__strip" id="resultsStrip">
+    <div class="result-card" data-result>
+      <div class="result-card__visual">
+        <div class="result-card__before"></div>
+        <div class="result-card__after"></div>
+        <span class="result-card__label result-card__label--before">Antes</span>
+        <span class="result-card__label result-card__label--after">Después</span>
+      </div>
+      <div class="result-card__name">Pedro L.</div>
+      <div class="result-card__detail">-18kg en 6 meses</div>
+    </div>
+    <div class="result-card" data-result>
+      <div class="result-card__visual">
+        <div class="result-card__before" style="background:linear-gradient(180deg,#2a2a2a,var(--black))"></div>
+        <div class="result-card__after" style="background:linear-gradient(180deg,var(--emerald),#0a1a0f)"></div>
+        <span class="result-card__label result-card__label--before">Antes</span>
+        <span class="result-card__label result-card__label--after">Después</span>
+      </div>
+      <div class="result-card__name">María R.</div>
+      <div class="result-card__detail">Ganó confianza y fuerza</div>
+    </div>
+    <div class="result-card" data-result>
+      <div class="result-card__visual">
+        <div class="result-card__before" style="background:linear-gradient(180deg,#1a1a2a,var(--black))"></div>
+        <div class="result-card__after" style="background:linear-gradient(180deg,#059669,#0a0a0a)"></div>
+        <span class="result-card__label result-card__label--before">Antes</span>
+        <span class="result-card__label result-card__label--after">Después</span>
+      </div>
+      <div class="result-card__name">Carlos M.</div>
+      <div class="result-card__detail">-15kg · disciplina total</div>
+    </div>
+    <div class="result-card" data-result>
+      <div class="result-card__visual">
+        <div class="result-card__before" style="background:linear-gradient(180deg,#222,var(--black))"></div>
+        <div class="result-card__after" style="background:linear-gradient(180deg,#10b981,#111)"></div>
+        <span class="result-card__label result-card__label--before">Antes</span>
+        <span class="result-card__label result-card__label--after">Después</span>
+      </div>
+      <div class="result-card__name">Ana P.</div>
+      <div class="result-card__detail">Kickboxing · 8 meses</div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testimonials">
+    <div class="testimonial reveal">
+      <p class="testimonial__quote">Llegué sin saber qué quería. José me hizo una pregunta que nadie me había hecho: ¿por qué quieres cambiar? Desde ese día, no he faltado a un solo entrenamiento.</p>
+      <div class="testimonial__author">
+        <div class="testimonial__avatar"></div>
+        <div>
+          <div class="testimonial__name">María R.</div>
+          <div class="testimonial__detail">6 meses entrenando</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial reveal">
+      <p class="testimonial__quote">Probé con tres entrenadores antes. La diferencia con José es que no te vende un plan — te construye uno. Bajé 15 kilos, pero gané algo más importante: disciplina.</p>
+      <div class="testimonial__author">
+        <div class="testimonial__avatar" style="background:linear-gradient(135deg,var(--emerald),var(--gray-dark))"></div>
+        <div>
+          <div class="testimonial__name">Carlos M.</div>
+          <div class="testimonial__detail">1 año entrenando</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial reveal">
+      <p class="testimonial__quote">El kickboxing con José me devolvió la confianza que no sabía que había perdido. Es más que un entrenador — es alguien que genuinamente le importa tu proceso.</p>
+      <div class="testimonial__author">
+        <div class="testimonial__avatar" style="background:linear-gradient(135deg,var(--gray-dark),var(--emerald-dark))"></div>
+        <div>
+          <div class="testimonial__name">Ana P.</div>
+          <div class="testimonial__detail">8 meses entrenando</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PRICING ==================== -->
+<section class="pricing" id="pricing">
+  <div class="pricing__header">
+    <div class="section-tag" style="justify-content:center">Paquetes</div>
+    <h2 class="pricing__title reveal">Invierte en ti</h2>
+    <p class="pricing__sub reveal">Sin contratos largos. Sin letra pequeña. Solo resultados.</p>
+  </div>
+
+  <div class="pricing__grid">
+    <div class="price-card reveal">
+      <div class="price__tier">Inicio</div>
+      <div class="price__amount">RD$4,500</div>
+      <div class="price__period">4 sesiones</div>
+      <ul class="price__features">
+        <li>Evaluación física inicial</li>
+        <li>Plan personalizado</li>
+        <li>4 sesiones de 1 hora</li>
+        <li>Seguimiento por WhatsApp</li>
+      </ul>
+      <a href="https://wa.me/18091234567?text=Quiero%20el%20paquete%20Inicio" class="price__btn magnetic-wrap" target="_blank"><span>Comenzar</span></a>
+    </div>
+
+    <div class="price-card price-card--featured reveal">
+      <div class="price-card__badge">Popular</div>
+      <div class="price__tier">Transformación</div>
+      <div class="price__amount">RD$10,000</div>
+      <div class="price__period">12 sesiones</div>
+      <ul class="price__features">
+        <li>Evaluación completa</li>
+        <li>Plan personalizado + nutrición</li>
+        <li>12 sesiones de 1 hora</li>
+        <li>Acceso al dashboard digital</li>
+        <li>Seguimiento semanal</li>
+      </ul>
+      <a href="https://wa.me/18091234567?text=Quiero%20el%20paquete%20Transformación" class="price__btn magnetic-wrap" target="_blank"><span>Comenzar</span></a>
+    </div>
+
+    <div class="price-card reveal">
+      <div class="price__tier">Elite</div>
+      <div class="price__amount">RD$22,000</div>
+      <div class="price__period">30 sesiones</div>
+      <ul class="price__features">
+        <li>Evaluación completa</li>
+        <li>Plan integral personalizado</li>
+        <li>30 sesiones de 1 hora</li>
+        <li>Dashboard digital completo</li>
+        <li>Soporte 24/7</li>
+        <li>Ajustes ilimitados</li>
+      </ul>
+      <a href="https://wa.me/18091234567?text=Quiero%20el%20paquete%20Elite" class="price__btn magnetic-wrap" target="_blank"><span>Comenzar</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FINAL CTA ==================== -->
+<section class="final-cta" id="cta">
+  <div class="final-cta__bg">
+    <div class="final-cta__bg-glow"></div>
+    <div class="final-cta__bg-lines"></div>
+  </div>
+  <div class="final-cta__content">
+    <div class="section-tag" style="justify-content:center">El primer paso</div>
+    <h2 class="final-cta__title reveal">Tu Transformación<br>Empieza <em>Hoy</em></h2>
+    <p class="final-cta__text reveal">No mañana. No el lunes. No en enero. El mejor momento para empezar fue hace un año. El segundo mejor momento es ahora.</p>
+    <div class="final-cta__buttons reveal">
+      <a href="https://wa.me/18091234567?text=Quiero%20empezar%20mi%20transformación" class="btn-whatsapp magnetic-wrap" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.359 0-4.542-.815-6.262-2.18l-.438-.357-3.2 1.073 1.073-3.2-.357-.438A9.956 9.956 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+        Escríbeme por WhatsApp
+      </a>
+      <a href="/app" class="btn-dashboard magnetic-wrap">
+        Ir al Dashboard
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand-col">
+      <div class="footer__brand">MORE FITNESS | MORETA</div>
+      <div class="footer__location">Santo Domingo, República Dominicana</div>
+    </div>
+    <div class="footer__links">
+      <a href="#about">Sobre José</a>
+      <a href="#services">Servicios</a>
+      <a href="#pricing">Paquetes</a>
+      <a href="/app">Dashboard</a>
+    </div>
+    <div class="footer__social">
+      <a href="https://instagram.com/moreta.fit" target="_blank" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="https://wa.me/18091234567" target="_blank" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.359 0-4.542-.815-6.262-2.18l-.438-.357-3.2 1.073 1.073-3.2-.357-.438A9.956 9.956 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <span class="footer__copy">© 2026 More Fitness | Moreta</span>
+    <span class="footer__credit"><a href="https://arcova.dev" target="_blank">Designed by Arcova</a></span>
+  </div>
+</footer>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@latest/dist/lenis.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ===== LENIS SMOOTH SCROLL ===== */
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smoothWheel: true,
+});
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(time => lenis.raf(time * 1000));
+gsap.ticker.lagSmoothing(0);
+
+// Stop scroll during preloader
+lenis.stop();
+
+/* ===== PRELOADER ===== */
+const preloader = document.getElementById('preloader');
+const preloaderCount = document.getElementById('preloaderCount');
+const preloaderBar = document.getElementById('preloaderBar');
+
+const preloaderTl = gsap.timeline({
+  onComplete: () => {
+    gsap.to(preloader, {
+      clipPath: 'inset(0 0 100% 0)',
+      duration: .9,
+      ease: 'power4.inOut',
+      onComplete: () => {
+        preloader.style.display = 'none';
+        lenis.start();
+        initAnimations();
+      }
+    });
+  }
+});
+
+preloaderTl.to({val:0}, {
+  val: 100,
+  duration: 2.4,
+  ease: 'power2.inOut',
+  onUpdate: function() {
+    const v = Math.round(this.targets()[0].val);
+    preloaderCount.textContent = v;
+    preloaderBar.style.width = v + '%';
+  }
+});
+
+/* ===== CUSTOM CURSOR ===== */
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursorFollower');
+const isFine = window.matchMedia('(pointer:fine)').matches;
+
+if (cursor && follower && isFine) {
+  let mx = 0, my = 0;
+  window.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    gsap.to(cursor, {x: mx, y: my, duration: .08, overwrite: true});
+    gsap.to(follower, {x: mx, y: my, duration: .2, overwrite: true});
+  });
+
+  // Hover states
+  document.querySelectorAll('a, button, .service-chapter, .price-card, .testimonial').forEach(el => {
+    el.addEventListener('mouseenter', () => follower.classList.add('hover'));
+    el.addEventListener('mouseleave', () => follower.classList.remove('hover'));
+  });
+
+  // Magnetic buttons
+  document.querySelectorAll('.magnetic-wrap').forEach(el => {
+    el.addEventListener('mousemove', e => {
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      gsap.to(el, {x: x * .3, y: y * .3, duration: .3, ease: 'power2.out'});
+    });
+    el.addEventListener('mouseleave', () => {
+      gsap.to(el, {x: 0, y: 0, duration: .5, ease: 'elastic.out(1, .4)'});
+    });
+  });
+}
+
+/* ===== PARTICLES ===== */
+(function createParticles() {
+  const container = document.getElementById('heroParticles');
+  if (!container) return;
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = Math.random() * 100 + '%';
+    container.appendChild(p);
+    gsap.to(p, {
+      opacity: Math.random() * .4 + .1,
+      y: -100 - Math.random() * 200,
+      x: (Math.random() - .5) * 100,
+      duration: 4 + Math.random() * 6,
+      repeat: -1,
+      delay: Math.random() * 5,
+      ease: 'none',
+    });
+  }
+})();
+
+/* ===== MAIN ANIMATIONS ===== */
+function initAnimations() {
+  // Hero entrance
+  const heroTl = gsap.timeline();
+  heroTl
+    .from('.hero__tag', {opacity:0, x:-30, duration:.6, ease:'power3.out'})
+    .from('.hero__title span', {opacity:0, y:100, stagger:.15, duration:1, ease:'power3.out'}, '<0.15')
+    .from('.hero__sub', {opacity:0, y:30, duration:.6, ease:'power3.out'}, '<0.3')
+    .from('.hero__cta', {opacity:0, y:20, duration:.5, ease:'power3.out'}, '<0.2')
+    .from('.hero__scroll', {opacity:0, duration:.6}, '<0.3')
+    .from('.hero__streak--1', {opacity:0, scaleY:0, transformOrigin:'top', duration:1.2, ease:'power2.out'}, '<0.2')
+    .from('.hero__streak--2', {opacity:0, scaleY:0, transformOrigin:'top', duration:1, ease:'power2.out'}, '<0.3');
+
+  // Hero parallax
+  gsap.to('.hero__bg', {yPercent:-20, ease:'none', scrollTrigger:{trigger:'.hero', start:'top top', end:'bottom top', scrub:true}});
+  gsap.to('.hero__content', {yPercent:15, opacity:.3, ease:'none', scrollTrigger:{trigger:'.hero', start:'top top', end:'bottom top', scrub:true}});
+
+  // ===== REVEAL ELEMENTS =====
+  gsap.utils.toArray('.reveal').forEach(el => {
+    gsap.from(el, {
+      opacity:0, y:50, duration:.8, ease:'power3.out',
+      scrollTrigger:{trigger:el, start:'top 88%', toggleActions:'play none none none'}
+    });
+  });
+
+  // ===== POR QUÉ SECTION =====
+  // Sticky pin
+  ScrollTrigger.create({
+    trigger: '.why',
+    start: 'top top',
+    end: '+=80%',
+    pin: true,
+    pinSpacing: true,
+  });
+
+  // Question underline
+  ScrollTrigger.create({
+    trigger: '#whyQuestion',
+    start: 'top 70%',
+    onEnter: () => document.getElementById('whyQuestion').classList.add('active'),
+  });
+
+  // Reasons reveal stagger
+  gsap.utils.toArray('.why__reason-inner').forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1, y: 0, duration: .7, ease: 'power3.out',
+      delay: i * .15,
+      scrollTrigger: {trigger: '.why__reasons', start: 'top 80%'}
+    });
+  });
+
+  // Visual circles pulse
+  gsap.utils.toArray('.why__visual-circle').forEach((c, i) => {
+    gsap.to(c, {
+      scale: 1 + (i * .05),
+      opacity: .5 + i * .2,
+      duration: 3 + i,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
+      delay: i * .5,
+    });
+  });
+
+  // ===== ABOUT SECTION =====
+  // Grayscale to color
+  ScrollTrigger.create({
+    trigger: '#aboutImage',
+    start: 'top 60%',
+    onEnter: () => document.getElementById('aboutImage').classList.add('color'),
+    onLeaveBack: () => document.getElementById('aboutImage').classList.remove('color'),
+  });
+
+  // Number counters
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    gsap.from(el, {
+      textContent: 0,
+      duration: 2.2,
+      ease: 'power2.out',
+      snap: {textContent: 1},
+      scrollTrigger: {trigger: el, start: 'top 85%'},
+      modifiers: {
+        textContent: v => {
+          const n = Math.round(parseFloat(v));
+          return target >= 1000 ? n.toLocaleString() : String(n);
+        }
+      }
+    });
+  });
+
+  // About parallax on image
+  gsap.to('.about__image-initials', {
+    yPercent: -30,
+    ease: 'none',
+    scrollTrigger: {trigger: '.about', start: 'top bottom', end: 'bottom top', scrub: true}
+  });
+
+  // ===== SERVICES — clip-path reveals =====
+  document.querySelectorAll('.service-chapter').forEach(chapter => {
+    ScrollTrigger.create({
+      trigger: chapter,
+      start: 'top 70%',
+      onEnter: () => chapter.classList.add('revealed'),
+    });
+  });
+
+  // ===== RESULTS — before/after reveal =====
+  document.querySelectorAll('[data-result]').forEach((card, i) => {
+    ScrollTrigger.create({
+      trigger: card,
+      start: 'top 80%',
+      onEnter: () => {
+        setTimeout(() => card.classList.add('revealed'), i * 200);
+      }
+    });
+  });
+
+  // Testimonials stagger
+  gsap.utils.toArray('.testimonial').forEach((t, i) => {
+    gsap.from(t, {
+      opacity: 0, y: 50, duration: .7, ease: 'power3.out', delay: i * .12,
+      scrollTrigger: {trigger: t, start: 'top 88%'}
+    });
+  });
+
+  // ===== PRICING cards =====
+  gsap.utils.toArray('.price-card').forEach((c, i) => {
+    gsap.from(c, {
+      opacity: 0, y: 50, scale: .94, duration: .7, ease: 'power3.out', delay: i * .12,
+      scrollTrigger: {trigger: c, start: 'top 88%'}
+    });
+  });
+
+  // ===== FINAL CTA parallax =====
+  gsap.to('.final-cta__bg-glow', {
+    scale: 1.4,
+    ease: 'none',
+    scrollTrigger: {trigger: '.final-cta', start: 'top bottom', end: 'bottom top', scrub: true}
+  });
+
+  // Footer links entrance
+  gsap.from('.footer__inner > *', {
+    opacity: 0, y: 20, stagger: .1, duration: .6, ease: 'power3.out',
+    scrollTrigger: {trigger: '.footer', start: 'top 90%'}
+  });
+}
+
+// Smooth scroll anchor links (via Lenis)
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) lenis.scrollTo(target, {offset: 0, duration: 1.2});
+  });
+});
+</script>
+</body>
+</html>

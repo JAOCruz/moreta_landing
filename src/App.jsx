@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import gsap from 'gsap';
 import { supabase } from './lib/supabase';
 import { getMonday } from './constants/schedule';
+import { ToastProvider, useToast } from './components/ui/Toast';
 
 // Hooks
 import { useAuth } from './hooks/useAuth';
@@ -287,10 +288,11 @@ export default function App() {
     : null;
 
   return (
+    <ToastProvider>
     <div className="min-h-screen bg-[#050505] text-white flex font-inter selection:bg-white selection:text-black">
       <Styles />
       <div className="fixed inset-0 tactical-grid opacity-10 pointer-events-none"></div>
-      <Sidebar activeView={activeView} onViewChange={handleViewChange} onLogout={handleLogout} userRole={userRole} />
+      <Sidebar activeView={activeView} onViewChange={handleViewChange} onLogout={handleLogout} userRole={userRole} overdueCount={payments.filter(p => p.status === 'atrasado' || p.status === 'pendiente').length} />
 
       <main className="flex-1 h-screen overflow-y-auto relative">
         <div ref={viewRef} className="p-4 sm:p-6 lg:p-12 pb-28 md:pb-12 opacity-100">
@@ -398,5 +400,6 @@ export default function App() {
         onFillMonth={(pattern) => handleFillMonth(pattern, currentWeekStart, session.user.id)}
       />
     </div>
+    </ToastProvider>
   );
 }

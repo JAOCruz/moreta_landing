@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Mail, Calendar, TrendingUp, MessageSquare, Heart, Target, AlertTriangle, Shield, Save } from 'lucide-react';
+import gsap from 'gsap';
 import { ProgressView } from './ProgressView';
 import { supabase } from '../../lib/supabase';
 
 export const ClientDetailView = ({ client, onBack }) => {
   const [activeTab, setActiveTab] = useState('overview');
-  // These fields come from client_profiles (may be pre-merged by ClientsView)
   const [porQue, setPorQue] = useState(client.motivation_notes || '');
   const [goalType, setGoalType] = useState(client.goal_type || 'general');
   const [injuryHistory, setInjuryHistory] = useState(
@@ -16,16 +16,14 @@ export const ClientDetailView = ({ client, onBack }) => {
   const [clientProfileId, setClientProfileId] = useState(client._client_profile_id || null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const contentRef = useRef(null);
+  const tabIndicatorRef = useRef(null);
+  const tabsContainerRef = useRef(null);
 
-  // Fetch client_profile data on mount if not pre-merged
   useEffect(() => {
     if (!client._client_profile_id) {
       (async () => {
-        const { data } = await supabase
-          .from('client_profiles')
-          .select('*')
-          .eq('user_id', client.id)
-          .single();
+        const { data } = await supabase.from('client_profiles').select('*').eq('user_id', client.id).single();
         if (data) {
           setClientProfileId(data.id);
           setPorQue(data.motivation_notes || '');
@@ -38,13 +36,35 @@ export const ClientDetailView = ({ client, onBack }) => {
     }
   }, [client.id]);
 
+  // Animate tab content on change
+  useEffect(() => {
+    if (contentRef.current) {
+      gsap.fromTo(contentRef.current,
+        { opacity: 0, x: 12 },
+        { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out' }
+      );
+    }
+    updateTabIndicator();
+  }, [activeTab]);
+
+  const updateTabIndicator = () => {
+    if (!tabsContainerRef.current || !tabIndicatorRef.current) return;
+    const activeBtn = tabsContainerRef.current.querySelector(`[data-tab="${activeTab}"]`);
+    if (activeBtn) {
+      const containerRect = tabsContainerRef.current.getBoundingClientRect();
+      const btnRect = activeBtn.getBoundingClientRect();
+      gsap.to(tabIndicatorRef.current, {
+        left: btnRect.left - containerRect.left,
+        width: btnRect.width,
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    }
+  };
+
   const handleSaveProfile = async () => {
     setSaving(true);
-    // Parse injuries back into array
-    const injuriesArray = injuryHistory
-      ? injuryHistory.split(',').map(s => s.trim()).filter(Boolean)
-      : [];
-
+    const injuriesArray = injuryHistory ? injuryHistory.split(',').map(s => s.trim()).filter(Boolean) : [];
     const updateData = {
       motivation_notes: porQue,
       goal_type: goalType,
@@ -56,16 +76,9 @@ export const ClientDetailView = ({ client, onBack }) => {
 
     let error;
     if (clientProfileId) {
-      // Update existing client_profile
-      ({ error } = await supabase
-        .from('client_profiles')
-        .update(updateData)
-        .eq('id', clientProfileId));
+      ({ error } = await supabase.from('client_profiles').update(updateData).eq('id', clientProfileId));
     } else {
-      // Upsert: create client_profile if it doesn't exist
-      ({ error } = await supabase
-        .from('client_profiles')
-        .upsert({ user_id: client.id, ...updateData }, { onConflict: 'user_id' }));
+      ({ error } = await supabase.from('client_profiles').upsert({ user_id: client.id, ...updateData }, { onConflict: 'user_id' }));
     }
 
     setSaving(false);
@@ -89,7 +102,7 @@ export const ClientDetailView = ({ client, onBack }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-4">
-        <button onClick={onBack} className="p-2 border border-white/10 hover:bg-white/5 transition-all btn-press">
+        <button onClick={onBack} className="p-2 border border-white/10 hover:bg-white/5 hover:border-white/20 transition-all btn-press hover:scale-105">
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
@@ -106,8 +119,8 @@ export const ClientDetailView = ({ client, onBack }) => {
         </div>
       </div>
 
-      {/* Por Qué — THE KEY INSIGHT */}
-      <div className="glass-panel p-4 sm:p-5 md:p-6 border-l-2 border-emerald-500/50">
+      {/* Por Qué — THE KEY INSIGHT (Premium accent) */}
+      <div className="por-que-accent glass-panel p-4 sm:p-5 md:p-6">
         <div className="flex items-center gap-2 mb-3">
           <Heart size={14} className="text-emerald-400" />
           <span className="font-mono-tech text-[10px] text-emerald-400 uppercase tracking-[0.2em] font-bold">¿Por Qué Entrena?</span>
@@ -117,22 +130,22 @@ export const ClientDetailView = ({ client, onBack }) => {
           onChange={(e) => setPorQue(e.target.value)}
           placeholder="Why is this client training? Their deeper motivation..."
           rows={2}
-          className="w-full bg-transparent border border-white/10 p-3 font-mono-tech text-sm text-white placeholder-neutral-700 resize-none"
+          className="w-full bg-transparent border border-white/10 p-3 font-mono-tech text-sm text-white placeholder-neutral-700 resize-none focus:border-emerald-500/30 transition-colors"
         />
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-white/10 overflow-x-auto">
+      {/* Tabs with sliding indicator */}
+      <div ref={tabsContainerRef} className="flex gap-1 border-b border-white/10 overflow-x-auto relative">
+        <div ref={tabIndicatorRef} className="absolute bottom-0 h-[2px] bg-emerald-500 tab-indicator" style={{ left: 0, width: 0, boxShadow: '0 0 8px rgba(52,211,153,0.4)' }} />
         {tabs.map(tab => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
+              data-tab={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 font-mono-tech text-xs uppercase tracking-widest transition-all whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'text-emerald-500 border-b-2 border-emerald-500'
-                  : 'text-neutral-500 hover:text-white'
+                activeTab === tab.id ? 'text-emerald-500' : 'text-neutral-500 hover:text-white'
               }`}
             >
               <Icon size={14} />{tab.label}
@@ -141,105 +154,88 @@ export const ClientDetailView = ({ client, onBack }) => {
         })}
       </div>
 
-      {/* Overview */}
-      {activeTab === 'overview' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Goal Type */}
-            <div className="glass-panel p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Target size={14} className="text-neutral-400" />
-                <span className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-[0.2em]">Goal Type</span>
+      {/* Tab Content with slide animation */}
+      <div ref={contentRef}>
+        {/* Overview */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="glass-panel p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target size={14} className="text-neutral-400" />
+                  <span className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-[0.2em]">Goal Type</span>
+                </div>
+                <select value={goalType} onChange={(e) => setGoalType(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 p-3 font-mono-tech text-sm text-white hover:border-white/20 transition-colors">
+                  <option value="general">General Fitness</option>
+                  <option value="aesthetic">Aesthetic / Body Composition</option>
+                  <option value="health">Health / Medical</option>
+                  <option value="performance">Athletic Performance</option>
+                  <option value="rehabilitation">Rehabilitation</option>
+                </select>
               </div>
-              <select
-                value={goalType}
-                onChange={(e) => setGoalType(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 p-3 font-mono-tech text-sm text-white"
-              >
-                <option value="general">General Fitness</option>
-                <option value="aesthetic">Aesthetic / Body Composition</option>
-                <option value="health">Health / Medical</option>
-                <option value="performance">Athletic Performance</option>
-                <option value="rehabilitation">Rehabilitation</option>
-              </select>
+
+              <div className="glass-panel p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Shield size={14} className="text-neutral-400" />
+                  <span className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-[0.2em]">Experience Level</span>
+                </div>
+                <select value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 p-3 font-mono-tech text-sm text-white hover:border-white/20 transition-colors">
+                  <option value="beginner">Beginner (0-6 months)</option>
+                  <option value="intermediate">Intermediate (6-24 months)</option>
+                  <option value="advanced">Advanced (2+ years)</option>
+                </select>
+              </div>
             </div>
 
-            {/* Experience Level */}
             <div className="glass-panel p-5">
               <div className="flex items-center gap-2 mb-3">
-                <Shield size={14} className="text-neutral-400" />
-                <span className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-[0.2em]">Experience Level</span>
+                <AlertTriangle size={14} className="text-amber-400" />
+                <span className="font-mono-tech text-[9px] text-amber-400 uppercase tracking-[0.2em]">Injury History / Limitations</span>
               </div>
-              <select
-                value={experienceLevel}
-                onChange={(e) => setExperienceLevel(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 p-3 font-mono-tech text-sm text-white"
-              >
-                <option value="beginner">Beginner (0-6 months)</option>
-                <option value="intermediate">Intermediate (6-24 months)</option>
-                <option value="advanced">Advanced (2+ years)</option>
-              </select>
+              <textarea value={injuryHistory} onChange={(e) => setInjuryHistory(e.target.value)}
+                placeholder="Any injuries, limitations, or medical conditions to be aware of..."
+                rows={3}
+                className="w-full bg-transparent border border-white/10 p-3 font-mono-tech text-sm text-white placeholder-neutral-700 resize-none focus:border-amber-500/30 transition-colors"
+              />
             </div>
+
+            <button onClick={handleSaveProfile} disabled={saving}
+              className={`flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 font-mono-tech text-[10px] uppercase tracking-widest font-bold transition-all btn-press ${
+                saved ? 'bg-emerald-500 text-black' : 'bg-white text-black hover:bg-emerald-400'
+              }`}>
+              <Save size={14} />
+              {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Profile'}
+            </button>
           </div>
+        )}
 
-          {/* Injury History */}
-          <div className="glass-panel p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertTriangle size={14} className="text-amber-400" />
-              <span className="font-mono-tech text-[9px] text-amber-400 uppercase tracking-[0.2em]">Injury History / Limitations</span>
+        {/* Progress */}
+        {activeTab === 'progress' && <ProgressView userId={client.id} />}
+
+        {/* Notes */}
+        {activeTab === 'notes' && (
+          <div className="glass-panel p-6 sm:p-8">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare size={14} className="text-neutral-400" />
+              <span className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-[0.2em]">Coach Notes</span>
             </div>
-            <textarea
-              value={injuryHistory}
-              onChange={(e) => setInjuryHistory(e.target.value)}
-              placeholder="Any injuries, limitations, or medical conditions to be aware of..."
-              rows={3}
-              className="w-full bg-transparent border border-white/10 p-3 font-mono-tech text-sm text-white placeholder-neutral-700 resize-none"
+            <textarea value={coachNotes} onChange={(e) => setCoachNotes(e.target.value)}
+              placeholder="Private notes about this client..."
+              rows={8}
+              className="w-full bg-transparent border border-white/10 p-4 font-mono-tech text-sm text-white placeholder-neutral-700 resize-none focus:border-white/20 transition-colors"
             />
+            <button onClick={handleSaveProfile} disabled={saving}
+              className={`mt-4 flex items-center gap-2 px-6 py-2 font-mono-tech text-[10px] uppercase tracking-widest font-bold transition-all btn-press ${
+                saved ? 'bg-emerald-500 text-black' : 'bg-white text-black hover:bg-emerald-400'
+              }`}>
+              <Save size={14} />
+              {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Notes'}
+            </button>
           </div>
-
-          {/* Save Button */}
-          <button
-            onClick={handleSaveProfile}
-            disabled={saving}
-            className={`flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3 font-mono-tech text-[10px] uppercase tracking-widest font-bold transition-all btn-press ${
-              saved ? 'bg-emerald-500 text-black' : 'bg-white text-black hover:bg-emerald-400'
-            }`}
-          >
-            <Save size={14} />
-            {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Profile'}
-          </button>
-        </div>
-      )}
-
-      {/* Progress */}
-      {activeTab === 'progress' && <ProgressView userId={client.id} />}
-
-      {/* Notes */}
-      {activeTab === 'notes' && (
-        <div className="glass-panel p-6 sm:p-8">
-          <div className="flex items-center gap-2 mb-4">
-            <MessageSquare size={14} className="text-neutral-400" />
-            <span className="font-mono-tech text-[9px] text-neutral-500 uppercase tracking-[0.2em]">Coach Notes</span>
-          </div>
-          <textarea
-            value={coachNotes}
-            onChange={(e) => setCoachNotes(e.target.value)}
-            placeholder="Private notes about this client..."
-            rows={8}
-            className="w-full bg-transparent border border-white/10 p-4 font-mono-tech text-sm text-white placeholder-neutral-700 resize-none"
-          />
-          <button
-            onClick={handleSaveProfile}
-            disabled={saving}
-            className={`mt-4 flex items-center gap-2 px-6 py-2 font-mono-tech text-[10px] uppercase tracking-widest font-bold transition-all btn-press ${
-              saved ? 'bg-emerald-500 text-black' : 'bg-white text-black hover:bg-emerald-400'
-            }`}
-          >
-            <Save size={14} />
-            {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Notes'}
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -9,7 +9,7 @@ export const FinancialSummaryCard = ({ title, value, subtitle, icon: Icon, trend
   };
 
   return (
-    <div className="glass-panel p-4 border border-white/10 hover:border-white/20 transition-colors">
+    <div className="glass-panel p-4 border border-white/10 magnetic-hover cursor-default">
       <div className="flex items-start justify-between mb-3">
         <div className={`p-2 bg-white/5 border ${colorClasses[color]}`}>
           <Icon size={20} className={colorClasses[color].split(' ')[0]} />

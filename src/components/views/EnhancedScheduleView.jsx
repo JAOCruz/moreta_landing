@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Layout, Info } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Layout, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import gsap from 'gsap';
 import { DAYS, HOURS } from '../../constants/schedule';
 import { supabase } from '../../lib/supabase';
 
@@ -14,10 +15,21 @@ export const EnhancedScheduleView = ({
 }) => {
   const [sessionTypes, setSessionTypes] = useState([]);
   const [sessionTypesMap, setSessionTypesMap] = useState(new Map());
+  const gridRef = useRef(null);
 
   useEffect(() => {
     fetchSessionTypes();
   }, []);
+
+  // Animate grid on week change
+  useEffect(() => {
+    if (gridRef.current) {
+      gsap.fromTo(gridRef.current,
+        { opacity: 0, x: 10 },
+        { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }
+      );
+    }
+  }, [currentWeekStart]);
 
   const fetchSessionTypes = async () => {
     const { data, error } = await supabase
@@ -37,29 +49,29 @@ export const EnhancedScheduleView = ({
     <div className="mb-20">
       {/* Header Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 px-1 gap-3">
-        <div className="flex flex-wrap gap-2 sm:gap-4">
+        <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
           <button
             onClick={() => onWeekChange(-7)}
-            className="px-3 sm:px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-[10px] sm:text-xs text-neutral-400 hover:text-white transition-colors min-h-[44px]"
+            className="p-2.5 border border-white/10 hover:bg-white/5 hover:border-white/20 text-neutral-400 hover:text-white transition-all min-h-[44px] btn-press"
           >
-            {'< PREV'}
-          </button>
-          <button
-            onClick={() => onWeekChange(7)}
-            className="px-3 sm:px-4 py-2 border border-white/10 hover:bg-white/5 font-mono-tech text-[10px] sm:text-xs text-neutral-400 hover:text-white transition-colors min-h-[44px]"
-          >
-            {'NEXT >'}
+            <ChevronLeft size={18} />
           </button>
           <button
             onClick={() => onWeekChange(0)}
-            className="px-3 sm:px-4 py-2 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 font-mono-tech text-[10px] sm:text-xs text-emerald-500 hover:text-emerald-400 transition-colors min-h-[44px]"
+            className="px-4 py-2 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 font-mono-tech text-[10px] sm:text-xs text-emerald-500 hover:text-emerald-400 transition-all min-h-[44px] btn-press"
           >
             TODAY
+          </button>
+          <button
+            onClick={() => onWeekChange(7)}
+            className="p-2.5 border border-white/10 hover:bg-white/5 hover:border-white/20 text-neutral-400 hover:text-white transition-all min-h-[44px] btn-press"
+          >
+            <ChevronRight size={18} />
           </button>
           {userRole === 'admin' && (
             <button
               onClick={onBulkOps}
-              className="px-3 sm:px-4 py-2 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 font-mono-tech text-[10px] sm:text-xs text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-2 min-h-[44px]"
+              className="px-3 sm:px-4 py-2 border border-yellow-500/30 bg-yellow-500/10 hover:bg-yellow-500/20 font-mono-tech text-[10px] sm:text-xs text-yellow-500 hover:text-yellow-400 transition-all flex items-center gap-2 min-h-[44px] btn-press"
             >
               <Layout size={14} />
               <span className="hidden sm:inline">BULK OPS</span>
@@ -84,7 +96,7 @@ export const EnhancedScheduleView = ({
             {sessionTypes.map((type) => (
               <div
                 key={type.id}
-                className="flex items-center gap-2 px-3 py-1 border rounded-none"
+                className="flex items-center gap-2 px-3 py-1 border rounded-none transition-all hover:scale-105"
                 style={{
                   backgroundColor: `${type.color}15`,
                   borderColor: `${type.color}40`
@@ -107,7 +119,7 @@ export const EnhancedScheduleView = ({
       )}
 
       {/* Schedule Grid */}
-      <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+      <div ref={gridRef} className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
       <div className="grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[80px_repeat(7,1fr)] gap-1 sm:gap-2 min-w-[640px]">
         <div className="h-12"></div>
         {DAYS.map(day => (
@@ -150,9 +162,9 @@ export const EnhancedScheduleView = ({
 
                 let style = "bg-neutral-900/10 border border-white/5 opacity-50 hover:opacity-100";
                 let textColor = "text-neutral-500";
+                let shadowStyle = {};
 
                 if (session) {
-                  // Use session type color if available
                   const baseColor = sessionType?.color || '#10b981';
 
                   if (userRole === 'admin') {
@@ -163,6 +175,7 @@ export const EnhancedScheduleView = ({
                     } else if (count < cap) {
                       style = "bg-yellow-500/10 border border-yellow-500/50 opacity-100";
                       textColor = "text-yellow-500";
+                      shadowStyle = { boxShadow: 'inset 0 -2px 8px rgba(234,179,8,0.05)' };
                     } else {
                       style = "bg-red-500/10 border border-red-500/50 opacity-100";
                       textColor = "text-red-500";
@@ -171,6 +184,7 @@ export const EnhancedScheduleView = ({
                     if (isJoined) {
                       style = `bg-emerald-500/20 border border-emerald-500 opacity-100 ring-1 ring-emerald-500/50`;
                       textColor = "text-emerald-500";
+                      shadowStyle = { boxShadow: '0 0 16px -4px rgba(52,211,153,0.2)' };
                     } else if (count >= cap) {
                       style = "bg-red-500/10 border border-red-500/20 opacity-100 cursor-not-allowed";
                       textColor = "text-red-500/50";
@@ -191,12 +205,12 @@ export const EnhancedScheduleView = ({
                     className={`h-14 sm:h-16 transition-all active:scale-95 group relative flex flex-col items-center justify-center p-1 text-center overflow-hidden ${style} ${session ? 'cursor-pointer' : ''}`}
                     style={sessionType ? {
                       backgroundColor: `${sessionType.color}10`,
-                      borderColor: count >= cap ? '#ef4444' : count > 0 ? '#eab308' : `${sessionType.color}50`
-                    } : {}}
+                      borderColor: count >= cap ? '#ef4444' : count > 0 ? '#eab308' : `${sessionType.color}50`,
+                      ...shadowStyle
+                    } : shadowStyle}
                   >
                     {session ? (
                       <>
-                        {/* Session Type Indicator */}
                         {sessionType && (
                           <div
                             className="absolute top-0 left-0 right-0 h-1"
@@ -204,19 +218,23 @@ export const EnhancedScheduleView = ({
                           />
                         )}
 
-                        {/* Capacity Display */}
+                        {/* Active session pulse */}
+                        {count > 0 && count < cap && (
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ background: `radial-gradient(circle, ${sessionType?.color || '#10b981'}08, transparent 70%)` }}
+                          />
+                        )}
+
                         <span className={`font-bebas text-lg tracking-widest ${textColor}`}>
                           {count} <span className="text-[10px] opacity-50">/ {cap}</span>
                         </span>
 
-                        {/* Session Type Name */}
                         {sessionType && (
                           <span className="font-mono-tech text-[7px] uppercase tracking-widest opacity-70 truncate max-w-full px-1">
                             {sessionType.name}
                           </span>
                         )}
 
-                        {/* Status Label */}
                         <span className={`font-mono-tech text-[7px] uppercase tracking-widest opacity-70 ${textColor}`}>
                           {userRole === 'client' && isJoined
                             ? "JOINED"

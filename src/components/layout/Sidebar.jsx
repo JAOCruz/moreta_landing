@@ -1,16 +1,22 @@
+import { useState, useRef, useEffect } from 'react';
 import {
   Home, Clock, Dumbbell, DollarSign, Settings, LogOut,
   ClipboardList, TrendingUp, Users, Sliders
 } from 'lucide-react';
+import gsap from 'gsap';
 
-export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
+export const Sidebar = ({ activeView, onViewChange, onLogout, userRole, overdueCount = 0 }) => {
+  const indicatorRef = useRef(null);
+  const navRef = useRef(null);
+  const mobileIndicatorRef = useRef(null);
+
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Home' },
     { id: 'schedule', icon: Clock, label: 'Schedule' },
     ...(userRole === 'admin' ? [
       { id: 'builder', icon: Dumbbell, label: 'Builder' },
       { id: 'clients', icon: Users, label: 'Clients' },
-      { id: 'finance', icon: DollarSign, label: 'Finance' },
+      { id: 'finance', icon: DollarSign, label: 'Finance', badge: overdueCount > 0 ? overdueCount : null },
       { id: 'admin_settings', icon: Sliders, label: 'Business' }
     ] : []),
     ...(userRole === 'client' ? [
@@ -19,6 +25,22 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
     ] : []),
     { id: 'settings', icon: Settings, label: 'Settings' }
   ];
+
+  // Animate desktop indicator on view change
+  useEffect(() => {
+    if (!navRef.current || !indicatorRef.current) return;
+    const activeBtn = navRef.current.querySelector(`[data-view="${activeView}"]`);
+    if (activeBtn) {
+      const navRect = navRef.current.getBoundingClientRect();
+      const btnRect = activeBtn.getBoundingClientRect();
+      gsap.to(indicatorRef.current, {
+        top: btnRect.top - navRect.top,
+        height: btnRect.height,
+        duration: 0.35,
+        ease: 'power2.out'
+      });
+    }
+  }, [activeView, menuItems.length]);
 
   return (
     <>
@@ -32,24 +54,39 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
           {userRole === 'client' && <span className="hidden lg:block font-mono-tech text-[9px] text-blue-500 uppercase tracking-widest mt-2">OPERATIVE ACCESS</span>}
         </div>
 
-        <nav className="flex-1 space-y-1 px-2 lg:px-3">
+        <nav ref={navRef} className="flex-1 space-y-1 px-2 lg:px-3 relative">
+          {/* Sliding active indicator */}
+          <div
+            ref={indicatorRef}
+            className="absolute right-0 w-[2px] bg-emerald-400 transition-none z-10"
+            style={{ boxShadow: '0 0 12px rgba(52,211,153,0.6)', height: 0 }}
+          />
+
           {menuItems.map((item) => (
             <button
               key={item.id}
+              data-view={item.id}
               onClick={() => onViewChange(item.id)}
               className={`w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 lg:py-4 transition-all group relative btn-press ${
                 activeView === item.id
-                  ? 'bg-white/5 text-white'
-                  : 'text-neutral-500 hover:text-white hover:bg-white/5'
+                  ? 'bg-white/5 text-white sidebar-active-glow'
+                  : 'text-neutral-500 hover:text-white hover:bg-white/[0.03]'
               }`}
             >
-              <item.icon size={18} className={activeView === item.id ? 'text-emerald-400' : ''} />
+              <div className="relative">
+                <item.icon
+                  size={18}
+                  className={`transition-all duration-300 ${activeView === item.id ? 'text-emerald-400 nav-icon-glow' : 'group-hover:scale-110'}`}
+                />
+                {item.badge && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-[8px] font-bold text-white flex items-center justify-center rounded-full animate-pulse">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
               <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.15em]">
                 {item.label}
               </span>
-              {activeView === item.id && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[2px] h-6 bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]"></div>
-              )}
             </button>
           ))}
         </nav>
@@ -59,7 +96,7 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
             onClick={onLogout}
             className="w-full flex items-center justify-center lg:justify-start gap-4 px-3 lg:px-4 py-3 lg:py-4 text-neutral-600 hover:text-red-500 transition-all group btn-press"
           >
-            <LogOut size={18} />
+            <LogOut size={18} className="group-hover:scale-110 transition-transform" />
             <span className="hidden lg:block font-mono-tech text-[10px] uppercase tracking-[0.15em]">Log Out</span>
           </button>
         </div>
@@ -72,14 +109,24 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
             <button
               key={item.id}
               onClick={() => onViewChange(item.id)}
-              className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-h-[44px] min-w-[44px] transition-all btn-press ${
+              className={`flex flex-col items-center justify-center gap-1 py-2 px-3 min-h-[44px] min-w-[44px] transition-all btn-press relative ${
                 activeView === item.id ? 'text-white' : 'text-neutral-600'
               }`}
             >
-              <item.icon size={20} className={activeView === item.id ? 'text-emerald-400' : ''} />
+              <div className="relative">
+                <item.icon
+                  size={20}
+                  className={`transition-all duration-300 ${activeView === item.id ? 'text-emerald-400 nav-icon-glow' : ''}`}
+                />
+                {item.badge && (
+                  <span className="absolute -top-1 -right-2 w-4 h-4 bg-red-500 text-[7px] font-bold text-white flex items-center justify-center rounded-full">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
               <span className="font-mono-tech text-[8px] uppercase tracking-wider">{item.label}</span>
               {activeView === item.id && (
-                <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"></div>
+                <div className="w-1 h-1 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 8px rgba(52,211,153,0.8)' }} />
               )}
             </button>
           ))}
@@ -90,10 +137,13 @@ export const Sidebar = ({ activeView, onViewChange, onLogout, userRole }) => {
                 activeView === 'settings' || menuItems.slice(5).some(m => m.id === activeView) ? 'text-white' : 'text-neutral-600'
               }`}
             >
-              <Settings size={20} className={activeView === 'settings' || menuItems.slice(5).some(m => m.id === activeView) ? 'text-emerald-400' : ''} />
+              <Settings
+                size={20}
+                className={`transition-all duration-300 ${activeView === 'settings' || menuItems.slice(5).some(m => m.id === activeView) ? 'text-emerald-400 nav-icon-glow' : ''}`}
+              />
               <span className="font-mono-tech text-[8px] uppercase tracking-wider">More</span>
               {(activeView === 'settings' || menuItems.slice(5).some(m => m.id === activeView)) && (
-                <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"></div>
+                <div className="w-1 h-1 rounded-full bg-emerald-400" style={{ boxShadow: '0 0 8px rgba(52,211,153,0.8)' }} />
               )}
             </button>
           )}

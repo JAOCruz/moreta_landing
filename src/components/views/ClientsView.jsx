@@ -1,25 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Users, TrendingUp, Calendar, Mail, Phone, Target, AlertCircle } from 'lucide-react';
+import gsap from 'gsap';
 import { supabase } from '../../lib/supabase';
 import { SectionHeader } from '../ui/SectionHeader';
+import { SkeletonGrid } from '../ui/Skeleton';
 
 export const ClientsView = ({ onSelectClient }) => {
   const [clients, setClients] = useState([]);
   const [clientStats, setClientStats] = useState({});
   const [clientPayments, setClientPayments] = useState({});
   const [loading, setLoading] = useState(true);
-  const [staggerReady, setStaggerReady] = useState(false);
+  const gridRef = useRef(null);
 
   useEffect(() => {
     fetchClients();
   }, []);
 
+  // GSAP stagger reveal when loaded
   useEffect(() => {
-    if (!loading) {
-      const timer = setTimeout(() => setStaggerReady(true), 100);
-      return () => clearTimeout(timer);
+    if (!loading && gridRef.current) {
+      const cards = gridRef.current.querySelectorAll('.client-card');
+      gsap.fromTo(cards,
+        { opacity: 0, y: 20, scale: 0.97 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.06, ease: 'power3.out' }
+      );
     }
-  }, [loading]);
+  }, [loading, clients.length]);
 
   const fetchClients = async () => {
     const { data: profiles, error } = await supabase
@@ -29,19 +35,12 @@ export const ClientsView = ({ onSelectClient }) => {
 
     if (error) {
       console.error('❌ Error fetching clients:', error);
-      alert('Error loading clients: ' + error.message);
     }
 
     if (!error && profiles) {
-      // Fetch client_profiles and merge into profile objects
-      const { data: clientProfiles } = await supabase
-        .from('client_profiles')
-        .select('*');
-
+      const { data: clientProfiles } = await supabase.from('client_profiles').select('*');
       const cpMap = {};
-      if (clientProfiles) {
-        clientProfiles.forEach(cp => { cpMap[cp.user_id] = cp; });
-      }
+      if (clientProfiles) clientProfiles.forEach(cp => { cpMap[cp.user_id] = cp; });
 
       const mergedClients = profiles.map(p => {
         const cp = cpMap[p.id] || {};
@@ -61,7 +60,6 @@ export const ClientsView = ({ onSelectClient }) => {
 
       setClients(mergedClients);
 
-      // Fetch payments to show status badges
       const { data: allPayments } = await supabase.from('payments').select('*');
       if (allPayments) {
         const paymentMap = {};
@@ -73,7 +71,6 @@ export const ClientsView = ({ onSelectClient }) => {
         setClientPayments(paymentMap);
       }
 
-      // Fetch stats for each client
       profiles.forEach(async (client) => {
         const [measRes, workoutRes, sessionRes] = await Promise.all([
           supabase.from('body_measurements').select('id').eq('user_id', client.id),
@@ -100,33 +97,21 @@ export const ClientsView = ({ onSelectClient }) => {
   };
 
   const getPaymentStatus = (client) => {
-    // Check by client_id first, then by name
     const payments = clientPayments[client.id] ||
       clientPayments[client.display_name] ||
       clientPayments[client.email?.split('@')[0]] || [];
-
     if (payments.length === 0) return null;
     const hasOverdue = payments.some(p => p.status === 'atrasado' || p.status === 'pendiente');
-    const latestPaid = payments.some(p => p.status === 'pagado');
-
     if (hasOverdue) return 'overdue';
-    if (latestPaid) return 'paid';
+    if (payments.some(p => p.status === 'pagado')) return 'paid';
     return null;
   };
 
-  const stagger = (i) => ({
-    opacity: staggerReady ? 1 : 0,
-    transform: staggerReady ? 'translateY(0)' : 'translateY(16px)',
-    transition: `opacity 0.4s ease ${i * 0.06}s, transform 0.4s ease ${i * 0.06}s`
-  });
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-emerald-500 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="font-mono-tech text-xs text-neutral-500">Loading clients...</p>
-        </div>
+      <div className="space-y-6">
+        <SectionHeader number="CLNT" title="Client Management" />
+        <SkeletonGrid count={6} cols={3} />
       </div>
     );
   }
@@ -143,8 +128,8 @@ export const ClientsView = ({ onSelectClient }) => {
       </div>
 
       {/* Client Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        {clients.map((client, i) => {
+      <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {clients.map((client) => {
           const stats = clientStats[client.id] || { measurements: 0, workouts: 0, sessions: 0 };
           const paymentStatus = getPaymentStatus(client);
           const displayName = client.display_name || client.email?.split('@')[0];
@@ -152,27 +137,31 @@ export const ClientsView = ({ onSelectClient }) => {
           return (
             <div
               key={client.id}
-              style={stagger(i)}
-              className="glass-panel p-5 sm:p-6 border border-white/10 card-hover cursor-pointer group"
+              className="client-card glass-panel p-5 sm:p-6 border border-white/10 cursor-pointer group opacity-0 transition-all duration-300 hover:border-emerald-500/25"
               onClick={() => onSelectClient(client)}
+              style={{ transformOrigin: 'center bottom' }}
             >
+              {/* Hover depth effect */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at top, rgba(52,211,153,0.03), transparent 70%)' }}
+              />
+
               {/* Client Header */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-4 relative">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold text-lg text-white group-hover:text-emerald-400 transition-colors truncate">
                       {displayName}
                     </h3>
-                    {/* Payment Status Badge */}
                     {paymentStatus === 'overdue' && (
                       <span className="flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400 text-[8px] font-mono-tech uppercase">
-                        <span className="status-dot danger" style={{width:4,height:4}}></span>
+                        <span className="status-dot danger" style={{width:4,height:4}} />
                         Debe
                       </span>
                     )}
                     {paymentStatus === 'paid' && (
                       <span className="flex-shrink-0 flex items-center gap-1 px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[8px] font-mono-tech uppercase">
-                        <span className="status-dot live" style={{width:4,height:4}}></span>
+                        <span className="status-dot live" style={{width:4,height:4}} />
                         Al día
                       </span>
                     )}
@@ -187,7 +176,7 @@ export const ClientsView = ({ onSelectClient }) => {
                     </p>
                   )}
                 </div>
-                <div className="h-10 w-10 bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 ml-2">
+                <div className="h-10 w-10 bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 ml-2 group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all">
                   <span className="font-bebas text-xl text-emerald-500">
                     {(displayName || 'U')[0].toUpperCase()}
                   </span>
@@ -196,18 +185,16 @@ export const ClientsView = ({ onSelectClient }) => {
 
               {/* Stats Grid */}
               <div className="grid grid-cols-3 gap-2 mb-4">
-                <div className="text-center p-2.5 bg-white/5 border border-white/5">
-                  <div className="font-bebas text-xl text-white">{stats.sessions}</div>
-                  <div className="font-mono-tech text-[7px] text-neutral-600 uppercase">Sessions</div>
-                </div>
-                <div className="text-center p-2.5 bg-white/5 border border-white/5">
-                  <div className="font-bebas text-xl text-white">{stats.workouts}</div>
-                  <div className="font-mono-tech text-[7px] text-neutral-600 uppercase">Workouts</div>
-                </div>
-                <div className="text-center p-2.5 bg-white/5 border border-white/5">
-                  <div className="font-bebas text-xl text-white">{stats.measurements}</div>
-                  <div className="font-mono-tech text-[7px] text-neutral-600 uppercase">Check-ins</div>
-                </div>
+                {[
+                  { val: stats.sessions, label: 'Sessions' },
+                  { val: stats.workouts, label: 'Workouts' },
+                  { val: stats.measurements, label: 'Check-ins' },
+                ].map(stat => (
+                  <div key={stat.label} className="text-center p-2.5 bg-white/[0.03] border border-white/5 group-hover:border-white/10 transition-colors">
+                    <div className="font-bebas text-xl text-white">{stat.val}</div>
+                    <div className="font-mono-tech text-[7px] text-neutral-600 uppercase">{stat.label}</div>
+                  </div>
+                ))}
               </div>
 
               {/* Footer */}
